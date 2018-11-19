@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <!--[if lte IE 9]><meta http-equiv="refresh" content="0;url=http://outdatedbrowser.com/it"><![endif]-->
+  <title>Configurazione SOMMM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- <noscript><meta http-equiv="refresh" content="0;url=./noscript.php"></noscript> --> <!-- Qualcosa per noscript! -->
+  <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script>window.onload = function () { if (!window.jQuery) alert("La libreria JQuery non si è caricata correttamente. Non sarà possibile utilizzare le funzionalità del sito!"); };</script>
+</head>
+<body>
+  <div id="navbar">
+    <div id="logo"></div>
+  </div>
+  <div id="container">
+    <form id="send">
+      <p class="title_1">Configurazione WiFi</p>
+      <div id="rete_wireless">
+        <!--SSID-->
+        <p class="title" style="padding-top:1.5rem;">WiFi SSID</p>
+        <input type="text" name="FirstName" value="" class="long" id="net_ssid" required>
+        <!--PSWD-->
+        <p class="title">WiFi Password</p>
+        <input type="text" name="FirstName" value="" class="long" id="net_pswd" required>
+      </div>
+      <p class="title_1">Configurazione IP</p>
+      <div class="box" style="left:5%;">
+        <input type="checkbox" id="net_static" name="net_static" class="static">
+        <label class="label">statico</label>
+      </div>
+      <!--NET_IP-->
+      <div id="indirizzo_ip">
+        <p class="title" style="padding-top:1.5rem;">Indirizzo IP</p>
+        <div class="box">
+          <input type="text" name="FirstName" value="" class="casella" id="net_ip_0">
+          <input type="text" name="FirstName" value="" class="casella" id="net_ip_1">
+          <input type="text" name="FirstName" value="" class="casella" id="net_ip_2">
+          <input type="text" name="FirstName" value="" class="casella" id="net_ip_3">
+        </div>
+        <!--NET_SM-->
+        <p class="title">Subnet Mask</p>
+        <div class="box">
+          <input type="text" name="FirstName" value="" class="casella" id="net_sm_0">
+          <input type="text" name="FirstName" value="" class="casella" id="net_sm_1">
+          <input type="text" name="FirstName" value="" class="casella" id="net_sm_2">
+          <input type="text" name="FirstName" value="" class="casella" id="net_sm_3">
+        </div>
+        <!--NET_DFGW-->
+        <p class="title">Default Gateway</p>
+        <div class="box">
+          <input type="text" name="FirstName" value="" class="casella" id="net_dfgw_0">
+          <input type="text" name="FirstName" value="" class="casella" id="net_dfgw_1">
+          <input type="text" name="FirstName" value="" class="casella" id="net_dfgw_2">
+          <input type="text" name="FirstName" value="" class="casella" id="net_dfgw_3">
+        </div>
+        <!--NET_DNS-->
+        <p class="title">Indirizzo DNS</p>
+        <div class="box" style="padding-bottom:1.5rem;">
+          <input type="text" name="FirstName" value="" class="casella" id="net_dns_0">
+          <input type="text" name="FirstName" value="" class="casella" id="net_dns_1">
+          <input type="text" name="FirstName" value="" class="casella" id="net_dns_2">
+          <input type="text" name="FirstName" value="" class="casella" id="net_dns_3">
+        </div>
+      </div>
+      <p class="title_1">Sensore</p>
+      <div id="sensore">
+        <!-- aula -->
+        <p class="title" style="padding-top:1.5rem;">Stanza</p>
+        <input type="text" value="" class="long" id="aula">
+        <!-- api_url -->
+        <p class="title">API Url</p>
+        <input type="text" value="" class="long" id="api_url">
+      </div>
+      <div class="box" style="padding-top:1.5rem;">
+        <input type="submit" id="save" value="Salva">
+      </div>
+  </div>
+  </form>
+  <script>
+    $(function () { // On document ready
+      $("#net_static").change(function () {
+        $(this).prop("checked") ? $("#indirizzo_ip").show() : $("#indirizzo_ip").hide();
+      });
+
+      $("#send").submit(function (e) {
+        e.preventDefault();
+
+        // Delay time tolto, per ora
+        net_ssid = $("#net_ssid").val();
+        net_pswd = $("#net_pswd").val();
+
+        net_static = $("#net_static").prop("checked") ? "1" : "0";
+
+        net_ip_0 = $("#net_ip_0").val();
+        net_ip_1 = $("#net_ip_1").val();
+        net_ip_2 = $("#net_ip_2").val();
+        net_ip_3 = $("#net_ip_3").val();
+
+        net_dns_0 = $("#net_dns_0").val();
+        net_dns_1 = $("#net_dns_1").val();
+        net_dns_2 = $("#net_dns_2").val();
+        net_dns_3 = $("#net_dns_3").val();
+
+        net_dfgw_0 = $("#net_dfgw_0").val();
+        net_dfgw_1 = $("#net_dfgw_1").val();
+        net_dfgw_2 = $("#net_dfgw_2").val();
+        net_dfgw_3 = $("#net_dfgw_3").val();
+
+        net_sm_0 = $("#net_sm_0").val();
+        net_sm_1 = $("#net_sm_1").val();
+        net_sm_2 = $("#net_sm_2").val();
+        net_sm_3 = $("#net_sm_3").val();
+
+        aula = $("#aula").val();
+        api_url = $("#api_url").val();
+
+        var params = {net_ssid: net_ssid, net_pswd: net_pswd, net_ip_0: net_ip_0, net_ip_1: net_ip_1, net_ip_2: net_ip_2, net_ip_3: net_ip_3, net_dns_0: net_dns_0, net_dns_1: net_dns_1, net_dns_2: net_dns_2, net_dns_3: net_dns_3, net_dfgw_0: net_dfgw_0, net_dfgw_1: net_dfgw_1, net_dfgw_2: net_dfgw_2, net_dfgw_3: net_dfgw_3, net_sm_0: net_sm_0, net_sm_1: net_sm_1, net_sm_2: net_sm_2, net_sm_3: net_sm_3, net_static: net_static, aula: aula, api_url: api_url};
+        console.log(params);
+
+        $.get('/save', params, function (data) {
+          console.log(data)
+        })
+      });
+
+    })
+  </script>
+</body>
+</html>
