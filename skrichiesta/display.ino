@@ -87,6 +87,15 @@ void table()
   ePaper.setCursor(368, 42);
   ePaper.println("L142");
 
+
+  //Disegno i separatori
+
+  ePaper.fillRect(355, 115, 280, 2, GxEPD_BLACK);
+  ePaper.fillRect(355, 170, 280, 2, GxEPD_BLACK);
+  ePaper.fillRect(355, 225, 280, 2, GxEPD_BLACK);
+  ePaper.fillRect(355, 280, 280, 2, GxEPD_BLACK);
+  ePaper.fillRect(355, 335, 280, 2, GxEPD_BLACK);
+
   
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ò
   //Parte di sinistra
