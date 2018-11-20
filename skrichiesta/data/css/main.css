@@ -32,11 +32,15 @@ body{
     margin: auto;
     width: 90%;
     background-color:#ffffff;
-    border-radius: 5px;
+    border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
 
+#send {
+    margin: 2rem;
+}
 
+/*
 .title{
     position: relative;
     margin-top: 5%;
@@ -152,4 +156,4 @@ body{
     width: 90%;
     background-color:#eeeeee;
     border-radius: 1rem;
-}
+}*/

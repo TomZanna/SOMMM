@@ -20,16 +20,16 @@
       <p class="title_1">Configurazione WiFi</p>
       <div id="rete_wireless">
         <!--SSID-->
-        <p class="title" style="padding-top:1.5rem;">WiFi SSID</p>
-        <input type="text" name="FirstName" value="" class="long" id="net_ssid" required>
+        <!--<p class="title" style="padding-top:1.5rem;">WiFi SSID</p>-->
+        <label for="net_ssid">WIFI ssid </label><input type="text" name="FirstName" value="" class="long" id="net_ssid" required>
         <!--PSWD-->
-        <p class="title">WiFi Password</p>
-        <input type="text" name="FirstName" value="" class="long" id="net_pswd" required>
+        <!--<p class="title">WiFi Password</p>-->
+        <label for="net_pswd">Wifi Password </label><input type="text" name="FirstName" value="" class="long" id="net_pswd" required>
       </div>
       <p class="title_1">Configurazione IP</p>
       <div class="box" style="left:5%;">
-        <input type="checkbox" id="net_static" name="net_static" class="static">
-        <label class="label">statico</label>
+        <label for="net_static">Statico</label><input type="checkbox" id="net_static" name="net_static" class="static">
+        <!--<label class="label">statico</label>-->
       </div>
       <!--NET_IP-->
       <div id="indirizzo_ip">
@@ -68,11 +68,13 @@
       <p class="title_1">Sensore</p>
       <div id="sensore">
         <!-- aula -->
-        <p class="title" style="padding-top:1.5rem;">Stanza</p>
-        <input type="text" value="" class="long" id="aula">
+        <!--<p class="title" style="padding-top:1.5rem;">Stanza</p>-->
+        <label for="aula">Aula/Laboratorio </label><input type="text" value="" class="long" id="aula">
+        <br>
+        <br>
         <!-- api_url -->
-        <p class="title">API Url</p>
-        <input type="text" value="" class="long" id="api_url">
+        <!--<p class="title">API Url</p>-->
+        <label for="api_url">API Url </label><input type="text" value="" class="long" id="api_url">
       </div>
       <div class="box" style="padding-top:1.5rem;">
         <input type="submit" id="save" value="Salva">
