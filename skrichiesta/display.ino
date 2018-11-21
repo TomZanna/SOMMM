@@ -62,6 +62,7 @@ void communication()
   ePaper.println(mex_2);
 }
 
+
 /**
  * Modalità di visualizzazione dell'orario preso da marconi tt
  * @ page_mode 2
@@ -84,7 +85,7 @@ void table()
   ePaper.setFont(f);
   ePaper.setTextColor(GxEPD_WHITE);
 
-  ePaper.setCursor(368, 42);
+  ePaper.setCursor(363, 42);
   ePaper.println("L142");
 
 
@@ -95,6 +96,181 @@ void table()
   ePaper.fillRect(355, 225, 280, 2, GxEPD_BLACK);
   ePaper.fillRect(355, 280, 280, 2, GxEPD_BLACK);
   ePaper.fillRect(355, 335, 280, 2, GxEPD_BLACK);
+
+  // Disegno le informazioni ora per ora
+
+  if(oraAttuale != 0 && oraAttuale < 7){
+
+  //#######################################################################
+  // Primo Blocco
+
+  f = &Roboto_Regular10pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(363,82);
+  ePaper.println("Merzi Tiziano"); //primo professore
+
+  ePaper.setCursor(363,107);
+  ePaper.println("Bileddo Antonino"); // secondoi professore
+
+  f = &Roboto_Regular12pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(522,107);
+  ePaper.println("LTPI"); // Materia 
+
+  f = &Roboto_Regular18pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(575,107);
+  ePaper.println("5AI"); // Classe
+
+
+  //#######################################################################
+  // Secondo Blocco
+
+  f = &Roboto_Regular10pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(363,137);
+  ePaper.println("Merzi Tiziano"); //primo professore
+
+  ePaper.setCursor(363,162);
+  ePaper.println("Bileddo Antonino"); // secondoi professore
+
+  f = &Roboto_Regular12pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(522,162);
+  ePaper.println("LTPI"); // Materia 
+
+  f = &Roboto_Regular18pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(575,162);
+  ePaper.println("5AI"); // Classe
+
+  //#######################################################################
+  // Terzo Blocco
+
+  f = &Roboto_Regular10pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(363,192);
+  ePaper.println("Merzi Tiziano"); //primo professore
+
+  ePaper.setCursor(363,217);
+  ePaper.println("Bileddo Antonino"); // secondoi professore
+
+  f = &Roboto_Regular12pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(522,217);
+  ePaper.println("LTPI"); // Materia 
+
+  f = &Roboto_Regular18pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(575,217);
+  ePaper.println("5AI"); // Classe
+  
+  //#######################################################################
+  // Quarto Blocco
+
+  f = &Roboto_Regular10pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(363,247);
+  ePaper.println("Merzi Tiziano"); //primo professore
+
+  ePaper.setCursor(363,272);
+  ePaper.println("Bileddo Antonino"); // secondoi professore
+
+  f = &Roboto_Regular12pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(522,272);
+  ePaper.println("LTPI"); // Materia 
+
+  f = &Roboto_Regular18pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(575,272);
+  ePaper.println("5AI"); // Classe
+
+  //#######################################################################
+  // Quinto Blocco
+
+  f = &Roboto_Regular10pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(363,302);
+  ePaper.println("Merzi Tiziano"); //primo professore
+
+  ePaper.setCursor(363,327);
+  ePaper.println("Bileddo Antonino"); // secondoi professore
+
+  f = &Roboto_Regular12pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(522,327);
+  ePaper.println("LTPI"); // Materia 
+
+  f = &Roboto_Regular18pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(575,327);
+  ePaper.println("5AI"); // Classe
+
+  //#######################################################################
+  // Sesto Blocco
+
+  f = &Roboto_Regular10pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(363,357);
+  ePaper.println("Merzi Tiziano"); //primo professore
+
+  ePaper.setCursor(363,382);
+  ePaper.println("Bileddo Antonino"); // secondoi professore
+
+  f = &Roboto_Regular12pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(522,382);
+  ePaper.println("LTPI"); // Materia 
+
+  f = &Roboto_Regular18pt7b;
+  ePaper.setFont(f);
+  ePaper.setTextColor(GxEPD_BLACK);
+
+  ePaper.setCursor(575,382);
+  ePaper.println("5AI"); // Classe
+
+
+
+
+  }
+  
+
+
 
   
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ò
@@ -149,6 +325,7 @@ void table()
   ePaper.setFont(f);
 
   ePaper.setTextColor(GxEPD_BLACK);
+
 
   //###################################################################
   //Lunedì
@@ -222,7 +399,7 @@ void table()
 
   //####################################################################
   //Mercoledì
-
+  
   if (giorno_settimana == 3)
   {
     ePaper.drawBitmap(gImage_round, 130, 25, 45, 45, GxEPD_WHITE);
