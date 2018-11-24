@@ -11,7 +11,7 @@
  *           *- Cucino Federico
  *           *- Victor Annunziata
  *    
- *           Projwct : SOM^3
+ *           Project : SOM^3
  *           
  *           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  
