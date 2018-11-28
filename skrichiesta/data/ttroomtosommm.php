@@ -4,7 +4,8 @@
  *
  * @param string $stanza identificativo dell'aula/laboratorio
  *
- * @author @fcucino 5^Ai 2018/2019
+ * @author @fcucino (17336) 5^Ai 2018/2019
+ * @group n.1 Annunziata Victor - Bussola Riccardo - Cucino Federico
  */
 
 date_default_timezone_set('Europe/Rome'); // Può servire a classe DateTime usata successivamente
