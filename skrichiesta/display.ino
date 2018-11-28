@@ -86,6 +86,13 @@ void table()
   int giornoSettimana = root["giornoSettimana"]; // 5
   int oraAttuale = root["oraAttuale"];           // 3
 
+  if(giorno == NULL && oraAttuale != 0){
+    giorno = "Errore di connessione...";
+  }
+  else  if(oraAttuale == 0){
+    giorno = "Giornata scolastica terminata";
+  }
+
   //CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
 
   JsonArray &oggi = root["oggi"]; //Oggetto "oggi" contenente tutte le informazioni
