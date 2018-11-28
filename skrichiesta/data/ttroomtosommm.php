@@ -10,7 +10,7 @@
 
 date_default_timezone_set('Europe/Rome'); // Può servire a classe DateTime usata successivamente
 
-if (!isset($_GET["stanza"])) {
+if (!isset($_GET['stanza'])) {
     echo json_encode("Missing parameter 'stanza'");
     http_response_code(403);
     die();
@@ -30,17 +30,17 @@ function disarmData($data) {
     return $data;
 }
 
-$sqlHost = "";
-$sqlUsername = "";
-$sqlPassword = "";
-$sqlDatabaseName = "";
+$sqlHost = '';
+$sqlUsername = '';
+$sqlPassword = '';
+$sqlDatabaseName = '';
 $conn = new mysqli($sqlHost, $sqlUsername, $sqlPassword, $sqlDatabaseName);
 if ($conn->connect_error) {
     http_response_code(503); //Internal Server Error
     die();
 }
 
-$stanza = strtoupper(disarmData($_GET["stanza"]));
+$stanza = strtoupper(disarmData($_GET['stanza']));
 
 // Query oggi
 // Thanks to @mgiacopu and @rtantalo
@@ -62,18 +62,18 @@ if (!$result) {
 
 $giorniTxt = ['Domenica', 'Lunedi\'', 'Martedi\'', 'Mercoledi\'', 'Giovedi\'', 'Venerdi\'', 'Sabato'];
 $mesiTxt = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-$giornoTxt = $giorniTxt[date("w")];
-$giorno = date("d");
-$meseTxt = $mesiTxt[date("n") - 1];
-$anno = date("o");
+$giornoTxt = $giorniTxt[date('w')];
+$giorno = date('d');
+$meseTxt = $mesiTxt[date('n') - 1];
+$anno = date('o');
 
 $today = "$giornoTxt, $giorno $meseTxt $anno";
 
-$giornoSet = date("w");
+$giornoSet = date('w');
 
 // Ora attuale
 $ore = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-$oraTondaNow = date("G");
+$oraTondaNow = date('G');
 $oraAttuale = isset($ore[$oraTondaNow - 8]) ? $ore[$oraTondaNow - 8] : 0;
 if ($oraTondaNow >= 6 && $oraTondaNow <= 8) $oraAttuale = 1; // Dalle 6:00 simula che sia la prima ora per aggiornare display
 
@@ -128,7 +128,7 @@ function todayRows($rows) {
  * @return array
  */
 function getWeekStartEnd() {
-    $scorsa = new DateTime("last sunday"); // Domenica scorsa
+    $scorsa = new DateTime('last sunday'); // Domenica scorsa
     $scorsa->modify('+1 day'); // Lunedì dopo domenica scorsa
     $prossima = clone($scorsa);
     $prossima->modify('+5 days'); // Sabato successiva a domenica scorsa
