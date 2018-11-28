@@ -17,6 +17,7 @@ void update_display(int page_mode, String string_1, String string_2)
     payload = response.c_str();
 
     Serial.println(httpCode);
+    Serial.println(payload);
 
     http.end();
 
@@ -101,52 +102,52 @@ void table()
   //Prima ora ----------------------------------------------------------------------------------
 
   JsonObject &prima = oggi[0];
-  const char *prima_ora[5] = {prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["sez"]};
+  const char *prima_ora[5] = {prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["res"]};
 
   //Seconda ora ----------------------------------------------------------------------------------
 
   JsonObject &seconda = oggi[1];
-  const char *seconda_ora[5] = {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["sez"]};
+  const char *seconda_ora[5] = {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]};
 
   //Terza ora ----------------------------------------------------------------------------------
 
   JsonObject &terza = oggi[2];
-  const char *terza_ora[5] = {terza["ora"], terza["prof1"], terza["prof2"], terza["mat"], terza["sez"]};
+  const char *terza_ora[5] = {terza["ora"], terza["prof1"], terza["prof2"], terza["mat"], terza["res"]};
 
   //Quarta ora ----------------------------------------------------------------------------------
 
   JsonObject &quarta = oggi[1];
-  const char *quarta_ora[5] = {quarta["ora"], quarta["prof1"], quarta["prof2"], quarta["mat"], quarta["sez"]};
+  const char *quarta_ora[5] = {quarta["ora"], quarta["prof1"], quarta["prof2"], quarta["mat"], quarta["res"]};
 
   //Quinta ora ----------------------------------------------------------------------------------
 
   JsonObject &quinta = oggi[1];
-  const char *quinta_ora[5] = {quinta["ora"], quinta["prof1"], quinta["prof2"], quinta["mat"], quinta["sez"]};
+  const char *quinta_ora[5] = {quinta["ora"], quinta["prof1"], quinta["prof2"], quinta["mat"], quinta["res"]};
 
   //Sesta ora ----------------------------------------------------------------------------------
 
   JsonObject &sesta = oggi[1];
-  const char *sesta_ora[5] = {sesta["ora"], sesta["prof1"], sesta["prof2"], sesta["mat"], sesta["sez"]};
+  const char *sesta_ora[5] = {sesta["ora"], sesta["prof1"], sesta["prof2"], sesta["mat"], sesta["res"]};
 
   //Settima ora ----------------------------------------------------------------------------------
 
   JsonObject &settima = oggi[1];
-  const char *settima_ora[5] = {settima["ora"], settima["prof1"], settima["prof2"], settima["mat"], settima["sez"]};
+  const char *settima_ora[5] = {settima["ora"], settima["prof1"], settima["prof2"], settima["mat"], settima["res"]};
 
   //Ottava ora ----------------------------------------------------------------------------------
 
   JsonObject &ottava = oggi[1];
-  const char *ottava_ora[5] = {ottava["ora"], ottava["prof1"], ottava["prof2"], ottava["mat"], ottava["sez"]};
+  const char *ottava_ora[5] = {ottava["ora"], ottava["prof1"], ottava["prof2"], ottava["mat"], ottava["res"]};
 
   //Nona ora ----------------------------------------------------------------------------------
 
   JsonObject &nona = oggi[1];
-  const char *nona_ora[5] = {nona["ora"], nona["prof1"], nona["prof2"], nona["mat"], nona["sez"]};
+  const char *nona_ora[5] = {nona["ora"], nona["prof1"], nona["prof2"], nona["mat"], nona["res"]};
 
   //Decima ora ----------------------------------------------------------------------------------
 
   JsonObject &decima = oggi[1];
-  const char *decima_ora[5] = {decima["ora"], decima["prof1"], decima["prof2"], decima["mat"], decima["sez"]};
+  const char *decima_ora[5] = {decima["ora"], decima["prof1"], decima["prof2"], decima["mat"], decima["res"]};
 
   //################################################################################################################
 
@@ -211,7 +212,7 @@ void table()
   ePaper.setTextColor(GxEPD_WHITE);
 
   ePaper.setCursor(363, 42);
-  ePaper.println("L142");
+  ePaper.println(stanza);
 
   //Disegno i separatori
 
@@ -222,6 +223,7 @@ void table()
   ePaper.fillRect(355, 335, 280, 2, GxEPD_BLACK);
 
   // Disegno le informazioni ora per ora
+  
 
   if (oraAttuale != 0 && oraAttuale < 7)
   { //mostro le prime 6 ore
@@ -234,105 +236,105 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 82);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(prima_ora[1]); //primo professore
 
     ePaper.setCursor(363, 107);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(prima_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 107);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(prima_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 107);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(prima_ora[4]); // Classe
 
     //#######################################################################
-    // Secondo Blocco //Prima ora
+    // Secondo Blocco //seconda ora
 
     f = &Roboto_Regular10pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 135);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(seconda_ora[1]); //primo professore
 
     ePaper.setCursor(363, 160);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(seconda_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 160);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(seconda_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 160);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(seconda_ora[4]); // Classe
 
     //#######################################################################
-    // Terzo Blocco //seconda ora
+    // Terzo Blocco //terza ora
 
     f = &Roboto_Regular10pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 190);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(terza_ora[1]); //primo professore
 
     ePaper.setCursor(363, 215);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(terza_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 215);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(terza_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 215);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(terza_ora[4]); // Classe
 
     //#######################################################################
-    // Quarto Blocco //Terza ora
+    // Quarto Blocco //quarta ora
 
     f = &Roboto_Regular10pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 245);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(quarta_ora[1]); //primo professore
 
     ePaper.setCursor(363, 270);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(quarta_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 270);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(quarta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 270);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(quarta_ora[5]); // Classe
 
     //#######################################################################
     // Quinto Blocco //Quarta ora
@@ -342,51 +344,51 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 300);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(quinta_ora[1]); //primo professore
 
     ePaper.setCursor(363, 325);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(quinta_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 325);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(quinta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 325);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(quinta_ora[4]); // Classe
 
     //#######################################################################
-    // Sesto Blocco //Quinta Ora
+    // Sesto Blocco //sesta Ora
 
     f = &Roboto_Regular10pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 355);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(sesta_ora[1]); //primo professore
 
     ePaper.setCursor(363, 380);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(sesta_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 380);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(sesta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 380);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(sesta_ora[4]); // Classe
   }
 
   else if (oraAttuale != 0 && oraAttuale > 6)
@@ -400,24 +402,24 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 82);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(quinta_ora[1]); //primo professore
 
     ePaper.setCursor(363, 107);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(quinta_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 107);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(quinta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 107);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(quinta_ora[4]); // Classe
 
     //#######################################################################
     // Secondo Blocco //Sesta ora
@@ -427,24 +429,24 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 135);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(sesta_ora[1]); //primo professore
 
     ePaper.setCursor(363, 160);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(sesta_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 160);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(sesta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 160);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(sesta_ora[4]); // Classe
 
     //#######################################################################
     // Terzo Blocco //Settima ora
@@ -454,24 +456,24 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 190);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(settima_ora[1]); //primo professore
 
     ePaper.setCursor(363, 215);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(settima_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 215);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(settima_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 215);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(settima_ora[7]); // Classe
 
     //#######################################################################
     // Quarto Blocco //Ottava ora
@@ -481,24 +483,24 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 245);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(ottava_ora[1]); //primo professore
 
     ePaper.setCursor(363, 270);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(ottava_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 270);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(ottava_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 270);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(ottava_ora[4]); // Classe
 
     //#######################################################################
     // Quinto Blocco //Nona ora
@@ -508,24 +510,24 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 300);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(nona_ora[1]); //primo professore
 
     ePaper.setCursor(363, 325);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(nona_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 325);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(nona_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 325);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(nona_ora[4]); // Classe
 
     //#######################################################################
     // Sesto Blocco //Decima ora
@@ -535,24 +537,24 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 355);
-    ePaper.println("Merzi Tiziano"); //primo professore
+    ePaper.println(decima_ora[1]); //primo professore
 
     ePaper.setCursor(363, 380);
-    ePaper.println("Bileddo Antonino"); // secondoi professore
+    ePaper.println(decima_ora[2]); // secondoi professore
 
     f = &Roboto_Regular12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(522, 380);
-    ePaper.println("LTPI"); // Materia
+    ePaper.println(decima_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 380);
-    ePaper.println("5AI"); // Classe
+    ePaper.println(decima_ora[4]); // Classe
   }
 
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ò
@@ -631,17 +633,17 @@ void table()
   }
 
   ePaper.setCursor(35, 55);
-  ePaper.println("5AI"); //prima ora
+  ePaper.println(lun_aule[0]); //prima ora
   ePaper.setCursor(35, 105);
-  ePaper.println("5AI"); //seconda ora
+  ePaper.println(lun_aule[1]); //seconda ora
   ePaper.setCursor(35, 155);
-  ePaper.println("5AI"); //terza ora
+  ePaper.println(lun_aule[2]); //terza ora
   ePaper.setCursor(35, 205);
-  ePaper.println("5AI"); //quarta ora
+  ePaper.println(lun_aule[3]); //quarta ora
   ePaper.setCursor(35, 255);
-  ePaper.println("5AI"); //quinta ora
+  ePaper.println(lun_aule[4]); //quinta ora
   ePaper.setCursor(35, 305);
-  ePaper.println("5AI"); //sesta ora
+  ePaper.println(lun_aule[5]); //sesta ora
 
   //####################################################################
   //Martedì
@@ -666,17 +668,17 @@ void table()
   }
 
   ePaper.setCursor(85, 55);
-  ePaper.println("5AI"); //prima ora
+  ePaper.println(mar_aule[0]); //prima ora
   ePaper.setCursor(85, 105);
-  ePaper.println("5AI"); //seconda ora
+  ePaper.println(mar_aule[1]); //seconda ora
   ePaper.setCursor(85, 155);
-  ePaper.println("5AI"); //terza ora
+  ePaper.println(mar_aule[2]); //terza ora
   ePaper.setCursor(85, 205);
-  ePaper.println("5AI"); //quarta ora
+  ePaper.println(mar_aule[3]); //quarta ora
   ePaper.setCursor(85, 255);
-  ePaper.println("5AI"); //quinta ora
+  ePaper.println(mar_aule[4]); //quinta ora
   ePaper.setCursor(85, 305);
-  ePaper.println("5AI"); //sesta ora
+  ePaper.println(mar_aule[5]); //sesta ora
 
   //####################################################################
   //Mercoledì
@@ -701,17 +703,17 @@ void table()
   }
 
   ePaper.setCursor(135, 55);
-  ePaper.println("5AI"); //prima ora
+  ePaper.println(mer_aule[0]); //prima ora
   ePaper.setCursor(135, 105);
-  ePaper.println("5AI"); //seconda ora
+  ePaper.println(mer_aule[1]); //seconda ora
   ePaper.setCursor(135, 155);
-  ePaper.println("5AI"); //terza ora
+  ePaper.println(mer_aule[2]); //terza ora
   ePaper.setCursor(135, 205);
-  ePaper.println("5AI"); //quarta ora
+  ePaper.println(mer_aule[3]); //quarta ora
   ePaper.setCursor(135, 255);
-  ePaper.println("5AI"); //quinta ora
+  ePaper.println(mer_aule[4]); //quinta ora
   ePaper.setCursor(135, 305);
-  ePaper.println("5AI"); //sesta ora
+  ePaper.println(mer_aule[5]); //sesta ora
 
   //####################################################################
   //Giovedì
@@ -736,17 +738,17 @@ void table()
   }
 
   ePaper.setCursor(185, 55);
-  ePaper.println("5AI"); //prima ora
+  ePaper.println(gio_aule[0]); //prima ora
   ePaper.setCursor(185, 105);
-  ePaper.println("5AI"); //seconda ora
+  ePaper.println(gio_aule[1]); //seconda ora
   ePaper.setCursor(185, 155);
-  ePaper.println("5AI"); //terza ora
+  ePaper.println(gio_aule[2]); //terza ora
   ePaper.setCursor(185, 205);
-  ePaper.println("5AI"); //quarta ora
+  ePaper.println(gio_aule[3]); //quarta ora
   ePaper.setCursor(185, 255);
-  ePaper.println("5AI"); //quinta ora
+  ePaper.println(gio_aule[4]); //quinta ora
   ePaper.setCursor(185, 305);
-  ePaper.println("5AI"); //sesta ora
+  ePaper.println(gio_aule[5]); //sesta ora
 
   //#####################################################################
   //Venerdì
@@ -821,5 +823,5 @@ void table()
   // Parte sotto del giorno
 
   ePaper.setCursor(8, 365);
-  ePaper.println("Mercoledì 14 Novembre 2018"); //sesta ora
+  ePaper.println(giorno); //sesta ora
 }
