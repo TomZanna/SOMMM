@@ -116,37 +116,37 @@ void table()
 
   //Quarta ora ----------------------------------------------------------------------------------
 
-  JsonObject &quarta = oggi[1];
+  JsonObject &quarta = oggi[3];
   const char *quarta_ora[5] = {quarta["ora"], quarta["prof1"], quarta["prof2"], quarta["mat"], quarta["res"]};
 
   //Quinta ora ----------------------------------------------------------------------------------
 
-  JsonObject &quinta = oggi[1];
+  JsonObject &quinta = oggi[4];
   const char *quinta_ora[5] = {quinta["ora"], quinta["prof1"], quinta["prof2"], quinta["mat"], quinta["res"]};
 
   //Sesta ora ----------------------------------------------------------------------------------
 
-  JsonObject &sesta = oggi[1];
+  JsonObject &sesta = oggi[5];
   const char *sesta_ora[5] = {sesta["ora"], sesta["prof1"], sesta["prof2"], sesta["mat"], sesta["res"]};
 
   //Settima ora ----------------------------------------------------------------------------------
 
-  JsonObject &settima = oggi[1];
+  JsonObject &settima = oggi[6];
   const char *settima_ora[5] = {settima["ora"], settima["prof1"], settima["prof2"], settima["mat"], settima["res"]};
 
   //Ottava ora ----------------------------------------------------------------------------------
 
-  JsonObject &ottava = oggi[1];
+  JsonObject &ottava = oggi[7];
   const char *ottava_ora[5] = {ottava["ora"], ottava["prof1"], ottava["prof2"], ottava["mat"], ottava["res"]};
 
   //Nona ora ----------------------------------------------------------------------------------
 
-  JsonObject &nona = oggi[1];
+  JsonObject &nona = oggi[8];
   const char *nona_ora[5] = {nona["ora"], nona["prof1"], nona["prof2"], nona["mat"], nona["res"]};
 
   //Decima ora ----------------------------------------------------------------------------------
 
-  JsonObject &decima = oggi[1];
+  JsonObject &decima = oggi[9];
   const char *decima_ora[5] = {decima["ora"], decima["prof1"], decima["prof2"], decima["mat"], decima["res"]};
 
   //################################################################################################################
@@ -166,34 +166,35 @@ void table()
 
   //Lunedì ----------------------------------------------------------------------------------
 
-  JsonArray& settimana_1 = settimana["1"];
-  const char *lun_aule[6] = {settimana_1[0], settimana_1[1], settimana_1[2], settimana_1[3], settimana_1[4], settimana_1[5]};
+  JsonObject& settimana_1 = settimana["1"];
+  const char *lun_aule[6] = {settimana_1["1"], settimana_1["2"], settimana_1["3"], settimana_1["4"], settimana_1["5"], settimana_1["6"]};
   
 
   //Martedì ----------------------------------------------------------------------------------
 
-  JsonArray& settimana_2 = settimana["2"];
-  const char *mar_aule[6] = {settimana_2[0], settimana_2[1], settimana_2[2], settimana_2[3], settimana_2[4], settimana_2[5]};
+  JsonObject& settimana_2 = settimana["2"];
+  const char *mar_aule[6] = {settimana_2["1"], settimana_2["2"], settimana_2["3"], settimana_2["4"], settimana_2["5"], settimana_2["6"]};
 
   //Mercoledì ----------------------------------------------------------------------------------
 
-  JsonArray& settimana_3 = settimana["3"];
-  const char *mer_aule[6] = {settimana_3[0], settimana_3[1], settimana_3[2], settimana_3[3], settimana_3[4], settimana_3[5]};
+  JsonObject& settimana_3 = settimana["3"];
+  const char *mer_aule[6] = {settimana_3["1"], settimana_3["2"], settimana_3["3"], settimana_3["4"], settimana_3["5"], settimana_3["6"]};
+  Serial.println(mer_aule[3]);
 
   //Giovedì ----------------------------------------------------------------------------------
 
-  JsonArray& settimana_4 = settimana["4"];
-  const char *gio_aule[6] = {settimana_4[0], settimana_4[1], settimana_4[2], settimana_4[3], settimana_4[4], settimana_4[5]};
+  JsonObject& settimana_4 = settimana["4"];
+  const char *gio_aule[6] = {settimana_4["1"], settimana_4["2"], settimana_4["3"], settimana_4["4"], settimana_4["5"], settimana_4["6"]};
 
   //Venerdi ----------------------------------------------------------------------------------
 
-  JsonArray& settimana_5 = settimana["5"];
-  const char *ven_aule[6] = {settimana_5[0], settimana_5[1], settimana_5[2], settimana_5[3], settimana_5[4], settimana_5[5]};
+  JsonObject& settimana_5 = settimana["5"];
+  const char *ven_aule[6] = {settimana_5["1"], settimana_5["2"], settimana_5["3"], settimana_5["4"], settimana_5["5"], settimana_5["6"]};
 
   //Sabato ----------------------------------------------------------------------------------
 
-  JsonArray& settimana_6 = settimana["6"];
-  const char *sab_aule[6] = {settimana_6[0], settimana_6[1], settimana_6[2], settimana_6[3], settimana_6[4], settimana_6[5]};
+  JsonObject& settimana_6 = settimana["6"];
+  const char *sab_aule[6] = {settimana_6["1"], settimana_6["2"], settimana_6["3"], settimana_6["4"], settimana_6["5"], settimana_6["6"]};
 
   //###########################################################################
 
@@ -334,10 +335,10 @@ void table()
     ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(575, 270);
-    ePaper.println(quarta_ora[5]); // Classe
+    ePaper.println(quarta_ora[4]); // Classe
 
     //#######################################################################
-    // Quinto Blocco //Quarta ora
+    // Quinto Blocco //quinta ora
 
     f = &Roboto_Regular10pt7b;
     ePaper.setFont(f);
@@ -773,17 +774,17 @@ void table()
   }
 
   ePaper.setCursor(235, 55);
-  ePaper.println("5AI"); //prima ora
+  ePaper.println(ven_aule[0]); //prima ora
   ePaper.setCursor(235, 105);
-  ePaper.println("5AI"); //seconda ora
+  ePaper.println(ven_aule[1]); //seconda ora
   ePaper.setCursor(235, 155);
-  ePaper.println("5AI"); //terza ora
+  ePaper.println(ven_aule[2]); //terza ora
   ePaper.setCursor(235, 205);
-  ePaper.println("5AI"); //quarta ora
+  ePaper.println(ven_aule[3]); //quarta ora
   ePaper.setCursor(235, 255);
-  ePaper.println("5AI"); //quinta ora
+  ePaper.println(ven_aule[4]); //quinta ora
   ePaper.setCursor(235, 305);
-  ePaper.println("5AI"); //sesta ora
+  ePaper.println(ven_aule[5]); //sesta ora
 
   //######################################################################
   //Sbato
@@ -808,17 +809,17 @@ void table()
   }
 
   ePaper.setCursor(285, 55);
-  ePaper.println("5AI"); //prima ora
+  ePaper.println(sab_aule[0]); //prima ora
   ePaper.setCursor(285, 105);
-  ePaper.println("5AI"); //seconda ora
+  ePaper.println(sab_aule[1]); //seconda ora
   ePaper.setCursor(285, 155);
-  ePaper.println("5AI"); //terza ora
+  ePaper.println(sab_aule[2]); //terza ora
   ePaper.setCursor(285, 205);
-  ePaper.println("5AI"); //quarta ora
+  ePaper.println(sab_aule[3]); //quarta ora
   ePaper.setCursor(285, 255);
-  ePaper.println("5AI"); //quinta ora
+  ePaper.println(sab_aule[4]); //quinta ora
   ePaper.setCursor(285, 305);
-  ePaper.println("5AI"); //sesta ora
+  ePaper.println(sab_aule[5]); //sesta ora
 
   // Parte sotto del giorno
 
