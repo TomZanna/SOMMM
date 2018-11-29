@@ -12,7 +12,7 @@ void update_display(int page_mode, String string_1, String string_2)
     ePaper.drawPaged(communication); // Modalità comunicazione/errore
     break;
   case 2:
-    int httpCode = http.GET();
+    httpCode = http.GET();
     String response = http.getString();
     payload = response.c_str();
 
@@ -83,14 +83,11 @@ void table()
 
   const char *stanza = root["stanza"];           // "L145"
   const char *giorno = root["giorno"];           // "Venerdi', 23 Novembre 2018"
-  int giornoSettimana = root["giornoSettimana"]; // 5
+  int giorno_settimana = root["giornoSettimana"]; // 5
   int oraAttuale = root["oraAttuale"];           // 3
-
-  if(giorno == NULL && oraAttuale != 0){
-    giorno = "Errore di connessione...";
-  }
-  else  if(oraAttuale == 0){
-    giorno = "Giornata scolastica terminata";
+  
+  if(httpCode == -1){
+    giorno = "Errore di connesione x(";
   }
 
   //CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
@@ -186,8 +183,6 @@ void table()
 
   JsonObject& settimana_3 = settimana["3"];
   const char *mer_aule[6] = {settimana_3["1"], settimana_3["2"], settimana_3["3"], settimana_3["4"], settimana_3["5"], settimana_3["6"]};
-  Serial.println(mer_aule[3]);
-
   //Giovedì ----------------------------------------------------------------------------------
 
   JsonObject& settimana_4 = settimana["4"];
@@ -253,7 +248,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 107);
+    ePaper.setCursor(526, 107);
     ePaper.println(prima_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -280,7 +275,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 160);
+    ePaper.setCursor(526, 160);
     ePaper.println(seconda_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -307,7 +302,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 215);
+    ePaper.setCursor(526, 215);
     ePaper.println(terza_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -334,7 +329,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 270);
+    ePaper.setCursor(526, 270);
     ePaper.println(quarta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -361,7 +356,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 325);
+    ePaper.setCursor(526, 325);
     ePaper.println(quinta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -388,7 +383,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 380);
+    ePaper.setCursor(526, 380);
     ePaper.println(sesta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -419,7 +414,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 107);
+    ePaper.setCursor(526, 107);
     ePaper.println(quinta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -446,7 +441,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 160);
+    ePaper.setCursor(526, 160);
     ePaper.println(sesta_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -473,7 +468,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 215);
+    ePaper.setCursor(526, 215);
     ePaper.println(settima_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -500,7 +495,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 270);
+    ePaper.setCursor(526, 270);
     ePaper.println(ottava_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -527,7 +522,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 325);
+    ePaper.setCursor(526, 325);
     ePaper.println(nona_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -554,7 +549,7 @@ void table()
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(522, 380);
+    ePaper.setCursor(526, 380);
     ePaper.println(decima_ora[3]); // Materia
 
     f = &Roboto_Regular18pt7b;
@@ -563,6 +558,22 @@ void table()
 
     ePaper.setCursor(575, 380);
     ePaper.println(decima_ora[4]); // Classe
+  }
+  else if (oraAttuale == 0)
+  { //mostro le prime 6 ore
+
+    //#######################################################################
+    // Primo Blocco
+
+    f = &Roboto_Regular10pt7b;
+    ePaper.setFont(f);
+    ePaper.setTextColor(GxEPD_BLACK);
+
+    ePaper.setCursor(363, 82);
+    ePaper.println("Giornata scolastica"); //primo professore
+
+    ePaper.setCursor(363, 107);
+    ePaper.println("terminata"); // secondoi professore
   }
 
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ò

@@ -85,8 +85,8 @@ bool request = 0;
 String mex_1 = ""; // riga comunicazione 1
 String mex_2 = ""; // riga comunicazione 2
 const char* payload = ""; //payload come variabile globale
-int giorno_settimana = 3; //giorno settimana globale
 int oraAttuale = 1; // sisema di switch per le giornate con + di 6 ore
+int httpCode = 0;
 
 
 // Dichiarazione di variabili in parte poi caricate da config.js
