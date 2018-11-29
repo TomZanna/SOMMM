@@ -227,7 +227,8 @@ void table()
 
   // Disegno le informazioni ora per ora
   
-
+  ePaper.setTextColor(GxEPD_BLACK);
+  
   if (oraAttuale != 0 && oraAttuale < 7)
   { //mostro le prime 6 ore
 
@@ -236,7 +237,6 @@ void table()
 
     f = &FreeSans9pt7b;
     ePaper.setFont(f);
-    ePaper.setTextColor(GxEPD_BLACK);
 
     ePaper.setCursor(363, 82);
     ePaper.println(prima_ora[1]); //primo professore
