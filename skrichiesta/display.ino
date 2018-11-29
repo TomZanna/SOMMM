@@ -50,7 +50,7 @@ void communication()
   ePaper.drawBitmap(gImage_marconi, 144, 50, 351, 82, GxEPD_BLACK);
   ePaper.drawBitmap(gImage_logo, 257, 180, 125, 55, GxEPD_BLACK);
 
-  const GFXfont *f = &Roboto_Regular12pt7b;
+  const GFXfont *f = &FreeSans12pt7b;
   ePaper.setFont(f);
   ePaper.setTextColor(GxEPD_BLACK);
 
@@ -210,7 +210,7 @@ void table()
   ePaper.drawFastVLine(350, 0, 330, GxEPD_WHITE);
   ePaper.drawFastVLine(349, 330, 84, GxEPD_BLACK);
 
-  const GFXfont *f = &Roboto_Regular18pt7b;
+  const GFXfont *f = &FreeSans18pt7b;
   ePaper.setFont(f);
   ePaper.setTextColor(GxEPD_WHITE);
 
@@ -234,7 +234,7 @@ void table()
     //#######################################################################
     // Primo Blocco
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -244,14 +244,14 @@ void table()
     ePaper.setCursor(363, 107);
     ePaper.println(prima_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 107);
+    ePaper.setCursor(522, 107);
     ePaper.println(prima_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -261,7 +261,7 @@ void table()
     //#######################################################################
     // Secondo Blocco //seconda ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -271,14 +271,14 @@ void table()
     ePaper.setCursor(363, 160);
     ePaper.println(seconda_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 160);
+    ePaper.setCursor(522, 160);
     ePaper.println(seconda_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -288,7 +288,7 @@ void table()
     //#######################################################################
     // Terzo Blocco //terza ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -298,14 +298,14 @@ void table()
     ePaper.setCursor(363, 215);
     ePaper.println(terza_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 215);
+    ePaper.setCursor(522, 215);
     ePaper.println(terza_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -315,7 +315,7 @@ void table()
     //#######################################################################
     // Quarto Blocco //quarta ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -325,14 +325,14 @@ void table()
     ePaper.setCursor(363, 270);
     ePaper.println(quarta_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 270);
+    ePaper.setCursor(522, 270);
     ePaper.println(quarta_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -342,7 +342,7 @@ void table()
     //#######################################################################
     // Quinto Blocco //quinta ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -352,14 +352,14 @@ void table()
     ePaper.setCursor(363, 325);
     ePaper.println(quinta_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 325);
+    ePaper.setCursor(522, 325);
     ePaper.println(quinta_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -369,7 +369,7 @@ void table()
     //#######################################################################
     // Sesto Blocco //sesta Ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -379,14 +379,14 @@ void table()
     ePaper.setCursor(363, 380);
     ePaper.println(sesta_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 380);
+    ePaper.setCursor(522, 380);
     ePaper.println(sesta_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -400,7 +400,7 @@ void table()
     //#######################################################################
     // Primo Blocco //Quinta ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -410,14 +410,14 @@ void table()
     ePaper.setCursor(363, 107);
     ePaper.println(quinta_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 107);
+    ePaper.setCursor(522, 107);
     ePaper.println(quinta_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -427,7 +427,7 @@ void table()
     //#######################################################################
     // Secondo Blocco //Sesta ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -437,14 +437,14 @@ void table()
     ePaper.setCursor(363, 160);
     ePaper.println(sesta_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 160);
+    ePaper.setCursor(522, 160);
     ePaper.println(sesta_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -454,7 +454,7 @@ void table()
     //#######################################################################
     // Terzo Blocco //Settima ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -464,14 +464,14 @@ void table()
     ePaper.setCursor(363, 215);
     ePaper.println(settima_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 215);
+    ePaper.setCursor(522, 215);
     ePaper.println(settima_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -481,7 +481,7 @@ void table()
     //#######################################################################
     // Quarto Blocco //Ottava ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -491,14 +491,14 @@ void table()
     ePaper.setCursor(363, 270);
     ePaper.println(ottava_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 270);
+    ePaper.setCursor(522, 270);
     ePaper.println(ottava_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -508,7 +508,7 @@ void table()
     //#######################################################################
     // Quinto Blocco //Nona ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -518,14 +518,14 @@ void table()
     ePaper.setCursor(363, 325);
     ePaper.println(nona_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 325);
+    ePaper.setCursor(522, 325);
     ePaper.println(nona_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -535,7 +535,7 @@ void table()
     //#######################################################################
     // Sesto Blocco //Decima ora
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -545,14 +545,14 @@ void table()
     ePaper.setCursor(363, 380);
     ePaper.println(decima_ora[2]); // secondoi professore
 
-    f = &Roboto_Regular12pt7b;
+    f = &FreeSans12pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
-    ePaper.setCursor(526, 380);
+    ePaper.setCursor(522, 380);
     ePaper.println(decima_ora[3]); // Materia
 
-    f = &Roboto_Regular18pt7b;
+    f = &FreeSans18pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -565,7 +565,7 @@ void table()
     //#######################################################################
     // Primo Blocco
 
-    f = &Roboto_Regular10pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
     ePaper.setTextColor(GxEPD_BLACK);
 
@@ -583,7 +583,7 @@ void table()
 
   //Scritte
 
-  f = &Roboto_Regular10pt7b;
+  f = &FreeSans9pt7b;
   ePaper.setFont(f);
   ePaper.setTextColor(GxEPD_WHITE);
 
@@ -624,7 +624,7 @@ void table()
   */
 
   //configurazione del font
-  f = &Roboto_Regular12pt7b;
+  f = &FreeSansBold9pt7b;
   ePaper.setFont(f);
 
   ePaper.setTextColor(GxEPD_BLACK);

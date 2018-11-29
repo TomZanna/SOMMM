@@ -62,12 +62,10 @@
 #include "images.h"
 
 // Font di varia grandezza per il display
-#include <Fonts/RobotoRegular9pt7b.h>
-#include <Fonts/RobotoRegular10pt7b.h>
-#include <Fonts/RobotoRegular12pt7b.h>
-#include <Fonts/RobotoRegular18pt7b.h>
-
-
+#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
+#include <Fonts/FreeSans18pt7b.h>
+#include <Fonts/FreeSansBold9pt7b.h>
 
 #include <GxIO/GxIO_SPI/GxIO_SPI.cpp>
 #include <GxIO/GxIO.cpp>
