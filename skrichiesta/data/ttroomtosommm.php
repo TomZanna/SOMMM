@@ -60,20 +60,20 @@ if (!$result) {
     die();
 }
 
-$giorniTxt = ['Domenica', 'Lunedi\'', 'Martedi\'', 'Mercoledi\'', 'Giovedi\'', 'Venerdi\'', 'Sabato'];
+$giorniTxt = ['Domenica', "Lunedi'", "Martedi'", "Mercoledi'", "Giovedi'", "Venerdi'", "Sabato'"];
 $mesiTxt = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-$giornoTxt = $giorniTxt[date('w')];
-$giorno = date('d');
-$meseTxt = $mesiTxt[date('n') - 1];
-$anno = date('o');
+$giornoTxt = $giorniTxt[date('w')]; // Mercoledi'
+$giorno = date('d'); // 05
+$meseTxt = $mesiTxt[date('n') - 1]; // Dicembre
+$anno = date('o'); // 2018
 
-$today = "$giornoTxt, $giorno $meseTxt $anno";
+$today = "$giornoTxt, $giorno $meseTxt $anno"; // Mercoledi', 05 Dicembre 2018
 
-$giornoSet = date('w');
+$giornoSet = date('w'); // 2 sta per martedì
 
 // Ora attuale
 $ore = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-$oraTondaNow = date('G');
+$oraTondaNow = date('G'); // 13:31 ritorna 13
 $oraAttuale = isset($ore[$oraTondaNow - 8]) ? $ore[$oraTondaNow - 8] : 0;
 if ($oraTondaNow >= 6 && $oraTondaNow <= 8) $oraAttuale = 1; // Dalle 6:00 simula che sia la prima ora per aggiornare display
 
@@ -94,6 +94,33 @@ function maxTxtLength($str) {
 }
 
 /**
+ * Separa stringa mantenendo parola intera per disporla su due righe in base al numero di caratteri massimi consentiti per riga
+ * @param $str string stringa da separare
+ * @return array|null
+ */
+function splitTwo($str){
+    if ($str == NULL) return NULL;
+
+    $str1 = null; $str2 = null;
+    $split = preg_split('/\s+/', $str); // Esplode la stringa in array per singola parola separata da uno whitespace
+    $len = count($split); // Numero di elementi
+
+    for ($i = 0; $i < $len; $i++) {
+        $sliced = array_slice($split, 0, $len-$i);
+        if (strlen(join(" ", $sliced)) < 25) { // TODO: Testare quanti caratteri ci possono stare su display
+            $str1 = join(" ", $sliced);
+            $str2 = join(" ", array_slice($split, $len-$i));
+            break;
+        }
+    }
+
+    return array(
+        'str1' => $str1,
+        'str2' => $str2
+    );
+}
+
+/**
  * Elabora la query oggi
  * @param $rows mysqli_result result della query
  * @return array
@@ -101,15 +128,27 @@ function maxTxtLength($str) {
 function todayRows($rows) {
     $oggi = array();
     while ($row = $rows->fetch_assoc()) {
-        if ($row['risorsa'] != NULL) {
-            $o = array(
-                'ora' => $row['ora'],
-                'prof1' => maxTxtLength(ucwords(strtolower($row['professore1']))), // Prima lettera maiuscola di ogni parola, tagliata a 16 caratteri
-                'prof2' => maxTxtLength(ucwords(strtolower($row['professore2']))), // Prima lettera maiuscola di ogni parola, tagliata a 16 caratteri
-                'mat' => $row['materia'],
-                'res' => $row['risorsa']
-            );
-        } else { // Se la classe è assente la materia per quell'ora + giorno in GPU001 è comunque presente, quindi null forzato
+        $res = $row['risorsa'];
+        if ($res != NULL ) {
+            if (strlen($res) > 3) { // Se lunghezza 'materia' è maggiore di 3, non è più classe ma un altro evento
+                $splitted = splitTwo($res);
+                $o = array(
+                    'ora' => $row['ora'],
+                    'prof1' => $splitted['str1'],
+                    'prof2' => $splitted['str2'],
+                    'mat' => null,
+                    'res' => null
+                );
+            } else { // In questa ora c'è una classe
+                $o = array(
+                    'ora' => $row['ora'],
+                    'prof1' => maxTxtLength(ucwords(strtolower($row['professore1']))), // Prima lettera maiuscola di ogni parola, tagliata a 16 caratteri
+                    'prof2' => maxTxtLength(ucwords(strtolower($row['professore2']))), // Prima lettera maiuscola di ogni parola, tagliata a 16 caratteri
+                    'mat' => $row['materia'],
+                    'res' => $res
+                );
+            }
+        } else { // Se la classe è assente in marconitt, la materia per quell'ora + giorno in GPU001 è comunque presente, quindi null forzato
             $o = array(
                 'ora' => $row['ora'],
                 'prof1' => null,
@@ -169,7 +208,7 @@ function weekRows($rows) {
 
     while ($row = $rows->fetch_assoc()) {
         $res = $row['risorsa'];
-        if (strlen($res) > 3) $res = 'OCC'; // Se attività extra solitamente la descrizione è maggiore di 3 caratteri, quindi 'OCC' per 'OCCUPATO'
+        if (strlen($res) > 3) $res = 'OC.'; // Se attività extra solitamente la descrizione è maggiore di 3 caratteri, quindi 'OC.' per 'OCCUPATO'
         $oggi[$row['giorno_settimana']][$row['ora']] = $res; // La query dovrebbe essere già ordinata per giorno_settimana, ora
     }
 
