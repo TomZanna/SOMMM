@@ -188,8 +188,8 @@ void setup()
 
   
 
-  Serial.println(net_ssid);
-  Serial.println(net_pswd);
+  // Serial.println(net_ssid);
+  // Serial.println(net_pswd);
 
   if (static_config)
   {
@@ -429,8 +429,8 @@ void save_json()
   json.printTo(save); //salvo la nuova configurazione
   json.printTo(Serial); // stampo la nuova configurazione
 
-  Serial.println("Riavvia il dispositivo premendo sul pulsante RST");
-  update_display(1,"Salvataggio effettuato ✓","Riavvio SOMM");
+  Serial.println("Riavvia il dispositivo premendo sul pulsante RST appena led rosso spento");
+  update_display(1,"Salvataggio effettuato","Riavvia SOMM appena led rosso spento");
   request = 0;
 
   //Riavvio dispositivo

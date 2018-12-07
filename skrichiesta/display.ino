@@ -244,7 +244,7 @@ void table()
     ePaper.setCursor(363, 107);
     ePaper.println(prima_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 107);
@@ -268,7 +268,7 @@ void table()
     ePaper.setCursor(363, 160);
     ePaper.println(seconda_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 160);
@@ -292,7 +292,7 @@ void table()
     ePaper.setCursor(363, 215);
     ePaper.println(terza_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 215);
@@ -316,7 +316,7 @@ void table()
     ePaper.setCursor(363, 270);
     ePaper.println(quarta_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 270);
@@ -340,7 +340,7 @@ void table()
     ePaper.setCursor(363, 325);
     ePaper.println(quinta_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 325);
@@ -364,7 +364,7 @@ void table()
     ePaper.setCursor(363, 380);
     ePaper.println(sesta_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 380);
@@ -392,7 +392,7 @@ void table()
     ePaper.setCursor(363, 107);
     ePaper.println(quinta_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 107);
@@ -416,7 +416,7 @@ void table()
     ePaper.setCursor(363, 160);
     ePaper.println(sesta_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 160);
@@ -440,7 +440,7 @@ void table()
     ePaper.setCursor(363, 215);
     ePaper.println(settima_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 215);
@@ -464,7 +464,7 @@ void table()
     ePaper.setCursor(363, 270);
     ePaper.println(ottava_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 270);
@@ -488,7 +488,7 @@ void table()
     ePaper.setCursor(363, 325);
     ePaper.println(nona_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 325);
@@ -512,7 +512,7 @@ void table()
     ePaper.setCursor(363, 380);
     ePaper.println(decima_ora[2]); // secondoi professore
 
-    f = &FreeSans12pt7b;
+    f = &FreeSans9pt7b;
     ePaper.setFont(f);
 
     ePaper.setCursor(522, 380);
