@@ -70,7 +70,7 @@
 #include <GxIO/GxIO_SPI/GxIO_SPI.cpp>
 #include <GxIO/GxIO.cpp>
 
-ESP8266WebServer server(80); //settaggio serrver sulla porta 80
+ESP8266WebServer server(1518); //settaggio serrver sulla porta 1518
 
 // Seguendo il datasheet della ESP8266 driver board di waveshare
 
@@ -244,7 +244,7 @@ void setup()
 
     //Setto http sull'indirizzo del mio server
 
-    String http_address = String(api_url) + String(aula); //Creo un merge per il mio indirizzo delle api
+    String http_address = String(api_url) + "?stanza=" + String(aula); //Creo un merge per il mio indirizzo delle api
 
     Serial.print("Richiesta settata su: "); //Stampo l'indirizzo
     Serial.println(http_address);
