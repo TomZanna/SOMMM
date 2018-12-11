@@ -234,12 +234,12 @@ void setup()
     }
   }
   Serial.println("");
+  Serial.println(WiFi.macAddress());
   
 
   if (WiFi.status() == WL_CONNECTED)
   {
     //Connessione stabilita
-
     Serial.println(WiFi.localIP().toString().c_str());
 
     //Setto http sull'indirizzo del mio server
@@ -432,6 +432,8 @@ void save_json()
   Serial.println("Riavvia il dispositivo premendo sul pulsante RST appena led rosso spento");
   update_display(1,"Salvataggio effettuato","Riavvia SOMM appena led rosso spento");
   request = 0;
+
+  server.send(200, "text/plain", "Salvaaggio efettuato correttamente"); //messaggio di callback per client web
 
   //Riavvio dispositivo
 
