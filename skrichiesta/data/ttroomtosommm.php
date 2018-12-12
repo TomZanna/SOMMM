@@ -4,7 +4,7 @@
  *
  * @param string $stanza identificativo dell'aula/laboratorio
  *
- * @author @fcucino (17336) 5^Ai 2018/2019
+ * @author Cucino Federico (17336) 5^Ai - 2018/2019
  * @group n.1 Annunziata Victor - Bussola Riccardo - Cucino Federico
  */
 
@@ -60,6 +60,44 @@ if (!$result) {
     die();
 }
 
+/**
+ * Ottiene il lunedì e il sabato di questa settimana
+ * @return array
+ */
+function getWeekStartEnd() {
+    $scorsa = new DateTime('last sunday'); // Domenica scorsa
+    $scorsa->modify('+1 day'); // Lunedì dopo domenica scorsa
+    $prossima = clone($scorsa);
+    $prossima->modify('+5 days'); // Sabato successiva a domenica scorsa
+    return array(
+        'lunedi' => $scorsa->format('Y-m-d'),
+        'sabato' => $prossima->format('Y-m-d')
+    );
+}
+
+$weekStartEnd = getWeekStartEnd();
+$lunedi = $weekStartEnd['lunedi'];
+$sabato = $weekStartEnd['sabato'];
+
+// Query settimanale
+$sqlWeek = "SELECT `giorno_settimana`, `ora`, `stanza`, `risorsa`
+FROM marconitt.timetable
+       LEFT JOIN marconitt.GPU001 ON marconitt.timetable.giorno_settimana = marconitt.GPU001.`Column 5`
+                                       AND marconitt.timetable.ora = marconitt.GPU001.`Column 6`
+                                       AND marconitt.timetable.stanza = marconitt.GPU001.`Column 4`
+WHERE marconitt.timetable.giorno BETWEEN '$lunedi' AND '$sabato'
+    AND marconitt.timetable.stanza = '$stanza'
+GROUP BY `giorno_settimana`, `ora`, `stanza`, `giorno_settimana`
+ORDER BY `giorno_settimana`, `ora`;";
+
+$resultWeek = $conn->query($sqlWeek);
+if (!$resultWeek) {
+    http_response_code(400);
+    die();
+}
+
+$conn->close();
+
 $giorniTxt = ['Domenica', "Lunedi'", "Martedi'", "Mercoledi'", "Giovedi'", "Venerdi'", "Sabato'"];
 $mesiTxt = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 $giornoTxt = $giorniTxt[date('w')]; // Mercoledi'
@@ -98,25 +136,26 @@ function maxTxtLength($str) {
  * @param $str string stringa da separare
  * @return array|null
  */
-function splitTwo($str){
+function splitTwo($str) {
     if ($str == NULL) return NULL;
 
-    $str1 = null; $str2 = null;
+    $str1 = null;
+    $str2 = null;
     $split = preg_split('/\s+/', $str); // Esplode la stringa in array per singola parola separata da uno whitespace
     $len = count($split); // Numero di elementi
 
     for ($i = 0; $i < $len; $i++) {
-        $sliced = array_slice($split, 0, $len-$i);
-        if (strlen(join(" ", $sliced)) < 25) { // TODO: Testare quanti caratteri ci possono stare su display
+        $sliced = array_slice($split, 0, $len - $i); // Procedo man mano togliendo parole, ...
+        if (strlen(join(" ", $sliced)) < 25) { // ...Finché i caratteri totali < 25 per "riga"
             $str1 = join(" ", $sliced);
-            $str2 = join(" ", array_slice($split, $len-$i));
+            $str2 = join(" ", array_slice($split, $len - $i)); // E in seconda riga lascio la rimanenza. Capiterà mai che questa sia > 25?
             break;
         }
     }
 
     return array(
-        'str1' => $str1,
-        'str2' => $str2
+        'str2' => $str1,
+        'str1' => $str2
     );
 }
 
@@ -129,7 +168,7 @@ function todayRows($rows) {
     $oggi = array();
     while ($row = $rows->fetch_assoc()) {
         $res = $row['risorsa'];
-        if ($res != NULL ) {
+        if ($res != NULL) {
             if (strlen($res) > 3) { // Se lunghezza 'materia' è maggiore di 3, non è più classe ma un altro evento
                 $splitted = splitTwo($res);
                 $o = array(
@@ -160,42 +199,6 @@ function todayRows($rows) {
         array_push($oggi, $o);
     }
     return $oggi;
-}
-
-/**
- * Ottiene il lunedì e il sabato di questa settimana
- * @return array
- */
-function getWeekStartEnd() {
-    $scorsa = new DateTime('last sunday'); // Domenica scorsa
-    $scorsa->modify('+1 day'); // Lunedì dopo domenica scorsa
-    $prossima = clone($scorsa);
-    $prossima->modify('+5 days'); // Sabato successiva a domenica scorsa
-    return array(
-        'lunedi' => $scorsa->format('Y-m-d'),
-        'sabato' => $prossima->format('Y-m-d')
-    );
-}
-
-$weekStartEnd = getWeekStartEnd();
-$lunedi = $weekStartEnd['lunedi'];
-$sabato = $weekStartEnd['sabato'];
-
-// Query settimanale
-$sqlWeek = "SELECT `giorno_settimana`, `ora`, `stanza`, `risorsa`
-FROM marconitt.timetable
-       LEFT JOIN marconitt.GPU001 ON marconitt.timetable.giorno_settimana = marconitt.GPU001.`Column 5`
-                                       AND marconitt.timetable.ora = marconitt.GPU001.`Column 6`
-                                       AND marconitt.timetable.stanza = marconitt.GPU001.`Column 4`
-WHERE marconitt.timetable.giorno BETWEEN '$lunedi' AND '$sabato'
-    AND marconitt.timetable.stanza = '$stanza'
-GROUP BY `giorno_settimana`, `ora`, `stanza`, `giorno_settimana`
-ORDER BY `giorno_settimana`, `ora`;";
-
-$resultWeek = $conn->query($sqlWeek);
-if (!$resultWeek) {
-    http_response_code(400);
-    die();
 }
 
 /**
