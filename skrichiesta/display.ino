@@ -170,7 +170,7 @@ void table()
   int pos_y[6] = {85, 135, 190, 245, 300, 350};
   ePaper.setTextColor(GxEPD_BLACK);
 
-  if (oraAttuale != 0 && oraAttuale < 7)
+  if (oraAttuale != 0 && oraAttuale < 5)
   { //mostro le prime 6 ore
 
     for (int j = 0; j < 6; j++)
@@ -188,10 +188,10 @@ void table()
       f = &FreeSans9pt7b;
       ePaper.setFont(f);
 
-      ePaper.setCursor(363, 85 + (53 * j) + j);
+      ePaper.setCursor(363, 110 + (53 * j) + j);
       ePaper.println(today_matrix[j][1]); //primo professore
 
-      ePaper.setCursor(363, 110 + (53 * j) + j);
+      ePaper.setCursor(363, 85 + (53 * j) + j);
       ePaper.println(today_matrix[j][2]); // secondoi professore
 
       f = &FreeSans9pt7b;
@@ -207,7 +207,7 @@ void table()
       ePaper.println(today_matrix[j][4]); // Classe
     }
   }
-  if (oraAttuale != 0 && oraAttuale > 6)
+  if (oraAttuale != 0 && oraAttuale >= 5)
   { //mostro le ultime 6 ore
 
     for (int j = 4; j < 10; j++)
@@ -225,10 +225,10 @@ void table()
       f = &FreeSans9pt7b;
       ePaper.setFont(f);
 
-      ePaper.setCursor(363, 85 + (53 * (j - 4)) + j - 4);
+      ePaper.setCursor(363, 110 + (53 * (j - 4)) + j - 4);
       ePaper.println(today_matrix[j][1]); //primo professore
 
-      ePaper.setCursor(363, 110 + (53 * (j - 4)) + j - 4);
+      ePaper.setCursor(363, 85 + (53 * (j - 4)) + j - 4);
       ePaper.println(today_matrix[j][2]); // secondoi professore
 
       f = &FreeSans9pt7b;

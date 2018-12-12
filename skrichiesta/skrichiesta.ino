@@ -50,8 +50,6 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
 
-
-
 // Libreria per JSON su arduino
 
 #include <ArduinoJson.h>
@@ -80,12 +78,14 @@ GxEPD_Class ePaper(io, 5, 16 /*RST=D5*/ /*BUSY=D16*/);
 // bool save = 0; non so a cosa serve
 bool request = 0;
 
-String mex_1 = ""; // riga comunicazione 1
-String mex_2 = ""; // riga comunicazione 2
-const char* payload = ""; //payload come variabile globale
-int oraAttuale = 1; // sisema di switch per le giornate con + di 6 ore
+String mex_1 = "";        // riga comunicazione 1
+String mex_2 = "";        // riga comunicazione 2
+const char *payload = ""; //payload come variabile globale
+int oraAttuale = 1;       // sisema di switch per le giornate con + di 6 ore
 int httpCode = 0;
 
+const char *www_username = "SOMMM";
+const char *www_password = "SistemaOrarioMaga";
 
 // Dichiarazione di variabili in parte poi caricate da config.js
 
@@ -95,7 +95,7 @@ const char *api_url = "";
 const char *aula = "";
 
 int delay_time = 0;
-bool static_config = 0;      //static or DHCP 
+bool static_config = 0; //static or DHCP
 
 int ip[4], dns[4], default_gw[4], subnet_m[4];
 
@@ -103,10 +103,9 @@ String getData, Link, file_config;
 
 HTTPClient http;
 
-
 //Dichiaro funzioni da implementare
 
-void update_display(int page_mode, String string_1,  String string_2);
+void update_display(int page_mode, String string_1, String string_2);
 void save_json();
 
 void setup()
@@ -126,7 +125,7 @@ void setup()
   if (!SPIFFS.begin())
   {
     Serial.println("File system non montato ");
-    update_display(1,"Errore File System",":X");
+    update_display(1, "Errore File System", ":X");
   }
   else
   {
@@ -147,7 +146,7 @@ void setup()
   if (!config_json.success())
   {
     Serial.println("Impossibile leggere la configurazione");
-    update_display(1,"Errore di lettura json",":X");
+    update_display(1, "Errore di lettura json", ":X");
   }
   else
   {
@@ -186,8 +185,6 @@ void setup()
   dns[2] = config_json["net_dns_2"];
   dns[3] = config_json["net_dns_3"];
 
-  
-
   // Serial.println(net_ssid);
   // Serial.println(net_pswd);
 
@@ -216,7 +213,7 @@ void setup()
 
   long start_c = millis();
   long counter = 0;
-  long soglia = 300000; //soglia di controllo per passare il AP (default 25s) 
+  long soglia = 300000; //soglia di controllo per passare il AP (default 25s)
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED)
@@ -235,9 +232,17 @@ void setup()
   }
   Serial.println("");
   Serial.println(WiFi.macAddress());
-  
 
-  if (WiFi.status() == WL_CONNECTED)
+  
+  server.on("/save", []() {
+    if (!server.authenticate(www_username, www_password)) {
+      return server.requestAuthentication();
+    }
+    server.send(200, "text/plain", "Login OK");
+    save_json();
+  });
+
+      if (WiFi.status() == WL_CONNECTED)
   {
     //Connessione stabilita
     Serial.println(WiFi.localIP().toString().c_str());
@@ -251,18 +256,16 @@ void setup()
 
     request = 1; //Abilito l'invio del dato
 
-    http.begin(http_address);  //configuro e avio htt sul'url precedentemente dichiarato
-
+    http.begin(http_address); //configuro e avio htt sul'url precedentemente dichiarato
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
-    server.on("/save", save_json);
     server.serveStatic("/js", SPIFFS, "/js");
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
     server.begin(); //Faccio partire il server
 
-    update_display(2,"","");
+    update_display(2, "", "");
 
     // Mostro l'avvenuto successo della connesione su display e do informazioni utili all'utente
   }
@@ -273,15 +276,14 @@ void setup()
 
     WiFi.disconnect(); //Disconnetto la wifi
 
-    WiFi.softAP("SOMMM","SistemaOrarioMaga"); // ìdichiaro i parametri del mio access point
+    WiFi.softAP("SOMMM", "SistemaOrarioMaga"); // ìdichiaro i parametri del mio access point
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
-    update_display(1,"AP SOMMM","192.168.4.1"); //192.168.4.1 default
+    update_display(1, "AP SOMMM", "192.168.4.1"); //192.168.4.1 default
 
     //Avviso con modalità 1 il display che ho creato un access point
 
-    server.on("/save", save_json);
     server.serveStatic("/js", SPIFFS, "/js");
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
@@ -289,7 +291,6 @@ void setup()
     server.begin(); //Faccio partire il server
   }
 }
-
 
 long time_start = millis();
 
@@ -299,21 +300,18 @@ void loop()
 
   if (request)
   {
-     if (delay_time>= 1000)
+    if (delay_time >= 1000)
     { //verifica se l'update_s è almeno maggiore di 1s
       if ((millis() - time_start) >= delay_time)
       {
         //mando la richiesta
         Serial.println("--------------------");
-        update_display(2,"","");
+        update_display(2, "", "");
         time_start = millis(); //azzerro il contatore
       }
     }
   }
 }
-
-
-
 
 void save_json()
 {
@@ -321,6 +319,7 @@ void save_json()
   if (!SPIFFS.begin()) //controllo di aver accesso al filesystem
   {
     // Se vine visualizzato c'è un problema al filesystem
+    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); //messaggio di callback per client web
     Serial.println("SPIFFS2 Mount failed");
   }
   else
@@ -336,8 +335,9 @@ void save_json()
 
   if (!json.success())
   {
+    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); //messaggio di callback per client web
     Serial.println("Impossibile leggere la configurazione");
-    update_display(1,"Errore salvataggio",":X");
+    update_display(1, "Impossibile leggere la configurazione", ":X");
   }
   else
   {
@@ -375,7 +375,7 @@ void save_json()
     json.set("delay_time", server.arg("delay_time"));
   }
 
-   if (server.arg("net_static") != "")
+  if (server.arg("net_static") != "")
   { // 1-0 abilita configurazione statica
     json.set("net_static", server.arg("net_static"));
   }
@@ -424,17 +424,15 @@ void save_json()
 
   File save = SPIFFS.open("/config.json", "w"); //Apro il file in modalità scrittura
 
-
   delay(200);
-  json.printTo(save); //salvo la nuova configurazione
+  json.printTo(save);   //salvo la nuova configurazione
   json.printTo(Serial); // stampo la nuova configurazione
 
+  server.send(200, "text/plain", "Salvataggio efettuato correttamente. RST su SOMMM appena led rossa spenta"); //messaggio di callback per client web
+
   Serial.println("Riavvia il dispositivo premendo sul pulsante RST appena led rosso spento");
-  update_display(1,"Salvataggio effettuato","Riavvia SOMM appena led rosso spento");
+  update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento");
   request = 0;
 
-  server.send(200, "text/plain", "Salvaaggio efettuato correttamente"); //messaggio di callback per client web
-
   //Riavvio dispositivo
-
 }
