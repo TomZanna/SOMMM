@@ -9,73 +9,71 @@
   <!-- <noscript><meta http-equiv="refresh" content="0;url=./noscript.php"></noscript> --> <!-- Qualcosa per noscript! -->
   <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
   <script src="js/jquery-3.3.1.min.js"></script>
+  <link rel="shortcut icon" href="img/logo_big.ico">
   <script>window.onload = function () { if (!window.jQuery) alert("La libreria JQuery non si è caricata correttamente. Non sarà possibile utilizzare le funzionalità del sito!"); };</script>
 </head>
 <body>
   <div id="navbar">
+    <div id ="sommmwrite">SOMMM</div>
     <div id="logo"></div>
   </div>
   <div id="container">
     <form id="send">
+
       <p class="title_1">Configurazione WiFi</p>
       <div id="rete_wireless">
         <!--SSID-->
-        <p class="title" style="padding-top:1.5rem;">WiFi SSID</p>
-        <input type="text" name="FirstName" value="" class="long" id="net_ssid" required>
+        <!--<p class="title" style="padding-top:1.5rem;">WiFi SSID</p>-->
+        <label class= "input_and_titles" for="net_ssid" style="position:absolute;margin:top:5px;">WIFI ssid </label><br><input  class= "input_and_titles" type="text" name="FirstName" value="" class="long" id="net_ssid" >
         <!--PSWD-->
-        <p class="title">WiFi Password</p>
-        <input type="text" name="FirstName" value="" class="long" id="net_pswd" required>
+        <!--<p class="title">WiFi Password</p>-->
+        <br>
+        <br>
+        <label class= "input_and_titles" for="net_pswd">Wifi Password </label><br><input class= "input_and_titles" type="text" name="FirstName" value="" class="long" id="net_pswd" >
       </div>
       <p class="title_1">Configurazione IP</p>
       <div class="box" style="left:5%;">
-        <input type="checkbox" id="net_static" name="net_static" class="static">
-        <label class="label">statico</label>
+        <label for="net_static" class="title_1">Statico</label><input type="checkbox" id="net_static" name="net_static" class="static">
+        <!--<label class="label">statico</label>-->
       </div>
       <!--NET_IP-->
-      <div id="indirizzo_ip">
+      <div id="indirizzo_ip"  style = "display:none;" >
         <p class="title" style="padding-top:1.5rem;">Indirizzo IP</p>
         <div class="box">
           <input type="text" name="FirstName" value="" class="casella" id="net_ip_0">
-          <input type="text" name="FirstName" value="" class="casella" id="net_ip_1">
-          <input type="text" name="FirstName" value="" class="casella" id="net_ip_2">
-          <input type="text" name="FirstName" value="" class="casella" id="net_ip_3">
         </div>
         <!--NET_SM-->
         <p class="title">Subnet Mask</p>
         <div class="box">
           <input type="text" name="FirstName" value="" class="casella" id="net_sm_0">
-          <input type="text" name="FirstName" value="" class="casella" id="net_sm_1">
-          <input type="text" name="FirstName" value="" class="casella" id="net_sm_2">
-          <input type="text" name="FirstName" value="" class="casella" id="net_sm_3">
+
         </div>
         <!--NET_DFGW-->
         <p class="title">Default Gateway</p>
         <div class="box">
           <input type="text" name="FirstName" value="" class="casella" id="net_dfgw_0">
-          <input type="text" name="FirstName" value="" class="casella" id="net_dfgw_1">
-          <input type="text" name="FirstName" value="" class="casella" id="net_dfgw_2">
-          <input type="text" name="FirstName" value="" class="casella" id="net_dfgw_3">
+
         </div>
         <!--NET_DNS-->
         <p class="title">Indirizzo DNS</p>
         <div class="box" style="padding-bottom:1.5rem;">
           <input type="text" name="FirstName" value="" class="casella" id="net_dns_0">
-          <input type="text" name="FirstName" value="" class="casella" id="net_dns_1">
-          <input type="text" name="FirstName" value="" class="casella" id="net_dns_2">
-          <input type="text" name="FirstName" value="" class="casella" id="net_dns_3">
+
         </div>
       </div>
-      <p class="title_1">Sensore</p>
+      <p class="title_1">Impostazioni Generali</p>
       <div id="sensore">
         <!-- aula -->
-        <p class="title" style="padding-top:1.5rem;">Stanza</p>
-        <input type="text" value="" class="long" id="aula">
+        <!--<p class="title" style="padding-top:1.5rem;">Stanza</p>-->
+        <label class="input_and_titles" for="aula" style="margin-top:5px;">Aula/Laboratorio </label><br><input class="input_and_titles" type="text" value="" class="long" id="aula" required>
+        <br>
+        <br>
         <!-- api_url -->
-        <p class="title">API Url</p>
-        <input type="text" value="" class="long" id="api_url">
+        <!--<p class="title">API Url</p>-->
+        <label class="input_and_titles" for="api_url">API Url </label><br><input class="input_and_titles" type="text" value=http://172.16.1.98/orario/ttroomtosommm.php class="long" id="api_url" required>
       </div>
       <div class="box" style="padding-top:1.5rem;">
-        <input type="submit" id="save" value="Salva">
+        <input id= "button" type="submit" id="save" value="Salva" >
       </div>
   </div>
   </form>
@@ -85,44 +83,58 @@
         $(this).prop("checked") ? $("#indirizzo_ip").show() : $("#indirizzo_ip").hide();
       });
 
+      function ipError(){
+        alert("Per favore, inserisci un indirizzo ip valido");
+        return false;
+      }
+
+      var reGex =/^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
       $("#send").submit(function (e) {
         e.preventDefault();
+        var net_dfgw_0 = ['', '', '',''];
+        var net_ip_0 = ['','','',''];
+        var net_dns_0 = ['','','',''];
+        var net_sm_0 = ['','','',''];
 
         // Delay time tolto, per ora
         net_ssid = $("#net_ssid").val();
+
         net_pswd = $("#net_pswd").val();
 
         net_static = $("#net_static").prop("checked") ? "1" : "0";
 
-        net_ip_0 = $("#net_ip_0").val();
-        net_ip_1 = $("#net_ip_1").val();
-        net_ip_2 = $("#net_ip_2").val();
-        net_ip_3 = $("#net_ip_3").val();
+        if(net_static == 1){
+        net_ip_0 = (reGex.test($("#net_ip_0").val()))  ?   $("#net_ip_0").val().split(".")  : ipError() ;
 
-        net_dns_0 = $("#net_dns_0").val();
-        net_dns_1 = $("#net_dns_1").val();
-        net_dns_2 = $("#net_dns_2").val();
-        net_dns_3 = $("#net_dns_3").val();
+        net_dns_0 = (reGex.test($("#net_dns_0").val())) ? $("#net_dns_0").val().split(".")  : ipError() ;
 
-        net_dfgw_0 = $("#net_dfgw_0").val();
-        net_dfgw_1 = $("#net_dfgw_1").val();
-        net_dfgw_2 = $("#net_dfgw_2").val();
-        net_dfgw_3 = $("#net_dfgw_3").val();
+        net_dfgw_0 = (reGex.test($("#net_dfgw_0").val())) ? $("#net_dfgw_0").val().split(".") : ipError();
 
-        net_sm_0 = $("#net_sm_0").val();
-        net_sm_1 = $("#net_sm_1").val();
-        net_sm_2 = $("#net_sm_2").val();
-        net_sm_3 = $("#net_sm_3").val();
-
+        net_sm_0 = (reGex.test($("#net_sm_0").val())) ? $("#net_sm_0").val().split(".") : ipError();
+      }
         aula = $("#aula").val();
         api_url = $("#api_url").val();
 
-        var params = {net_ssid: net_ssid, net_pswd: net_pswd, net_ip_0: net_ip_0, net_ip_1: net_ip_1, net_ip_2: net_ip_2, net_ip_3: net_ip_3, net_dns_0: net_dns_0, net_dns_1: net_dns_1, net_dns_2: net_dns_2, net_dns_3: net_dns_3, net_dfgw_0: net_dfgw_0, net_dfgw_1: net_dfgw_1, net_dfgw_2: net_dfgw_2, net_dfgw_3: net_dfgw_3, net_sm_0: net_sm_0, net_sm_1: net_sm_1, net_sm_2: net_sm_2, net_sm_3: net_sm_3, net_static: net_static, aula: aula, api_url: api_url};
+        var params = {net_ssid: net_ssid, net_pswd: net_pswd, net_ip_0: net_ip_0[0], net_ip_1: net_ip_0[1], net_ip_2: net_ip_0[2], net_ip_3: net_ip_0[3], net_dns_0: net_dns_0[0], net_dns_1: net_dns_0[1], net_dns_2: net_dns_0[2], net_dns_3: net_dns_0[3], net_dfgw_0: net_dfgw_0[0], net_dfgw_1: net_dfgw_0[1], net_dfgw_2: net_dfgw_0[2], net_dfgw_3: net_dfgw_0[3], net_sm_0: net_sm_0[0], net_sm_1: net_sm_0[1], net_sm_2: net_sm_0[2], net_sm_3: net_sm_0[3], net_static: net_static, aula: aula, api_url: api_url};
         console.log(params);
 
-        $.get('/save', params, function (data) {
+        /*$.get('/save', params, function (data) {
           console.log(data)
-        })
+        })*/
+        $.ajax({
+          url:'/save',
+          type:'post',
+          data: 'params',
+          success:function(data){
+            console.log(data);
+            alert(data);
+          },
+          error : function(data){
+            console.error(data.responseText);
+            alert(data.responseText);
+          }
+
+        });
       });
 
     })
