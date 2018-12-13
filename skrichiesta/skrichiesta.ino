@@ -238,7 +238,7 @@ void setup()
     if (!server.authenticate(www_username, www_password)) {
       return server.requestAuthentication();
     }
-    server.send(200, "text/plain", "Login OK");
+    //server.send(200, "text/plain", "Login OK");
     save_json();
   });
 
@@ -260,6 +260,9 @@ void setup()
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
     server.serveStatic("/js", SPIFFS, "/js");
+    server.on("/info", [](){
+      return server.send(200, "text/plain", String(aula));
+    });
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
@@ -285,6 +288,9 @@ void setup()
     //Avviso con modalità 1 il display che ho creato un access point
 
     server.serveStatic("/js", SPIFFS, "/js");
+    server.on("/info", [](){
+      return server.send(200, "text/plain", String(aula));
+    });
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
