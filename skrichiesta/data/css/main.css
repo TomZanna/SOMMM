@@ -101,12 +101,16 @@ input{
 }
 .input_and_titles{
   margin: 1rem;
+  width: 90%;
+  position: relative;
 }
 .title{
   margin: 1rem;
 }
 .casella{
   margin:1rem;
+  width: 90%;
+  position: relative;
 }
 
 @media only screen and (min-width:800px) {
@@ -137,7 +141,7 @@ input{
 
   #logo{
       position:relative;
-      top: 0.6rem;
+      /*top: 0.6rem;*/
       left: 2rem;
       background-image: url("../img/logo.png");
       background-repeat: no-repeat;
