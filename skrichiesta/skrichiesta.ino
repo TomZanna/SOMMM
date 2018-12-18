@@ -1,44 +1,44 @@
 /*
- * ##########################################################################
- * 
- *          Smart Orario Management Marconi Magalini
- *                        5AI anno 2k18/2k19
- *          -------------------------------------------
- *                             TEAM 1
- *          -------------------------------------------
- *                        
+   ##########################################################################
+
+            Smart Orario Management Marconi Magalini
+                          5AI anno 2k18/2k19
+            -------------------------------------------
+                               TEAM 1
+            -------------------------------------------
+
  *           *- Riccardo Bussola
  *           *- Cucino Federico
  *           *- Victor Annunziata
- *    
- *           Project : SOM^3
- *           
- *           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- 
-          _____                   _______                   _____          
-         /\    \                 /::\    \                 /\    \         
-        /::\    \               /::::\    \               /::\____\        
-       /::::\    \             /::::::\    \             /::::|   |        
-      /::::::\    \           /::::::::\    \           /:::::|   |        
-     /:::/\:::\    \         /:::/~~\:::\    \         /::::::|   |        
-    /:::/__\:::\    \       /:::/    \:::\    \       /:::/|::|   |        
-    \:::\   \:::\    \     /:::/    / \:::\    \     /:::/ |::|   |        
-  ___\:::\   \:::\    \   /:::/____/   \:::\____\   /:::/  |::|___|______  
- /\   \:::\   \:::\    \ |:::|    |     |:::|    | /:::/   |::::::::\    \ 
-/::\   \:::\   \:::\____\|:::|____|     |:::|    |/:::/    |:::::::::\____\
-\:::\   \:::\   \::/    / \:::\    \   /:::/    / \::/    / ~~~~~/:::/    /
- \:::\   \:::\   \/____/   \:::\    \ /:::/    /   \/____/      /:::/    / 
-  \:::\   \:::\    \        \:::\    /:::/    /                /:::/    /  
-   \:::\   \:::\____\        \:::\__/:::/    /                /:::/    /   
-    \:::\  /:::/    /         \::::::::/    /                /:::/    /    
-     \:::\/:::/    /           \::::::/    /                /:::/    /     
-      \::::::/    /             \::::/    /                /:::/    /      
-       \::::/    /               \::/____/                /:::/    /       
-        \::/    /                 ~~                      \::/    /        
+
+             Project : SOM^3
+
+             @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+          _____                   _______                   _____
+         /\    \                 /::\    \                 /\    \
+        /::\    \               /::::\    \               /::\____\
+       /::::\    \             /::::::\    \             /::::|   |
+      /::::::\    \           /::::::::\    \           /:::::|   |
+     /:::/\:::\    \         /:::/~~\:::\    \         /::::::|   |
+    /:::/__\:::\    \       /:::/    \:::\    \       /:::/|::|   |
+    \:::\   \:::\    \     /:::/    / \:::\    \     /:::/ |::|   |
+  ___\:::\   \:::\    \   /:::/____/   \:::\____\   /:::/  |::|___|______
+  /\   \:::\   \:::\    \ |:::|    |     |:::|    | /:::/   |::::::::\    \
+  /::\   \:::\   \:::\____\|:::|____|     |:::|    |/:::/    |:::::::::\____\
+  \:::\   \:::\   \::/    / \:::\    \   /:::/    / \::/    / ~~~~~/:::/    /
+  \:::\   \:::\   \/____/   \:::\    \ /:::/    /   \/____/      /:::/    /
+  \:::\   \:::\    \        \:::\    /:::/    /                /:::/    /
+   \:::\   \:::\____\        \:::\__/:::/    /                /:::/    /
+    \:::\  /:::/    /         \::::::::/    /                /:::/    /
+     \:::\/:::/    /           \::::::/    /                /:::/    /
+      \::::::/    /             \::::/    /                /:::/    /
+       \::::/    /               \::/____/                /:::/    /
+        \::/    /                 ~~                      \::/    /
          \/____/                                           \/____/     v 1.0
-                                                                           
- * ##########################################################################
- */
+
+   ##########################################################################
+*/
 
 // Librerie per la gestione del display e-paper
 
@@ -234,7 +234,7 @@ void setup()
   }
   Serial.println("");
   Serial.println(WiFi.macAddress());
-  
+
 
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -343,7 +343,7 @@ void save_json()
   }
   else
   {
-    Serial.println("Configuazione correttamente caricata");
+    Serial.println("Configurazione correttamente caricata");
     json.printTo(Serial);
     Serial.println("");
   }
@@ -420,23 +420,22 @@ void save_json()
   request = 0;
 
   delay(100); //aspetto che tutto sia correttamente settato e poi scrivo
-  
+
   if (!server.authenticate(www_username, www_password))
   {
     return server.requestAuthentication();
   }
-  
-    File save = SPIFFS.open("/config.json", "w"); //Apro il file in modalità scrittura
 
-    delay(200);
-    json.printTo(save);   //salvo la nuova configurazione
-    json.printTo(Serial); // stampo la nuova configurazione
+  File save = SPIFFS.open("/config.json", "w"); //Apro il file in modalità scrittura
 
-    server.send(200, "text/plain", "Salvataggio efettuato correttamente. Riavvia SOMMM appena led rossa spenta"); //messaggio di callback per client web
+  delay(200);
+  json.printTo(save);   //salvo la nuova configurazione
+  json.printTo(Serial); // stampo la nuova configurazione
 
-    Serial.println("Riavvia il dispositivo appena led rosso spento");
-    update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento");
-  
+  server.send(200, "text/plain", "Salvataggio efettuato correttamente. Riavvia SOMMM appena led rosso spento"); //messaggio di callback per client web
+  Serial.println("Riavvia il dispositivo appena led rosso spento");
+  update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento");
+
 
   //Riavvio dispositivo
 }

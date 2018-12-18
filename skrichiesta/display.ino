@@ -5,32 +5,31 @@ void update_display(int page_mode, String string_1, String string_2)
 
   switch (page_mode)
   {
-  case 0:
-    ePaper.drawPaged(startup); // Modalità logo
-    break;
-  case 1:
-    ePaper.drawPaged(communication); // Modalità comunicazione/errore
-    break;
-  case 2:
-    httpCode = http.GET();
-    String response = http.getString();
-    payload = response.c_str();
+    case 0:
+      ePaper.drawPaged(startup); // Modalità logo
+      break;
+    case 1:
+      ePaper.drawPaged(communication); // Modalità comunicazione/errore
+      break;
+    case 2:
+      httpCode = http.GET();
+      String response = http.getString();
+      payload = response.c_str();
 
-    Serial.println(httpCode);
-    Serial.println(payload);
+      Serial.println(httpCode);
+      Serial.println(payload);
 
-    http.end();
+      http.end();
 
-    ePaper.drawPaged(table); // Modalità comunicazione/errore
-    break;
+      ePaper.drawPaged(table); // Modalità comunicazione/errore
+      break;
   }
 }
 
 /**
- * Modalità di startup dove viene visualizzato il logo som e iti g. marconi
- * @ page_mode 0 
- */
-
+   Modalità di startup dove viene visualizzato il logo som e iti g. marconi
+   @ page_mode 0
+*/
 void startup()
 {
   ePaper.eraseDisplay();
@@ -39,11 +38,10 @@ void startup()
 }
 
 /**
- * Modalità di comunicazione utilizando le due stringhe globali mex_1 e mex_2
- * @ page_mode 1
- * z
- */
-
+   Modalità di comunicazione utilizando le due stringhe globali mex_1 e mex_2
+   @ page_mode 1
+   z
+*/
 void communication()
 {
   ePaper.eraseDisplay();
@@ -62,17 +60,16 @@ void communication()
 }
 
 /**
- * Modalità di visualizzazione dell'orario preso da marconi tt
- * @ page_mode 2
- */
-
+   Modalità di visualizzazione dell'orario preso da marconi tt
+   @ page_mode 2
+*/
 void table()
 {
 
   /**
-   *    !!!!PAURISSIMAAA!!!!! 
-   *    Provo a gestire l'interpretazione del mio json
-   */
+        !!!!PAURISSIMAAA!!!!!
+        Provo a gestire l'interpretazione del mio json
+  */
 
   const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
   DynamicJsonBuffer jsonBuffer(bufferSize);
@@ -90,8 +87,8 @@ void table()
   {
     giorno = "Errore di connesione x(";
   }
-  //################################################################################################################
 
+  //################################################################################################################
   //CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
 
   JsonArray &oggi = root["oggi"]; //Oggetto "oggi" contenente tutte le informazioni
@@ -108,18 +105,18 @@ void table()
   JsonObject &decima = oggi[9];
 
   const char *today_matrix[10][5] = {{prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["res"]},
-                                     {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]},
-                                     {terza["ora"], terza["prof1"], terza["prof2"], terza["mat"], terza["res"]},
-                                     {quarta["ora"], quarta["prof1"], quarta["prof2"], quarta["mat"], quarta["res"]},
-                                     {quinta["ora"], quinta["prof1"], quinta["prof2"], quinta["mat"], quinta["res"]},
-                                     {sesta["ora"], sesta["prof1"], sesta["prof2"], sesta["mat"], sesta["res"]},
-                                     {settima["ora"], settima["prof1"], settima["prof2"], settima["mat"], settima["res"]},
-                                     {ottava["ora"], ottava["prof1"], ottava["prof2"], ottava["mat"], ottava["res"]},
-                                     {nona["ora"], nona["prof1"], nona["prof2"], nona["mat"], nona["res"]},
-                                     {decima["ora"], decima["prof1"], decima["prof2"], decima["mat"], decima["res"]}};
+    {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]},
+    {terza["ora"], terza["prof1"], terza["prof2"], terza["mat"], terza["res"]},
+    {quarta["ora"], quarta["prof1"], quarta["prof2"], quarta["mat"], quarta["res"]},
+    {quinta["ora"], quinta["prof1"], quinta["prof2"], quinta["mat"], quinta["res"]},
+    {sesta["ora"], sesta["prof1"], sesta["prof2"], sesta["mat"], sesta["res"]},
+    {settima["ora"], settima["prof1"], settima["prof2"], settima["mat"], settima["res"]},
+    {ottava["ora"], ottava["prof1"], ottava["prof2"], ottava["mat"], ottava["res"]},
+    {nona["ora"], nona["prof1"], nona["prof2"], nona["mat"], nona["res"]},
+    {decima["ora"], decima["prof1"], decima["prof2"], decima["mat"], decima["res"]}
+  };
 
   //################################################################################################################
-
   //CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "SETTIMANA"
 
   JsonObject &settimana = root["settimana"]; //Oggetto "settima" contenente tutte le informazioni
@@ -132,11 +129,12 @@ void table()
   JsonObject &settimana_6 = settimana["6"];
 
   const char *settimana_matrix[6][6] = {{settimana_1["1"], settimana_1["2"], settimana_1["3"], settimana_1["4"], settimana_1["5"], settimana_1["6"]},
-                                        {settimana_2["1"], settimana_2["2"], settimana_2["3"], settimana_2["4"], settimana_2["5"], settimana_2["6"]},
-                                        {settimana_3["1"], settimana_3["2"], settimana_3["3"], settimana_3["4"], settimana_3["5"], settimana_3["6"]},
-                                        {settimana_4["1"], settimana_4["2"], settimana_4["3"], settimana_4["4"], settimana_4["5"], settimana_4["6"]},
-                                        {settimana_5["1"], settimana_5["2"], settimana_5["3"], settimana_5["4"], settimana_5["5"], settimana_5["6"]},
-                                        {settimana_6["1"], settimana_6["2"], settimana_6["3"], settimana_6["4"], settimana_6["5"], settimana_6["6"]}};
+    {settimana_2["1"], settimana_2["2"], settimana_2["3"], settimana_2["4"], settimana_2["5"], settimana_2["6"]},
+    {settimana_3["1"], settimana_3["2"], settimana_3["3"], settimana_3["4"], settimana_3["5"], settimana_3["6"]},
+    {settimana_4["1"], settimana_4["2"], settimana_4["3"], settimana_4["4"], settimana_4["5"], settimana_4["6"]},
+    {settimana_5["1"], settimana_5["2"], settimana_5["3"], settimana_5["4"], settimana_5["5"], settimana_5["6"]},
+    {settimana_6["1"], settimana_6["2"], settimana_6["3"], settimana_6["4"], settimana_6["5"], settimana_6["6"]}
+  };
 
   //###########################################################################
 
@@ -179,7 +177,7 @@ void table()
       ePaper.setFont(f);
 
       ePaper.setCursor(342, 90 + (53 * j) + j);
-      ePaper.println(j+1);
+      ePaper.println(j + 1);
 
       if (j + 1 == oraAttuale)
       {
@@ -194,10 +192,10 @@ void table()
       ePaper.setFont(f);
 
       ePaper.setCursor(363, 110 + (53 * j) + j);
-      ePaper.println(today_matrix[j][1]); //primo professore
+      ePaper.println(today_matrix[j][1]); // primo professore
 
       ePaper.setCursor(363, 85 + (53 * j) + j);
-      ePaper.println(today_matrix[j][2]); // secondoi professore
+      ePaper.println(today_matrix[j][2]); // secondo professore
 
       f = &FreeSans9pt7b;
       ePaper.setFont(f);
@@ -219,12 +217,12 @@ void table()
     {
       f = &FreeSans9pt7b;
       ePaper.setFont(f);
-      
-      ePaper.setCursor(342, 90 + (53 * (j-4)) + j);
-      if(j+1==10){
+
+      ePaper.setCursor(342, 90 + (53 * (j - 4)) + j);
+      if (j + 1 == 10) {
         ePaper.println('X');
-      }else{
-        ePaper.println((j)+1);
+      } else {
+        ePaper.println((j) + 1);
       }
 
       if (j + 1 == oraAttuale)
@@ -243,7 +241,7 @@ void table()
       ePaper.println(today_matrix[j][1]); //primo professore
 
       ePaper.setCursor(363, 85 + (53 * (j - 4)) + j - 4);
-      ePaper.println(today_matrix[j][2]); // secondoi professore
+      ePaper.println(today_matrix[j][2]); // secondo professore
 
       f = &FreeSans9pt7b;
       ePaper.setFont(f);
@@ -265,10 +263,10 @@ void table()
     ePaper.setFont(f);
 
     ePaper.setCursor(363, 82);
-    ePaper.println("Giornata scolastica"); //primo professore
+    ePaper.println("Giornata scolastica");
 
     ePaper.setCursor(363, 107);
-    ePaper.println("terminata"); // secondoi professore
+    ePaper.println("terminata");
   }
 
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ò
@@ -342,5 +340,5 @@ void table()
   ePaper.setFont(f);
 
   ePaper.setCursor(8, 365);
-  ePaper.println(giorno); //info giorno
+  ePaper.println(giorno); // info giorno
 }
