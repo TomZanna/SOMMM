@@ -210,7 +210,7 @@ function weekRows($rows) {
     $oggi = array();
 
     while ($row = $rows->fetch_assoc()) {
-        $res = $row['risorsa'];
+        $res = strtoupper($row['risorsa']);
         if (strlen($res) > 3) $res = 'OC.'; // Se attività extra solitamente la descrizione è maggiore di 3 caratteri, quindi 'OC.' per 'OCCUPATO'
         $oggi[$row['giorno_settimana']][$row['ora']] = $res; // La query dovrebbe essere già ordinata per giorno_settimana, ora
     }
