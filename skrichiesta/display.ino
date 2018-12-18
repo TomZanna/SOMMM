@@ -167,7 +167,7 @@ void table()
 
   // Disegno le informazioni ora per ora
 
-  int pos_y[6] = {85, 135, 190, 245, 300, 350};
+  int pos_y[6] = {100, 153, 205, 260, 315, 368};
   ePaper.setTextColor(GxEPD_BLACK);
 
   if (oraAttuale != 0 && oraAttuale < 5)
@@ -175,14 +175,19 @@ void table()
 
     for (int j = 0; j < 6; j++)
     {
+      f = &FreeSans9pt7b;
+      ePaper.setFont(f);
+
+      ePaper.setCursor(342, 90 + (53 * j) + j);
+      ePaper.println(j+1);
 
       if (j + 1 == oraAttuale)
       {
-        ePaper.fillRect(340, pos_y[j], 15, 15, GxEPD_BLACK);
+        ePaper.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
       }
       else
       {
-        ePaper.drawRect(340, pos_y[j], 15, 15, GxEPD_BLACK);
+        ePaper.drawRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
       }
 
       f = &FreeSans9pt7b;
@@ -212,14 +217,23 @@ void table()
 
     for (int j = 4; j < 10; j++)
     {
+      f = &FreeSans9pt7b;
+      ePaper.setFont(f);
+      
+      ePaper.setCursor(342, 90 + (53 * (j-4)) + j);
+      if(j+1==10){
+        ePaper.println('X');
+      }else{
+        ePaper.println((j)+1);
+      }
 
       if (j + 1 == oraAttuale)
       {
-        ePaper.fillRect(340, pos_y[j - 4], 15, 15, GxEPD_BLACK);
+        ePaper.fillRect(340, pos_y[j - 4], 15, 5, GxEPD_BLACK);
       }
       else
       {
-        ePaper.drawRect(340, pos_y[j - 4], 15, 15, GxEPD_BLACK);
+        ePaper.drawRect(340, pos_y[j - 4], 15, 5, GxEPD_BLACK);
       }
 
       f = &FreeSans9pt7b;

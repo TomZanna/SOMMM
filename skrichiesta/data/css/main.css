@@ -113,6 +113,10 @@ input{
   position: relative;
 }
 
+#salva {
+  width: 100%;
+}
+
 @media only screen and (min-width:800px) {
   #navbar{
       position: fixed;
@@ -135,7 +139,7 @@ input{
     border-radius: 0.5rem;
     border:0px;
   }
-  #button{
+  .button{
     height:3rem;
   }
 

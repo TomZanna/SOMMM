@@ -1,7 +1,7 @@
 /*
  * ##########################################################################
  * 
- *          Sistema Orario Marconi Management Magalini
+ *          Smart Orario Management Marconi Magalini
  *                        5AI anno 2k18/2k19
  *          -------------------------------------------
  *                             TEAM 1
@@ -93,6 +93,7 @@ const char *net_ssid = "";
 const char *net_pswd = "";
 const char *api_url = "";
 const char *aula = "";
+String aula_id = "";
 
 int delay_time = 0;
 bool static_config = 0; //static or DHCP
@@ -161,6 +162,7 @@ void setup()
   net_pswd = config_json["net_pswd"];
   api_url = config_json["api_url"];
   aula = config_json["aula"];
+  aula_id = String(aula);
   delay_time = config_json["delay_time"];
 
   static_config = config_json["net_static"];
@@ -232,17 +234,9 @@ void setup()
   }
   Serial.println("");
   Serial.println(WiFi.macAddress());
-
   
-  server.on("/save", []() {
-    if (!server.authenticate(www_username, www_password)) {
-      return server.requestAuthentication();
-    }
-    //server.send(200, "text/plain", "Login OK");
-    save_json();
-  });
 
-      if (WiFi.status() == WL_CONNECTED)
+  if (WiFi.status() == WL_CONNECTED)
   {
     //Connessione stabilita
     Serial.println(WiFi.localIP().toString().c_str());
@@ -260,9 +254,10 @@ void setup()
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
     server.serveStatic("/js", SPIFFS, "/js");
-    server.on("/info", [](){
-      return server.send(200, "text/plain", String(aula));
+    server.on("/info", []() {
+      return server.send(200, "text/plain", aula_id);
     });
+    server.on("/save", save_json);
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
@@ -288,9 +283,10 @@ void setup()
     //Avviso con modalità 1 il display che ho creato un access point
 
     server.serveStatic("/js", SPIFFS, "/js");
-    server.on("/info", [](){
-      return server.send(200, "text/plain", String(aula));
+    server.on("/info", []() {
+      return server.send(200, "text/plain", aula_id);
     });
+    server.on("/save", save_json);
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
@@ -376,11 +372,6 @@ void save_json()
     json.set("aula", server.arg("aula"));
   }
 
-  if (server.arg("delay_time") != "")
-  { //seconda parte con path api
-    json.set("delay_time", server.arg("delay_time"));
-  }
-
   if (server.arg("net_static") != "")
   { // 1-0 abilita configurazione statica
     json.set("net_static", server.arg("net_static"));
@@ -426,19 +417,26 @@ void save_json()
     json.set("net_dns_3", server.arg("net_dns_3"));
   }
 
-  delay(100); //aspetto che tutto sia correttamente settato e poi scrivo
-
-  File save = SPIFFS.open("/config.json", "w"); //Apro il file in modalità scrittura
-
-  delay(200);
-  json.printTo(save);   //salvo la nuova configurazione
-  json.printTo(Serial); // stampo la nuova configurazione
-
-  server.send(200, "text/plain", "Salvataggio efettuato correttamente. RST su SOMMM appena led rossa spenta"); //messaggio di callback per client web
-
-  Serial.println("Riavvia il dispositivo premendo sul pulsante RST appena led rosso spento");
-  update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento");
   request = 0;
+
+  delay(100); //aspetto che tutto sia correttamente settato e poi scrivo
+  
+  if (!server.authenticate(www_username, www_password))
+  {
+    return server.requestAuthentication();
+  }
+  
+    File save = SPIFFS.open("/config.json", "w"); //Apro il file in modalità scrittura
+
+    delay(200);
+    json.printTo(save);   //salvo la nuova configurazione
+    json.printTo(Serial); // stampo la nuova configurazione
+
+    server.send(200, "text/plain", "Salvataggio efettuato correttamente. Riavvia SOMMM appena led rossa spenta"); //messaggio di callback per client web
+
+    Serial.println("Riavvia il dispositivo appena led rosso spento");
+    update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento");
+  
 
   //Riavvio dispositivo
 }
