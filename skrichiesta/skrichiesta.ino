@@ -1,44 +1,44 @@
 /*
- * ##########################################################################
- * 
- *          Sistema Orario Marconi Management Magalini
- *                        5AI anno 2k18/2k19
- *          -------------------------------------------
- *                             TEAM 1
- *          -------------------------------------------
- *                        
+   ##########################################################################
+
+            Smart Orario Management Marconi Magalini
+                          5AI anno 2k18/2k19
+            -------------------------------------------
+                               TEAM 1
+            -------------------------------------------
+
  *           *- Riccardo Bussola
  *           *- Cucino Federico
  *           *- Victor Annunziata
- *    
- *           Projwct : SOM^3
- *           
- *           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- 
-          _____                   _______                   _____          
-         /\    \                 /::\    \                 /\    \         
-        /::\    \               /::::\    \               /::\____\        
-       /::::\    \             /::::::\    \             /::::|   |        
-      /::::::\    \           /::::::::\    \           /:::::|   |        
-     /:::/\:::\    \         /:::/~~\:::\    \         /::::::|   |        
-    /:::/__\:::\    \       /:::/    \:::\    \       /:::/|::|   |        
-    \:::\   \:::\    \     /:::/    / \:::\    \     /:::/ |::|   |        
-  ___\:::\   \:::\    \   /:::/____/   \:::\____\   /:::/  |::|___|______  
- /\   \:::\   \:::\    \ |:::|    |     |:::|    | /:::/   |::::::::\    \ 
-/::\   \:::\   \:::\____\|:::|____|     |:::|    |/:::/    |:::::::::\____\
-\:::\   \:::\   \::/    / \:::\    \   /:::/    / \::/    / ~~~~~/:::/    /
- \:::\   \:::\   \/____/   \:::\    \ /:::/    /   \/____/      /:::/    / 
-  \:::\   \:::\    \        \:::\    /:::/    /                /:::/    /  
-   \:::\   \:::\____\        \:::\__/:::/    /                /:::/    /   
-    \:::\  /:::/    /         \::::::::/    /                /:::/    /    
-     \:::\/:::/    /           \::::::/    /                /:::/    /     
-      \::::::/    /             \::::/    /                /:::/    /      
-       \::::/    /               \::/____/                /:::/    /       
-        \::/    /                 ~~                      \::/    /        
+
+             Project : SOM^3
+
+             @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+          _____                   _______                   _____
+         /\    \                 /::\    \                 /\    \
+        /::\    \               /::::\    \               /::\____\
+       /::::\    \             /::::::\    \             /::::|   |
+      /::::::\    \           /::::::::\    \           /:::::|   |
+     /:::/\:::\    \         /:::/~~\:::\    \         /::::::|   |
+    /:::/__\:::\    \       /:::/    \:::\    \       /:::/|::|   |
+    \:::\   \:::\    \     /:::/    / \:::\    \     /:::/ |::|   |
+  ___\:::\   \:::\    \   /:::/____/   \:::\____\   /:::/  |::|___|______
+  /\   \:::\   \:::\    \ |:::|    |     |:::|    | /:::/   |::::::::\    \
+  /::\   \:::\   \:::\____\|:::|____|     |:::|    |/:::/    |:::::::::\____\
+  \:::\   \:::\   \::/    / \:::\    \   /:::/    / \::/    / ~~~~~/:::/    /
+  \:::\   \:::\   \/____/   \:::\    \ /:::/    /   \/____/      /:::/    /
+  \:::\   \:::\    \        \:::\    /:::/    /                /:::/    /
+   \:::\   \:::\____\        \:::\__/:::/    /                /:::/    /
+    \:::\  /:::/    /         \::::::::/    /                /:::/    /
+     \:::\/:::/    /           \::::::/    /                /:::/    /
+      \::::::/    /             \::::/    /                /:::/    /
+       \::::/    /               \::/____/                /:::/    /
+        \::/    /                 ~~                      \::/    /
          \/____/                                           \/____/     v 1.0
-                                                                           
- * ##########################################################################
- */
+
+   ##########################################################################
+*/
 
 // Librerie per la gestione del display e-paper
 
@@ -50,8 +50,6 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
 
-
-
 // Libreria per JSON su arduino
 
 #include <ArduinoJson.h>
@@ -62,17 +60,15 @@
 #include "images.h"
 
 // Font di varia grandezza per il display
-#include <Fonts/RobotoRegular9pt7b.h>
-#include <Fonts/RobotoRegular10pt7b.h>
-#include <Fonts/RobotoRegular12pt7b.h>
-#include <Fonts/RobotoRegular18pt7b.h>
-
-
+#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
+#include <Fonts/FreeSans18pt7b.h>
+#include <Fonts/FreeSansBold9pt7b.h>
 
 #include <GxIO/GxIO_SPI/GxIO_SPI.cpp>
 #include <GxIO/GxIO.cpp>
 
-ESP8266WebServer server(80); //settaggio serrver sulla porta 80
+ESP8266WebServer server(1518); //settaggio serrver sulla porta 1518
 
 // Seguendo il datasheet della ESP8266 driver board di waveshare
 
@@ -80,14 +76,16 @@ GxIO_Class io(SPI, /*CS=D15*/ 15, /*DC=D4*/ 4, /*RST=D5*/ 5);
 GxEPD_Class ePaper(io, 5, 16 /*RST=D5*/ /*BUSY=D16*/);
 
 // bool save = 0; non so a cosa serve
-
 bool request = 0;
 
-String mex_1 = ""; // riga comunicazione 1
-String mex_2 = ""; // riga comunicazione 2
-const char* payload = ""; //payload come variabile globale
-int giorno_settimana = 3; //giorno settimana globale
+String mex_1 = "";        // riga comunicazione 1
+String mex_2 = "";        // riga comunicazione 2
+const char *payload = ""; //payload come variabile globale
+int oraAttuale = 1;       // sisema di switch per le giornate con + di 6 ore
+int httpCode = 0;
 
+const char *www_username = "SOMMM";
+const char *www_password = "SistemaOrarioMaga";
 
 // Dichiarazione di variabili in parte poi caricate da config.js
 
@@ -95,9 +93,10 @@ const char *net_ssid = "";
 const char *net_pswd = "";
 const char *api_url = "";
 const char *aula = "";
+String aula_id = "";
 
 int delay_time = 0;
-bool static_config = 0;      //static or DHCP 
+bool static_config = 0; //static or DHCP
 
 int ip[4], dns[4], default_gw[4], subnet_m[4];
 
@@ -105,10 +104,9 @@ String getData, Link, file_config;
 
 HTTPClient http;
 
-
 //Dichiaro funzioni da implementare
 
-void update_display(int page_mode, String string_1,  String string_2);
+void update_display(int page_mode, String string_1, String string_2);
 void save_json();
 
 void setup()
@@ -128,7 +126,7 @@ void setup()
   if (!SPIFFS.begin())
   {
     Serial.println("File system non montato ");
-    update_display(1,"Errore File System",":X");
+    update_display(1, "Errore File System", ":X");
   }
   else
   {
@@ -149,7 +147,7 @@ void setup()
   if (!config_json.success())
   {
     Serial.println("Impossibile leggere la configurazione");
-    update_display(1,"Errore di lettura json",":X");
+    update_display(1, "Errore di lettura json", ":X");
   }
   else
   {
@@ -164,6 +162,7 @@ void setup()
   net_pswd = config_json["net_pswd"];
   api_url = config_json["api_url"];
   aula = config_json["aula"];
+  aula_id = String(aula);
   delay_time = config_json["delay_time"];
 
   static_config = config_json["net_static"];
@@ -188,10 +187,8 @@ void setup()
   dns[2] = config_json["net_dns_2"];
   dns[3] = config_json["net_dns_3"];
 
-  
-
-  Serial.println(net_ssid);
-  Serial.println(net_pswd);
+  // Serial.println(net_ssid);
+  // Serial.println(net_pswd);
 
   if (static_config)
   {
@@ -218,7 +215,7 @@ void setup()
 
   long start_c = millis();
   long counter = 0;
-  long soglia = 300000; //soglia di controllo per passare il AP (default 25s) 
+  long soglia = 300000; //soglia di controllo per passare il AP (default 25s)
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED)
@@ -236,35 +233,37 @@ void setup()
     }
   }
   Serial.println("");
-  
+  Serial.println(WiFi.macAddress());
+
 
   if (WiFi.status() == WL_CONNECTED)
   {
     //Connessione stabilita
-
     Serial.println(WiFi.localIP().toString().c_str());
 
     //Setto http sull'indirizzo del mio server
 
-    String http_address = String(api_url) + String(aula); //Creo un merge per il mio indirizzo delle api
+    String http_address = String(api_url) + "?stanza=" + String(aula); //Creo un merge per il mio indirizzo delle api
 
     Serial.print("Richiesta settata su: "); //Stampo l'indirizzo
     Serial.println(http_address);
 
     request = 1; //Abilito l'invio del dato
 
-    http.begin(http_address);  //configuro e avio htt sul'url precedentemente dichiarato
-
+    http.begin(http_address); //configuro e avio htt sul'url precedentemente dichiarato
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
-    server.on("/save", save_json);
     server.serveStatic("/js", SPIFFS, "/js");
+    server.on("/info", []() {
+      return server.send(200, "text/plain", aula_id);
+    });
+    server.on("/save", save_json);
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
     server.begin(); //Faccio partire il server
 
-    update_display(2,"","");
+    update_display(2, "", "");
 
     // Mostro l'avvenuto successo della connesione su display e do informazioni utili all'utente
   }
@@ -275,23 +274,25 @@ void setup()
 
     WiFi.disconnect(); //Disconnetto la wifi
 
-    WiFi.softAP("SOMMM","SistemaOrarioMaga"); // ìdichiaro i parametri del mio access point
+    WiFi.softAP("SOMMM", "SistemaOrarioMaga"); // ìdichiaro i parametri del mio access point
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
-    update_display(1,"AP SOMMM","192.168.4.1"); //192.168.4.1 default
+    update_display(1, "AP SOMMM", "192.168.4.1"); //192.168.4.1 default
 
     //Avviso con modalità 1 il display che ho creato un access point
 
-    server.on("/save", save_json);
     server.serveStatic("/js", SPIFFS, "/js");
+    server.on("/info", []() {
+      return server.send(200, "text/plain", aula_id);
+    });
+    server.on("/save", save_json);
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
     server.begin(); //Faccio partire il server
   }
 }
-
 
 long time_start = millis();
 
@@ -301,21 +302,18 @@ void loop()
 
   if (request)
   {
-     if (delay_time>= 1000)
+    if (delay_time >= 1000)
     { //verifica se l'update_s è almeno maggiore di 1s
       if ((millis() - time_start) >= delay_time)
       {
         //mando la richiesta
         Serial.println("--------------------");
-        update_display(2,"","");
+        update_display(2, "", "");
         time_start = millis(); //azzerro il contatore
       }
     }
   }
 }
-
-
-
 
 void save_json()
 {
@@ -323,6 +321,7 @@ void save_json()
   if (!SPIFFS.begin()) //controllo di aver accesso al filesystem
   {
     // Se vine visualizzato c'è un problema al filesystem
+    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); //messaggio di callback per client web
     Serial.println("SPIFFS2 Mount failed");
   }
   else
@@ -338,12 +337,13 @@ void save_json()
 
   if (!json.success())
   {
+    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); //messaggio di callback per client web
     Serial.println("Impossibile leggere la configurazione");
-    update_display(1,"Errore salvataggio",":X");
+    update_display(1, "Impossibile leggere la configurazione", ":X");
   }
   else
   {
-    Serial.println("Configuazione correttamente caricata");
+    Serial.println("Configurazione correttamente caricata");
     json.printTo(Serial);
     Serial.println("");
   }
@@ -372,12 +372,7 @@ void save_json()
     json.set("aula", server.arg("aula"));
   }
 
-  if (server.arg("delay_time") != "")
-  { //seconda parte con path api
-    json.set("delay_time", server.arg("delay_time"));
-  }
-
-   if (server.arg("net_static") != "")
+  if (server.arg("net_static") != "")
   { // 1-0 abilita configurazione statica
     json.set("net_static", server.arg("net_static"));
   }
@@ -422,19 +417,25 @@ void save_json()
     json.set("net_dns_3", server.arg("net_dns_3"));
   }
 
+  request = 0;
+
   delay(100); //aspetto che tutto sia correttamente settato e poi scrivo
+
+  if (!server.authenticate(www_username, www_password))
+  {
+    return server.requestAuthentication();
+  }
 
   File save = SPIFFS.open("/config.json", "w"); //Apro il file in modalità scrittura
 
-
   delay(200);
-  json.printTo(save); //salvo la nuova configurazione
+  json.printTo(save);   //salvo la nuova configurazione
   json.printTo(Serial); // stampo la nuova configurazione
 
-  Serial.println("Riavvia il dispositivo premendo sul pulsante RST");
-  update_display(1,"Salvataggio effettuato ✓","Riavvio SOMM");
-  request = 0;
+  server.send(200, "text/plain", "Salvataggio efettuato correttamente. Riavvia SOMMM appena led rosso spento"); //messaggio di callback per client web
+  Serial.println("Riavvia il dispositivo appena led rosso spento");
+  update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento");
+
 
   //Riavvio dispositivo
-
 }
