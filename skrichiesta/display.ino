@@ -40,7 +40,6 @@ void startup()
 /**
    Modalità di comunicazione utilizando le due stringhe globali mex_1 e mex_2
    @ page_mode 1
-   z
 */
 void communication()
 {
@@ -67,8 +66,8 @@ void table()
 {
 
   /**
-        !!!!PAURISSIMAAA!!!!!
-        Provo a gestire l'interpretazione del mio json
+    !!!!PAURISSIMAAA!!!!!
+    Provo a gestire l'interpretazione del mio json
   */
 
   const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
@@ -88,10 +87,10 @@ void table()
     giorno = "Errore di connesione x(";
   }
 
-  //################################################################################################################
-  //CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
+  // ################################################################################################################
+  // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
 
-  JsonArray &oggi = root["oggi"]; //Oggetto "oggi" contenente tutte le informazioni
+  JsonArray &oggi = root["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
 
   JsonObject &prima = oggi[0];
   JsonObject &seconda = oggi[1];
@@ -116,10 +115,10 @@ void table()
     {decima["ora"], decima["prof1"], decima["prof2"], decima["mat"], decima["res"]}
   };
 
-  //################################################################################################################
-  //CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "SETTIMANA"
+  // ################################################################################################################
+  // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "SETTIMANA"
 
-  JsonObject &settimana = root["settimana"]; //Oggetto "settima" contenente tutte le informazioni
+  JsonObject &settimana = root["settimana"]; // Oggetto "settima" contenente tutte le informazioni
 
   JsonObject &settimana_1 = settimana["1"];
   JsonObject &settimana_2 = settimana["2"];
@@ -136,12 +135,12 @@ void table()
     {settimana_6["1"], settimana_6["2"], settimana_6["3"], settimana_6["4"], settimana_6["5"], settimana_6["6"]}
   };
 
-  //###########################################################################
+  // ###########################################################################
 
   ePaper.eraseDisplay(); //Eliminiamo l'immmagine presente sul dispositivo
 
-  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  //Parte di destra
+  // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  // Parte di destra
 
   ePaper.fillRect(335, 0, 305, 60, GxEPD_BLACK);
   ePaper.drawBitmap(gImage_logo, 500, 3, 125, 55, GxEPD_WHITE);
@@ -155,7 +154,7 @@ void table()
   ePaper.setCursor(363, 42);
   ePaper.println(stanza);
 
-  //Disegno i separatori
+  // Disegno i separatori
 
   ePaper.fillRect(355, 115, 280, 2, GxEPD_BLACK);
   ePaper.fillRect(355, 170, 280, 2, GxEPD_BLACK);
@@ -169,7 +168,7 @@ void table()
   ePaper.setTextColor(GxEPD_BLACK);
 
   if (oraAttuale != 0 && oraAttuale < 5)
-  { //mostro le prime 6 ore
+  { // mostro le prime 6 ore
 
     for (int j = 0; j < 6; j++)
     {
@@ -206,12 +205,12 @@ void table()
       f = &FreeSans18pt7b;
       ePaper.setFont(f);
 
-      ePaper.setCursor(575, 110 + (53 * j) + j);
+      ePaper.setCursor(573, 110 + (53 * j) + j);
       ePaper.println(today_matrix[j][4]); // Classe
     }
   }
   if (oraAttuale != 0 && oraAttuale >= 5)
-  { //mostro le ultime 6 ore
+  { // mostro le ultime 6 ore
 
     for (int j = 4; j < 10; j++)
     {
@@ -238,7 +237,7 @@ void table()
       ePaper.setFont(f);
 
       ePaper.setCursor(363, 110 + (53 * (j - 4)) + j - 4);
-      ePaper.println(today_matrix[j][1]); //primo professore
+      ePaper.println(today_matrix[j][1]); // primo professore
 
       ePaper.setCursor(363, 85 + (53 * (j - 4)) + j - 4);
       ePaper.println(today_matrix[j][2]); // secondo professore
@@ -252,12 +251,12 @@ void table()
       f = &FreeSans18pt7b;
       ePaper.setFont(f);
 
-      ePaper.setCursor(575, 110 + (53 * (j - 4)) + j - 4);
+      ePaper.setCursor(573, 110 + (53 * (j - 4)) + j - 4);
       ePaper.println(today_matrix[j][4]); // Classe
     }
   }
   else if (oraAttuale == 0 && httpCode != -1)
-  { //Giornata terminata
+  { // Giornata terminata
 
     f = &FreeSans9pt7b;
     ePaper.setFont(f);
@@ -269,18 +268,18 @@ void table()
     ePaper.println("terminata");
   }
 
-  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ò
-  //Parte di sinistra
+  // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ò
+  // Parte di sinistra
 
   ePaper.fillRect(0, 0, 335, 330, GxEPD_BLACK);
 
-  //Scritte
+  // Scritte
 
   f = &FreeSans9pt7b;
   ePaper.setFont(f);
   ePaper.setTextColor(GxEPD_WHITE);
 
-  //Indicatore di ore dei vari giorni
+  // Indicatore di ore dei vari giorni
 
   String num_ore[6] = {"1", "2", "3", "4", "5", "6"};
 
@@ -290,7 +289,7 @@ void table()
     ePaper.println(num_ore[i]);
   }
 
-  //Nome dei giorni
+  // Nome dei giorni
 
   String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
 
@@ -303,7 +302,6 @@ void table()
   /*
     colonne = 30, 80, 130, 180 , 230,280
     righe = 25,75, 125, 175, 225,275
-
   */
 
   for (int j = 0; j < 6; j++)
@@ -331,7 +329,7 @@ void table()
     for (int j = 0; j < 6; j++)
     {
       ePaper.setCursor(35 + (50 * j), 55 + (50 * i));
-      ePaper.println(settimana_matrix[j][i]); //Settimana giorno per giorno
+      ePaper.println(settimana_matrix[j][i]); // Settimana giorno per giorno
     }
   }
 
