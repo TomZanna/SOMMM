@@ -8,7 +8,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- <noscript><meta http-equiv="refresh" content="0;url=./noscript.php"></noscript> -->
     <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
-    <link rel="shortcut icon" href="img/logo_big.ico">
   </head>
   <body>
     <div id="navbar">
@@ -23,7 +22,7 @@
           <!--SSID-->
           <label class="input_and_titles" for="net_ssid" style="position:absolute;margin-top:5px;">WIFI ssid </label>
           <br>
-          <input class="input_and_titles long" type="text" name="FirstName" value="" id="net_ssid"> 
+          <input class="input_and_titles long" type="text" name="FirstName" value="" id="net_ssid">
           <!--PSWD-->
           <br>
           <br>
@@ -77,12 +76,8 @@
       </form>
     </div>
     <script>
-      function qs(sel) {
-          return document.querySelector(sel);
-      }
-      function checkChange() {
-          qs('#net_static').checked ? qs("#indirizzo_ip").style.display = '' : qs("#indirizzo_ip").style.display = 'none';
-      };
+      function qs(sel) { return document.querySelector(sel); }
+      function checkChange() { qs('#net_static').checked ? qs("#indirizzo_ip").style.display = '' : qs("#indirizzo_ip").style.display = 'none'; };
       var serialize = function(obj) {
         var str = [];
         for (var p in obj)
@@ -90,59 +85,50 @@
             str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
           }
         return str.join("&");
-      }
+      };
       // and here's the trick (works everywhere)
-      function r(f) {
-          /in/.test(document.readyState) ? setTimeout('r(' + f + ')', 9) : f()
-      }
-      
+      function r(f) { /in/.test(document.readyState) ? setTimeout('r(' + f + ')', 9) : f() }
+
       r(function() { // On document ready
-          var request = new XMLHttpRequest();
-          request.open('GET', '/info', true);
-          request.onload = function() {
-              if (request.status >= 200 && request.status < 400) {
-                console.log(request)
-                  // Success!
-                qs('#attuale').textContent = request.responseText;
+          var r = new XMLHttpRequest();
+          r.open('GET', '/info', true);
+          r.onload = function() {
+              if (r.status >= 200 && r.status < 400) { // Success!
+                qs('#attuale').textContent = r.responseText;
               }
           };
-          request.send();
-      
-          /*$.get('/info', function (data) {
-              $('#attuale').text(data);
-            })*/
-      
+          r.send();
+
           var reGex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
           var reGexSM = /^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$/;
           qs("#salva").addEventListener("click", function(e) {
               e.preventDefault(); //stop form from submitting
-              // e.preventDefault();
               var net_dfgw_0 = ['', '', '', ''];
               var net_ip_0 = ['', '', '', ''];
               var net_dns_0 = ['', '', '', ''];
               var net_sm_0 = ['', '', '', ''];
-      
-              net_ssid = qs("#net_ssid").value;
-              net_pswd = qs("#net_pswd").value;
-      
-              net_static = qs("#net_static").checked ? "1" : "0";
-              if (net_static == 1) {
+
+              var net_ssid = qs("#net_ssid").value;
+              var net_pswd = qs("#net_pswd").value;
+
+              var net_static = qs("#net_static").checked ? "1" : "0";
+              if (net_static == "1") {
                   if (reGex.test(qs("#net_ip_0").value)) {
-                    net_ip_0 = qs("#net_ip_0").value.split(".") 
+                    net_ip_0 = qs("#net_ip_0").value.split(".")
                   } else {
                     alert("Inserisci un IP dispositivo valido");
                     return false;
                   }
-      
+
                   if (reGex.test(qs("#net_dns_0").value)) {
                     net_dns_0 = qs("#net_dns_0").value.split(".")
                   } else {
                     alert("Inserisci un IP DNS valido");
                     return false;
                   }
-      
+
                   if (reGex.test(qs("#net_dfgw_0").value)) {
-                    net_dfgw_0 = qs("#net_dfgw_0").value.split(".") 
+                    net_dfgw_0 = qs("#net_dfgw_0").value.split(".")
                   } else {
                     alert("Inserisci un IP Default Gateway valido");
                     return false;
@@ -155,78 +141,39 @@
                     return false;
                   }
               }
-              aula = qs("#aula").value;
-              api_url = qs("#api_url").value;
-      
+              var aula = qs("#aula").value;
+              var api_url = qs("#api_url").value;
+
               if (aula.length == 0) {
                   alert("Inserisci l'aula!");
                   return false;
               }
-      
-              var params = {
-                  net_ssid: net_ssid,
-                  net_pswd: net_pswd,
-                  net_ip_0: net_ip_0[0],
-                  net_ip_1: net_ip_0[1],
-                  net_ip_2: net_ip_0[2],
-                  net_ip_3: net_ip_0[3],
-                  net_dns_0: net_dns_0[0],
-                  net_dns_1: net_dns_0[1],
-                  net_dns_2: net_dns_0[2],
-                  net_dns_3: net_dns_0[3],
-                  net_dfgw_0: net_dfgw_0[0],
-                  net_dfgw_1: net_dfgw_0[1],
-                  net_dfgw_2: net_dfgw_0[2],
-                  net_dfgw_3: net_dfgw_0[3],
-                  net_sm_0: net_sm_0[0],
-                  net_sm_1: net_sm_0[1],
-                  net_sm_2: net_sm_0[2],
-                  net_sm_3: net_sm_0[3],
-                  net_static: net_static,
-                  aula: aula,
-                  api_url: api_url
-              };
+
+              var params = {net_ssid: net_ssid, net_pswd: net_pswd, net_ip_0: net_ip_0[0], net_ip_1: net_ip_0[1], net_ip_2: net_ip_0[2], net_ip_3: net_ip_0[3], net_dns_0: net_dns_0[0], net_dns_1: net_dns_0[1], net_dns_2: net_dns_0[2], net_dns_3: net_dns_0[3], net_dfgw_0: net_dfgw_0[0], net_dfgw_1: net_dfgw_0[1], net_dfgw_2: net_dfgw_0[2], net_dfgw_3: net_dfgw_0[3], net_sm_0: net_sm_0[0], net_sm_1: net_sm_0[1], net_sm_2: net_sm_0[2], net_sm_3: net_sm_0[3], net_static: net_static, aula: aula, api_url: api_url};
               console.log(params);
-      
-              var request = new XMLHttpRequest();
-
               var enc = serialize(params);
-              console.log(enc);
 
-              request.open('GET', '/save?' + enc);
-              request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-              request.onload = function() {
-                  if (request.status >= 200 && request.status < 400) {
-                      // Success!
-                      var resp = request.responseText;
+              var r = new XMLHttpRequest();
+              r.open('POST', '/save');
+              r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+              r.onload = function() {
+                  if (r.status >= 200 && r.status < 400) { // Success!
+                      var resp = r.responseText;
                       console.log(resp);
                       alert(resp);
                   } else {
-                      // We reached our target server, but it returned an error
-      
+                      // We reached our target server, but it returned an error (500)
+                      console.error(r.responseText);
+                      alert(r.responseText);
                   }
               };
-              request.onerror = function() {
+              r.onerror = function() {
                   // There was a connection error of some sort
-                  console.error(request.responseText);
-                  alert(request.responseText);
+                  console.error('Errore di connessione');
+                  console.error(r.responseText);
+                  alert(r.responseText);
               };
-              request.send(null);
-      
-              /*$.ajax({
-                url:'/save',
-                type:'post',
-                data: params,
-                success:function(data){
-                  console.log(data);
-                  alert(data);
-                },
-                error : function(data){
-                  console.error(data.responseText);
-                  alert(data.responseText);
-                }
-      
-              });*/
+              r.send(enc);
           });
       });
     </script>
