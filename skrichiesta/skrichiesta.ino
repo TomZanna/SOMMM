@@ -14,7 +14,6 @@
              Project : SOM^3
 
              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
           _____                   _______                   _____
          /\    \                 /::\    \                 /\    \
         /::\    \               /::::\    \               /::\____\
@@ -41,17 +40,16 @@
 */
 
 // Librerie per la gestione del display e-paper
-
 #include <GxEPD.h>
-#include <GxGDEW075T8/GxGDEW075T8.cpp> // 7.5" b/w  640x384
+#include <GxGDEW075T8/GxGDEW075T8.cpp> // 7.5" b/w 640x384
 
+// Librerie per rete
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
 
 // Libreria per JSON su arduino
-
 #include <ArduinoJson.h>
 
 #include "FS.h"
@@ -68,19 +66,17 @@
 #include <GxIO/GxIO_SPI/GxIO_SPI.cpp>
 #include <GxIO/GxIO.cpp>
 
-ESP8266WebServer server(1518); //settaggio serrver sulla porta 1518
+ESP8266WebServer server(1518); //settaggio server sulla porta 1518
 
 // Seguendo il datasheet della ESP8266 driver board di waveshare
-
 GxIO_Class io(SPI, /*CS=D15*/ 15, /*DC=D4*/ 4, /*RST=D5*/ 5);
 GxEPD_Class ePaper(io, 5, 16 /*RST=D5*/ /*BUSY=D16*/);
 
-// bool save = 0; non so a cosa serve
 bool request = 0;
 
 String mex_1 = "";        // riga comunicazione 1
 String mex_2 = "";        // riga comunicazione 2
-const char *payload = ""; //payload come variabile globale
+const char *payload = ""; // payload come variabile globale
 int oraAttuale = 1;       // sisema di switch per le giornate con + di 6 ore
 int httpCode = 0;
 
@@ -95,8 +91,8 @@ const char *api_url = "";
 const char *aula = "";
 String aula_id = "";
 
-int delay_time = 0;
-bool static_config = 0; //static or DHCP
+int delay_time = 600000; // Intervallo di aggiornamento richiesta e display
+bool static_config = 0; // static or DHCP
 
 int ip[4], dns[4], default_gw[4], subnet_m[4];
 
@@ -104,7 +100,7 @@ String getData, Link, file_config;
 
 HTTPClient http;
 
-//Dichiaro funzioni da implementare
+// Dichiaro funzioni da implementare
 
 void update_display(int page_mode, String string_1, String string_2);
 void save_json();
@@ -112,16 +108,14 @@ void save_json();
 void setup()
 {
 
-  Serial.begin(115200); //Inizializzo la seriale
+  Serial.begin(115200); // Inizializzo la seriale
 
   ePaper.init(115200); // setto la seriale per la diagnostica del display
   //ePaper.setRotation(-1);
 
-  update_display(0, "", ""); //Modalità iniziale accensione del display
+  update_display(0, "", ""); // Modalità iniziale accensione del display
 
-  WiFi.mode(WIFI_AP_STA); //Abilito la possibilità di avere access point e client attivi
-
-  //Monto il mio SPIFFS File System
+  // Monto il mio SPIFFS File System
 
   if (!SPIFFS.begin())
   {
@@ -133,16 +127,16 @@ void setup()
     Serial.println("File system montato");
   }
 
-  // Dichiaro  che il file da aprire è il config.json
+  // Dichiaro che il file da aprire è il config.json
 
   File config_json_file = SPIFFS.open("/config.json", "r");
 
-  file_config = config_json_file.readStringUntil('\n'); //questo è il nostro config.js salvato su stringa
+  file_config = config_json_file.readStringUntil('\n'); // questo è il nostro config.js salvato su stringa
 
-  //Creo buffer JSON per la lettura del file config.json
+  // Creo buffer JSON per la lettura del file config.json
 
   DynamicJsonBuffer jsonBuffer;
-  JsonObject &config_json = jsonBuffer.parseObject(file_config); //leggo la configurazione
+  JsonObject &config_json = jsonBuffer.parseObject(file_config); // leggo la configurazione
 
   if (!config_json.success())
   {
@@ -151,19 +145,18 @@ void setup()
   }
   else
   {
-    Serial.println("Configuazione correttamente caricata");
+    Serial.println("Configurazione correttamente caricata");
     config_json.printTo(Serial);
     Serial.println("");
   }
 
-  //vado a settare le variabili coi valori caricati dalla memoria
+  // vado a settare le variabili coi valori caricati dalla memoria
 
   net_ssid = config_json["net_ssid"];
   net_pswd = config_json["net_pswd"];
   api_url = config_json["api_url"];
   aula = config_json["aula"];
-  aula_id = String(aula);
-  delay_time = config_json["delay_time"];
+  aula_id = String(aula); // Per API raggiungibile a /info
 
   static_config = config_json["net_static"];
 
@@ -187,9 +180,6 @@ void setup()
   dns[2] = config_json["net_dns_2"];
   dns[3] = config_json["net_dns_3"];
 
-  // Serial.println(net_ssid);
-  // Serial.println(net_pswd);
-
   if (static_config)
   {
     Serial.println("Configurazione statica....");
@@ -204,21 +194,21 @@ void setup()
     Serial.println(dns_addr);
 
     if (!WiFi.config(ip_addr, gw_addr, sm_addr, dns_addr))
-    { //Configurazione statica del web-server in caso di Client
+    { // Configurazione statica del web-server in caso di Client
       Serial.println("Errore configurazione statica");
     }
   }
 
+  WiFi.mode(WIFI_STA);
   WiFi.begin(net_ssid, net_pswd); // Provo a eseguire una connessione con le credenziali che ho
 
   Serial.print("Connecting");
 
   long start_c = millis();
   long counter = 0;
-  long soglia = 300000; //soglia di controllo per passare il AP (default 25s)
+  long soglia = 300000; // soglia di controllo per passare il AP (default 25s)
 
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED)
+  while (WiFi.status() != WL_CONNECTED) // Wait for connection
   {
     counter += millis() - start_c;
     Serial.println(counter);
@@ -238,22 +228,21 @@ void setup()
 
   if (WiFi.status() == WL_CONNECTED)
   {
-    //Connessione stabilita
+    // Connessione stabilita
     Serial.println(WiFi.localIP().toString().c_str());
 
-    //Setto http sull'indirizzo del mio server
+    // Setto http sull'indirizzo del mio server
 
-    String http_address = String(api_url) + "?stanza=" + String(aula); //Creo un merge per il mio indirizzo delle api
+    String http_address = String(api_url) + "?stanza=" + String(aula); // Creo l'url per indirizzo API
 
-    Serial.print("Richiesta settata su: "); //Stampo l'indirizzo
+    Serial.print("Richiesta settata su: "); // Stampo l'indirizzo
     Serial.println(http_address);
 
-    request = 1; //Abilito l'invio del dato
+    request = 1; // Abilito l'invio del dato
 
-    http.begin(http_address); //configuro e avio htt sul'url precedentemente dichiarato
+    http.begin(http_address); // configuro e avvio http sul'url precedentemente dichiarato
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
-    server.serveStatic("/js", SPIFFS, "/js");
     server.on("/info", []() {
       return server.send(200, "text/plain", aula_id);
     });
@@ -263,26 +252,21 @@ void setup()
     server.serveStatic("/", SPIFFS, "/index.html");
     server.begin(); //Faccio partire il server
 
-    update_display(2, "", "");
-
-    // Mostro l'avvenuto successo della connesione su display e do informazioni utili all'utente
+    update_display(2, "", ""); // Mostro l'avvenuto successo della connesione su display e do informazioni utili all'utente
   }
   else
   {
+    // Problemi di connesione (probabilmente rete non raggiungibile e/o settato), avvio Access Point
+    WiFi.disconnect(true); // Disconnetto la wifi
+    WiFi.mode(WIFI_AP); // Wifi Mode Access-Point
 
-    //Problemi di connesione avvio Access Point
-
-    WiFi.disconnect(); //Disconnetto la wifi
-
-    WiFi.softAP("SOMMM", "SistemaOrarioMaga"); // ìdichiaro i parametri del mio access point
+    WiFi.softAP("SOMMM", "SistemaOrarioMaga"); // dichiaro i parametri del mio access point
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
-    update_display(1, "AP SOMMM", "192.168.4.1"); //192.168.4.1 default
+    update_display(1, "AP SOMMM", "192.168.4.1"); // 192.168.4.1 + porta default
+    // Avviso con modalità 1 il display che ho creato un access point
 
-    //Avviso con modalità 1 il display che ho creato un access point
-
-    server.serveStatic("/js", SPIFFS, "/js");
     server.on("/info", []() {
       return server.send(200, "text/plain", aula_id);
     });
@@ -290,7 +274,7 @@ void setup()
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
-    server.begin(); //Faccio partire il server
+    server.begin(); // Faccio partire il server
   }
 }
 
@@ -303,13 +287,13 @@ void loop()
   if (request)
   {
     if (delay_time >= 1000)
-    { //verifica se l'update_s è almeno maggiore di 1s
+    { // verifica se l'update_s è almeno maggiore di 1s
       if ((millis() - time_start) >= delay_time)
       {
-        //mando la richiesta
+        // mando la richiesta
         Serial.println("--------------------");
         update_display(2, "", "");
-        time_start = millis(); //azzerro il contatore
+        time_start = millis(); // azzerro il contatore
       }
     }
   }
@@ -317,58 +301,59 @@ void loop()
 
 void save_json()
 {
-
-  if (!SPIFFS.begin()) //controllo di aver accesso al filesystem
+  if (!SPIFFS.begin()) // controllo di aver accesso al filesystem
   {
-    // Se vine visualizzato c'è un problema al filesystem
-    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); //messaggio di callback per client web
+    // Se viene visualizzato c'è un problema al filesystem
+    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
     Serial.println("SPIFFS2 Mount failed");
+    return;
   }
   else
-  { //File sistem correttamente caricato
+  { // File system correttamente caricato
     Serial.println("SPIFFS2 Mount succesfull");
   }
 
-  File file_conf_saved = SPIFFS.open("/config.json", "r"); //Apro il file in modalità lettura
+  File file_conf_saved = SPIFFS.open("/config.json", "r"); // Apro il file in modalità lettura
 
-  DynamicJsonBuffer jsonBuffer_local; //creo secondo buffer
+  DynamicJsonBuffer jsonBuffer_local; // creo secondo buffer
   String conf_read_file = file_conf_saved.readStringUntil('\n');
   JsonObject &json = jsonBuffer_local.parseObject(conf_read_file);
 
   if (!json.success())
   {
-    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); //messaggio di callback per client web
+    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
     Serial.println("Impossibile leggere la configurazione");
     update_display(1, "Impossibile leggere la configurazione", ":X");
+    return;
   }
   else
   {
-    Serial.println("Configurazione correttamente caricata");
+    Serial.println("Configurazione attuale caricata correttamente");
     json.printTo(Serial);
     Serial.println("");
   }
 
-  //#######################################################
-  //controllo e salvataggio dei dati in caso di cambiamento
-  //#######################################################
+  // #######################################################
+  // controllo e salvataggio dei dati in caso di cambiamento
+  // #######################################################
 
   if (server.arg("net_ssid") != "")
-  { //ssid
+  { // ssid
     json.set("net_ssid", server.arg("net_ssid"));
   }
 
   if (server.arg("net_pswd") != "")
-  { //password
+  { // password
     json.set("net_pswd", server.arg("net_pswd"));
   }
 
   if (server.arg("api_url") != "")
-  { //codice dispositivo
+  { // codice dispositivo
     json.set("api_url", server.arg("api_url"));
   }
 
   if (server.arg("aula") != "")
-  { //url server con api
+  { // url server con api
     json.set("aula", server.arg("aula"));
   }
 
@@ -383,59 +368,59 @@ void save_json()
   }
 
   if (server.arg("net_ip_1") != "")
-  { //ip[1]
+  { // ip[1]
     json.set("net_ip_1", server.arg("net_ip_1"));
   }
 
   if (server.arg("net_ip_2") != "")
-  { //ip[2]
+  { // ip[2]
     json.set("net_ip_2", server.arg("net_ip_2"));
   }
 
   if (server.arg("net_ip_3") != "")
-  { //ip[3]
+  { // ip[3]
     json.set("net_ip_3", server.arg("net_ip_3"));
   }
 
   if (server.arg("net_dns_0") != "")
-  { //dns[0]
+  { // dns[0]
     json.set("net_dns_0", server.arg("net_dns_0"));
   }
 
   if (server.arg("net_dns_1") != "")
-  { //dns[1]
+  { // dns[1]
     json.set("net_dns_1", server.arg("net_dns_1"));
   }
 
   if (server.arg("net_dns_2") != "")
-  { //dns[2]
+  { // dns[2]
     json.set("net_dns_2", server.arg("net_dns_2"));
   }
 
   if (server.arg("net_dns_3") != "")
-  { //dns[3]
+  { // dns[3]
     json.set("net_dns_3", server.arg("net_dns_3"));
   }
 
   request = 0;
 
-  delay(100); //aspetto che tutto sia correttamente settato e poi scrivo
+  delay(100); // aspetto che tutto sia correttamente settato e poi scrivo
 
   if (!server.authenticate(www_username, www_password))
   {
     return server.requestAuthentication();
   }
 
-  File save = SPIFFS.open("/config.json", "w"); //Apro il file in modalità scrittura
+  File save = SPIFFS.open("/config.json", "w"); // Apro il file in modalità scrittura
 
   delay(200);
-  json.printTo(save);   //salvo la nuova configurazione
+  json.printTo(save);   // salvo la nuova configurazione
   json.printTo(Serial); // stampo la nuova configurazione
 
-  server.send(200, "text/plain", "Salvataggio efettuato correttamente. Riavvia SOMMM appena led rosso spento"); //messaggio di callback per client web
+  server.send(200, "text/plain", "Salvataggio efettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
+  Serial.println("");
   Serial.println("Riavvia il dispositivo appena led rosso spento");
-  update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento");
+  update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento"); // Riavvio dispositivo
 
-
-  //Riavvio dispositivo
+  // N.B. No reboot lato software per problemi successivi a stack di memoria, riavvio hardware
 }
