@@ -81,7 +81,7 @@ int oraAttuale = 1;       // sisema di switch per le giornate con + di 6 ore
 int httpCode = 0;
 
 const char *www_username = "SOMMM";
-const char *www_password = "SistemaOrarioMaga";
+const char *www_password = "laPasswordQui";
 
 // Dichiarazione di variabili in parte poi caricate da config.js
 
@@ -260,7 +260,7 @@ void setup()
     WiFi.disconnect(true); // Disconnetto la wifi
     WiFi.mode(WIFI_AP); // Wifi Mode Access-Point
 
-    WiFi.softAP("SOMMM", "SistemaOrarioMaga"); // dichiaro i parametri del mio access point
+    WiFi.softAP("SOMMM", "laPasswordQui"); // dichiaro i parametri del mio access point
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
@@ -417,7 +417,7 @@ void save_json()
   json.printTo(save);   // salvo la nuova configurazione
   json.printTo(Serial); // stampo la nuova configurazione
 
-  server.send(200, "text/plain", "Salvataggio efettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
+  server.send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
   Serial.println("");
   Serial.println("Riavvia il dispositivo appena led rosso spento");
   update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento"); // Riavvio dispositivo

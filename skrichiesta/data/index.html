@@ -6,7 +6,6 @@
     <title>Configurazione SOMMM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!-- <noscript><meta http-equiv="refresh" content="0;url=./noscript.php"></noscript> -->
     <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
   </head>
   <body>
@@ -144,7 +143,7 @@
               var aula = qs("#aula").value;
               var api_url = qs("#api_url").value;
 
-              if (aula.length == 0) {
+              if (aula.trim().length == 0) {
                   alert("Inserisci l'aula!");
                   return false;
               }
