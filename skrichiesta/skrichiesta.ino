@@ -135,50 +135,51 @@ void setup()
 
   // Creo buffer JSON per la lettura del file config.json
 
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &config_json = jsonBuffer.parseObject(file_config); // leggo la configurazione
+  DynamicJsonDocument jsonRead(1024);
+  DeserializationError errorRead = deserializeJson(jsonRead, file_config);
 
-  if (!config_json.success())
+  if (errorRead)
   {
     Serial.println("Impossibile leggere la configurazione");
     update_display(1, "Errore di lettura json", ":X");
+    return;
   }
   else
   {
     Serial.println("Configurazione correttamente caricata");
-    config_json.printTo(Serial);
+    serializeJson(jsonRead, Serial);
     Serial.println("");
   }
 
   // vado a settare le variabili coi valori caricati dalla memoria
 
-  net_ssid = config_json["net_ssid"];
-  net_pswd = config_json["net_pswd"];
-  api_url = config_json["api_url"];
-  aula = config_json["aula"];
+  net_ssid = jsonRead["net_ssid"];
+  net_pswd = jsonRead["net_pswd"];
+  api_url = jsonRead["api_url"];
+  aula = jsonRead["aula"];
   aula_id = String(aula); // Per API raggiungibile a /info
 
-  static_config = config_json["net_static"];
+  static_config = jsonRead["net_static"];
 
-  ip[0] = config_json["net_ip_0"];
-  ip[1] = config_json["net_ip_1"];
-  ip[2] = config_json["net_ip_2"];
-  ip[3] = config_json["net_ip_3"];
+  ip[0] = jsonRead["net_ip_0"];
+  ip[1] = jsonRead["net_ip_1"];
+  ip[2] = jsonRead["net_ip_2"];
+  ip[3] = jsonRead["net_ip_3"];
 
-  default_gw[0] = config_json["net_dfgw_0"];
-  default_gw[1] = config_json["net_dfgw_1"];
-  default_gw[2] = config_json["net_dfgw_2"];
-  default_gw[3] = config_json["net_dfgw_3"];
+  default_gw[0] = jsonRead["net_dfgw_0"];
+  default_gw[1] = jsonRead["net_dfgw_1"];
+  default_gw[2] = jsonRead["net_dfgw_2"];
+  default_gw[3] = jsonRead["net_dfgw_3"];
 
-  subnet_m[0] = config_json["net_sm_0"];
-  subnet_m[1] = config_json["net_sm_1"];
-  subnet_m[2] = config_json["net_sm_2"];
-  subnet_m[3] = config_json["net_sm_3"];
+  subnet_m[0] = jsonRead["net_sm_0"];
+  subnet_m[1] = jsonRead["net_sm_1"];
+  subnet_m[2] = jsonRead["net_sm_2"];
+  subnet_m[3] = jsonRead["net_sm_3"];
 
-  dns[0] = config_json["net_dns_0"];
-  dns[1] = config_json["net_dns_1"];
-  dns[2] = config_json["net_dns_2"];
-  dns[3] = config_json["net_dns_3"];
+  dns[0] = jsonRead["net_dns_0"];
+  dns[1] = jsonRead["net_dns_1"];
+  dns[2] = jsonRead["net_dns_2"];
+  dns[3] = jsonRead["net_dns_3"];
 
   if (static_config)
   {
@@ -256,7 +257,7 @@ void setup()
   }
   else
   {
-    // Problemi di connesione (probabilmente rete non raggiungibile e/o settato), avvio Access Point
+    // Problemi di connessione (probabilmente rete non raggiungibile e/o settato), avvio Access Point
     WiFi.disconnect(true); // Disconnetto la wifi
     WiFi.mode(WIFI_AP); // Wifi Mode Access-Point
 
@@ -315,11 +316,11 @@ void save_json()
 
   File file_conf_saved = SPIFFS.open("/config.json", "r"); // Apro il file in modalità lettura
 
-  DynamicJsonBuffer jsonBuffer_local; // creo secondo buffer
+  DynamicJsonDocument json(1024); // creo secondo buffer
   String conf_read_file = file_conf_saved.readStringUntil('\n');
-  JsonObject &json = jsonBuffer_local.parseObject(conf_read_file);
-
-  if (!json.success())
+  
+  DeserializationError errorConf = deserializeJson(json, conf_read_file);
+  if (errorConf)
   {
     server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
     Serial.println("Impossibile leggere la configurazione");
@@ -329,7 +330,7 @@ void save_json()
   else
   {
     Serial.println("Configurazione attuale caricata correttamente");
-    json.printTo(Serial);
+    serializeJson(json, Serial);
     Serial.println("");
   }
 
@@ -339,67 +340,67 @@ void save_json()
 
   if (server.arg("net_ssid") != "")
   { // ssid
-    json.set("net_ssid", server.arg("net_ssid"));
+    json["net_ssid"] = server.arg("net_ssid");
   }
 
   if (server.arg("net_pswd") != "")
   { // password
-    json.set("net_pswd", server.arg("net_pswd"));
+    json["net_pswd"] = server.arg("net_pswd");
   }
 
   if (server.arg("api_url") != "")
   { // codice dispositivo
-    json.set("api_url", server.arg("api_url"));
+    json["api_url"] = server.arg("api_url");
   }
 
   if (server.arg("aula") != "")
   { // url server con api
-    json.set("aula", server.arg("aula"));
+    json["aula"] = server.arg("aula");
   }
 
   if (server.arg("net_static") != "")
   { // 1-0 abilita configurazione statica
-    json.set("net_static", server.arg("net_static"));
+    json["net_static"] = server.arg("net_static");
   }
 
   if (server.arg("net_ip_0") != "")
   { // ip[0]
-    json.set("net_ip_0", server.arg("net_ip_0"));
+    json["net_ip_0"] = server.arg("net_ip_0");
   }
 
   if (server.arg("net_ip_1") != "")
   { // ip[1]
-    json.set("net_ip_1", server.arg("net_ip_1"));
+    json["net_ip_1"] = server.arg("net_ip_1");
   }
 
   if (server.arg("net_ip_2") != "")
   { // ip[2]
-    json.set("net_ip_2", server.arg("net_ip_2"));
+    json["net_ip_2"] = server.arg("net_ip_2");
   }
 
   if (server.arg("net_ip_3") != "")
   { // ip[3]
-    json.set("net_ip_3", server.arg("net_ip_3"));
+    json["net_ip_3"] = server.arg("net_ip_3");
   }
 
   if (server.arg("net_dns_0") != "")
   { // dns[0]
-    json.set("net_dns_0", server.arg("net_dns_0"));
+    json["net_dns_0"] = server.arg("net_dns_0");
   }
 
   if (server.arg("net_dns_1") != "")
   { // dns[1]
-    json.set("net_dns_1", server.arg("net_dns_1"));
+    json["net_dns_1"] = server.arg("net_dns_1");
   }
 
   if (server.arg("net_dns_2") != "")
   { // dns[2]
-    json.set("net_dns_2", server.arg("net_dns_2"));
+    json["net_dns_2"] = server.arg("net_dns_2");
   }
 
   if (server.arg("net_dns_3") != "")
   { // dns[3]
-    json.set("net_dns_3", server.arg("net_dns_3"));
+    json["net_dns_3"] = server.arg("net_dns_3"); 
   }
 
   request = 0;
@@ -414,8 +415,8 @@ void save_json()
   File save = SPIFFS.open("/config.json", "w"); // Apro il file in modalità scrittura
 
   delay(200);
-  json.printTo(save);   // salvo la nuova configurazione
-  json.printTo(Serial); // stampo la nuova configurazione
+  serializeJson(json, save);   // salvo la nuova configurazione
+  serializeJson(json, Serial); // stampo la nuova configurazione
 
   server.send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
   Serial.println("");

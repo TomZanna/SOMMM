@@ -70,38 +70,44 @@ void table()
     Provo a gestire l'interpretazione del mio json
   */
 
-  const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
-  DynamicJsonBuffer jsonBuffer(bufferSize);
+  const size_t bufferSize = JSON_ARRAY_SIZE(10) + 10*JSON_OBJECT_SIZE(5) + 2*JSON_OBJECT_SIZE(6) + 6*JSON_OBJECT_SIZE(10) + 820;
+  DynamicJsonDocument doc(bufferSize);
 
-  JsonObject &root = jsonBuffer.parseObject(payload);
+  DeserializationError error = deserializeJson(doc, payload);
+  if (error) { // Se errore a elaborare json
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.c_str());
+    update_display(1, "Elaborazione json orario fallita", ":X");
+    return;
+  }
 
   // Dati header
 
-  const char *stanza = root["stanza"];            // "L145"
-  const char *giorno = root["giorno"];            // "Venerdi', 23 Novembre 2018"
-  int giorno_settimana = root["giornoSettimana"]; // 5
-  int oraAttuale = root["oraAttuale"];            // 3
+  const char *stanza = doc["stanza"];            // "L145"
+  const char *giorno = doc["giorno"];            // "Venerdi', 23 Novembre 2018"
+  int giorno_settimana = doc["giornoSettimana"]; // 5
+  int oraAttuale = doc["oraAttuale"];            // 3
 
   if (httpCode == -1)
   {
-    giorno = "Errore di connesione x(";
+    giorno = "Errore di connessione x(";
   }
 
   // ################################################################################################################
   // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
 
-  JsonArray &oggi = root["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
+  JsonArray oggi = doc["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
 
-  JsonObject &prima = oggi[0];
-  JsonObject &seconda = oggi[1];
-  JsonObject &terza = oggi[2];
-  JsonObject &quarta = oggi[3];
-  JsonObject &quinta = oggi[4];
-  JsonObject &sesta = oggi[5];
-  JsonObject &settima = oggi[6];
-  JsonObject &ottava = oggi[7];
-  JsonObject &nona = oggi[8];
-  JsonObject &decima = oggi[9];
+  JsonObject prima = oggi[0];
+  JsonObject seconda = oggi[1];
+  JsonObject terza = oggi[2];
+  JsonObject quarta = oggi[3];
+  JsonObject quinta = oggi[4];
+  JsonObject sesta = oggi[5];
+  JsonObject settima = oggi[6];
+  JsonObject ottava = oggi[7];
+  JsonObject nona = oggi[8];
+  JsonObject decima = oggi[9];
 
   const char *today_matrix[10][5] = {{prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["res"]},
     {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]},
@@ -118,14 +124,14 @@ void table()
   // ################################################################################################################
   // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "SETTIMANA"
 
-  JsonObject &settimana = root["settimana"]; // Oggetto "settima" contenente tutte le informazioni
+  JsonObject settimana = doc["settimana"]; // Oggetto "settima" contenente tutte le informazioni
 
-  JsonObject &settimana_1 = settimana["1"];
-  JsonObject &settimana_2 = settimana["2"];
-  JsonObject &settimana_3 = settimana["3"];
-  JsonObject &settimana_4 = settimana["4"];
-  JsonObject &settimana_5 = settimana["5"];
-  JsonObject &settimana_6 = settimana["6"];
+  JsonObject settimana_1 = settimana["1"];
+  JsonObject settimana_2 = settimana["2"];
+  JsonObject settimana_3 = settimana["3"];
+  JsonObject settimana_4 = settimana["4"];
+  JsonObject settimana_5 = settimana["5"];
+  JsonObject settimana_6 = settimana["6"];
 
   const char *settimana_matrix[6][6] = {{settimana_1["1"], settimana_1["2"], settimana_1["3"], settimana_1["4"], settimana_1["5"], settimana_1["6"]},
     {settimana_2["1"], settimana_2["2"], settimana_2["3"], settimana_2["4"], settimana_2["5"], settimana_2["6"]},
