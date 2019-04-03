@@ -44,14 +44,14 @@ $stanza = strtoupper(disarmData($_GET['stanza']));
 
 // Query oggi
 // Thanks to @mgiacopu and @rtantalo
-$sql = "SELECT `giorno_settimana`, `ora`, `stanza`, `risorsa`, `Column 3` AS 'materia', `professore1`, `professore2`
+$sql = "SELECT `giorno_settimana`, `ora`, `risorsa`, `Column 3` AS 'materia', `professore1`, `professore2`
 FROM marconitt.timetable
        LEFT JOIN marconitt.GPU001 ON marconitt.timetable.giorno_settimana = marconitt.GPU001.`Column 5`
                                        AND marconitt.timetable.ora = marconitt.GPU001.`Column 6`
                                        AND marconitt.timetable.stanza = marconitt.GPU001.`Column 4`
 WHERE `marconitt`.`timetable`.`giorno` = CURDATE()
   AND `marconitt`.`timetable`.`stanza` = '$stanza'
-GROUP BY `ora`, `stanza`, `risorsa`, `giorno_settimana`, `professore1`, `professore2`
+GROUP BY `giorno_settimana`, `ora`, `risorsa`, `materia`, `professore1`, `professore2`
 ORDER BY `ora`;";
 
 $result = $conn->query($sql);
@@ -80,14 +80,14 @@ $lunedi = $weekStartEnd['lunedi'];
 $sabato = $weekStartEnd['sabato'];
 
 // Query settimanale
-$sqlWeek = "SELECT `giorno_settimana`, `ora`, `stanza`, `risorsa`
+$sqlWeek = "SELECT `giorno_settimana`, `ora`, `risorsa`
 FROM marconitt.timetable
        LEFT JOIN marconitt.GPU001 ON marconitt.timetable.giorno_settimana = marconitt.GPU001.`Column 5`
                                        AND marconitt.timetable.ora = marconitt.GPU001.`Column 6`
                                        AND marconitt.timetable.stanza = marconitt.GPU001.`Column 4`
 WHERE marconitt.timetable.giorno BETWEEN '$lunedi' AND '$sabato'
     AND marconitt.timetable.stanza = '$stanza'
-GROUP BY `giorno_settimana`, `ora`, `stanza`, `giorno_settimana`
+GROUP BY `giorno_settimana`, `ora`, `risorsa`
 ORDER BY `giorno_settimana`, `ora`;";
 
 $resultWeek = $conn->query($sqlWeek);
@@ -210,7 +210,7 @@ function weekRows($rows) {
     $oggi = array();
 
     while ($row = $rows->fetch_assoc()) {
-        $res = strtoupper($row['risorsa']);
+        $res = ($row['risorsa'] != null) ? strtoupper($row['risorsa']) : null;
         if (strlen($res) > 3) $res = 'OC.'; // Se attività extra solitamente la descrizione è maggiore di 3 caratteri, quindi 'OC.' per 'OCCUPATO'
         $oggi[$row['giorno_settimana']][$row['ora']] = $res; // La query dovrebbe essere già ordinata per giorno_settimana, ora
     }
