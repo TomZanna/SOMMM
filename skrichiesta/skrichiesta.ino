@@ -134,12 +134,13 @@ void setup()
   file_config = config_json_file.readStringUntil('\n'); // questo è il nostro config.js salvato su stringa
 
   // Creo buffer JSON per la lettura del file config.json
-
   DynamicJsonDocument jsonRead(1024);
+  
   DeserializationError errorRead = deserializeJson(jsonRead, file_config);
-
   if (errorRead)
   {
+    Serial.print("deserializeJson() line142 failed: ");
+    Serial.println(errorRead.c_str());
     Serial.println("Impossibile leggere la configurazione");
     update_display(1, "Errore di lettura json", ":X");
     return;
@@ -323,8 +324,9 @@ void save_json()
   if (errorConf)
   {
     server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
+    Serial.print("deserializeJson() line327 failed: ");
+    Serial.println(errorConf.c_str());
     Serial.println("Impossibile leggere la configurazione");
-    update_display(1, "Impossibile leggere la configurazione", ":X");
     return;
   }
   else

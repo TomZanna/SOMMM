@@ -70,14 +70,14 @@ void table()
     Provo a gestire l'interpretazione del mio json
   */
 
-  const size_t bufferSize = JSON_ARRAY_SIZE(10) + 10*JSON_OBJECT_SIZE(5) + 2*JSON_OBJECT_SIZE(6) + 6*JSON_OBJECT_SIZE(10) + 820;
+  const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
   DynamicJsonDocument doc(bufferSize);
 
   DeserializationError error = deserializeJson(doc, payload);
-  if (error) { // Se errore a elaborare json
-    Serial.print("deserializeJson() failed: ");
+  if (error) // Se errore a elaborare json
+  {
+    Serial.print("deserializeJson() line79 failed: ");
     Serial.println(error.c_str());
-    update_display(1, "Elaborazione json orario fallita", ":X");
     return;
   }
 
