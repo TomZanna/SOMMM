@@ -55,25 +55,23 @@
 #include <Fonts/FreeSans18pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>
 
-//#define RED //commentare o decommentare a seconda se il display supporta un terzo colore
+//#define RED // commentare o decommentare a seconda se il display supporta un terzo colore
 
 #if defined(RED)
-
 GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT / 4> display(GxEPD2_750c(/*CS=15*/ SS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16)); //display a colori
 #else
-
 GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT / 2> display(GxEPD2_750(/*CS=15*/ SS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16)); //display in grayscale
 #endif
 
-// FUNZIONI DEFINITE INIZIALEMTE PER POI ESSERE IMPLEMENTATE
+// FUNZIONI DEFINITE INIZIALMENTE PER POI ESSERE IMPLEMENTATE
 
 void update_display(int page_mode, String string_1, String string_2); // Funzione di gestione degli eventi
 
-void dithering(); //funzione per la gestione delle tonalià di grigio dei quadrati
+void dithering(); // funzione per la gestione delle tonalià di grigio dei quadrati
 
-void startup();     //funzione di sturtup
-void acces_point(); //funzione per la comunicazione di access point
-void tabella();     //funzione per il disegno della tabella principale
+void startup();     // funzione di sturtup
+void acces_point(); // funzione per la comunicazione di access point
+void tabella();     // funzione per il disegno della tabella principale
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
 
@@ -83,7 +81,6 @@ String mex_2 = ""; // riga comunicazione 2
 void setup()
 {
   // parte iniziale per il display e la seriale
-
   Serial.begin(115200);
   Serial.println();
   Serial.println("SOMMM STARTUP");
@@ -97,10 +94,8 @@ void loop()
 }
 
 /**
- * 
  *     FUNZIONI E GESTIONE DEL DISPLAY 
- **/
-
+ */
 void update_display(int page_mode, String string_1, String string_2)
 {
   //startup();
@@ -153,8 +148,7 @@ void dithering(int sx, int sy, int w, int h, int percent, int size)
  * ---------------------------------------------------------------------------------------------
  *  Funzione che gestisce la schermata di accensione del SOMMM
  * 
- **/
-
+ */
 void startup()
 {
   display.setRotation(0);
@@ -192,8 +186,7 @@ void startup()
  * ---------------------------------------------------------------------------------------------
  *  Funzione per la comunicazione dell'acces_point
  * 
- **/
-
+ */
 void acces_point()
 {
   display.setRotation(0);
@@ -212,13 +205,13 @@ void acces_point()
     }
 
     // LOGO SMALLL IN 3D
-    display.drawBitmap(468, 10, gImage_s_shadow, 163, 45, GxEPD_BLACK); //shadow
-    display.drawBitmap(468, 10, gImage_s_text, 163, 45, GxEPD_WHITE);   //text
+    display.drawBitmap(468, 10, gImage_s_shadow, 163, 45, GxEPD_BLACK); // shadow
+    display.drawBitmap(468, 10, gImage_s_text, 163, 45, GxEPD_WHITE);   // text
 
-    //CHROME TAB (fatta di primitive; paurissima)
+    // CHROME TAB (fatta di primitive; paurissima)
 
     dithering(175, 295, 145, 50, 50, 1);
-    display.fillRect(0, 324, 640, 60, GxEPD_BLACK);         //base della scheda
+    display.fillRect(0, 324, 640, 60, GxEPD_BLACK);         // base della scheda
     display.fillRoundRect(0, 285, 175, 60, 5, GxEPD_BLACK); // indicatore tab principlae
     display.fillRoundRect(25, 340, 450, 30, 100, GxEPD_WHITE);
 
@@ -233,7 +226,7 @@ void acces_point()
 
     // Scritta Guida
 
-    //Titolo
+    // Titolo
 
     display.setFont(&FreeSans18pt7b);
     display.setCursor(15, 110);
@@ -259,9 +252,7 @@ void acces_point()
 /**
  * -----------------------------------------------------------------------------------------
  *    Funzione che gestisce la tabella orario del SOMMM
- * 
- **/
-
+ */
 void tabella()
 {
 
@@ -293,7 +284,7 @@ void tabella()
 
     // ---------------------------------------------------------------------
     //                    LATO SINISTRO DEL DISPLAY
-    //----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 
     //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
 
