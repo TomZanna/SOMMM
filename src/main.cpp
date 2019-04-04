@@ -1,10 +1,53 @@
+/**
+ * 
+ * 
+ *             Smart Orario Management Marconi Magalini
+ *                         5AI anno 2k18/2k19
+ *           -------------------------------------------
+ *                              TEAM 1
+ *           -------------------------------------------
+ *           *- Riccardo Bussola
+ *           *- Cucino Federico
+ *           *- Victor Annunziata
+ * 
+ *            Project : SOMMM
+ *           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                                                              
+          _____                   _______                   _____                    _____                    _____          
+         /\    \                 /::\    \                 /\    \                  /\    \                  /\    \         
+        /::\    \               /::::\    \               /::\____\                /::\____\                /::\____\        
+       /::::\    \             /::::::\    \             /::::|   |               /::::|   |               /::::|   |        
+      /::::::\    \           /::::::::\    \           /:::::|   |              /:::::|   |              /:::::|   |        
+     /:::/\:::\    \         /:::/~~\:::\    \         /::::::|   |             /::::::|   |             /::::::|   |        
+    /:::/__\:::\    \       /:::/    \:::\    \       /:::/|::|   |            /:::/|::|   |            /:::/|::|   |        
+    \:::\   \:::\    \     /:::/    / \:::\    \     /:::/ |::|   |           /:::/ |::|   |           /:::/ |::|   |        
+  ___\:::\   \:::\    \   /:::/____/   \:::\____\   /:::/  |::|___|______    /:::/  |::|___|______    /:::/  |::|___|______  
+ /\   \:::\   \:::\    \ |:::|    |     |:::|    | /:::/   |::::::::\    \  /:::/   |::::::::\    \  /:::/   |::::::::\    \ 
+/::\   \:::\   \:::\____\|:::|____|     |:::|    |/:::/    |:::::::::\____\/:::/    |:::::::::\____\/:::/    |:::::::::\____\
+\:::\   \:::\   \::/    / \:::\    \   /:::/    / \::/    / ~~~~~/:::/    /\::/    / ~~~~~/:::/    /\::/    / ~~~~~/:::/    /
+ \:::\   \:::\   \/____/   \:::\    \ /:::/    /   \/____/      /:::/    /  \/____/      /:::/    /  \/____/      /:::/    / 
+  \:::\   \:::\    \        \:::\    /:::/    /                /:::/    /               /:::/    /               /:::/    /  
+   \:::\   \:::\____\        \:::\__/:::/    /                /:::/    /               /:::/    /               /:::/    /   
+    \:::\  /:::/    /         \::::::::/    /                /:::/    /               /:::/    /               /:::/    /    
+     \:::\/:::/    /           \::::::/    /                /:::/    /               /:::/    /               /:::/    /     
+      \::::::/    /             \::::/    /                /:::/    /               /:::/    /               /:::/    /      
+       \::::/    /               \::/____/                /:::/    /               /:::/    /               /:::/    /       
+        \::/    /                 ~~                      \::/    /                \::/    /                \::/    /        
+         \/____/                                           \/____/                  \/____/                  \/____/         V 2.0
+                                                                                                                             
+ * 
+ */
+
 #include <Arduino.h>
 #include <images.h>
 
 #define ENABLE_GxEPD2_GFX 1
-
-#include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
+#include <GxEPD2_BW.h>
+
+#include <ESP8266HTTPClient.h>
+#include <ESP8266WiFi.h>
+#include <ArduinoJson.h>
 
 // Font di varia grandezza per il display
 #include <Fonts/FreeSans9pt7b.h>
@@ -12,12 +55,14 @@
 #include <Fonts/FreeSans18pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>
 
-#define RED //commentare o decommentare a seconda se il display supporta un terzo colore
+//#define RED //commentare o decommentare a seconda se il display supporta un terzo colore
 
 #if defined(RED)
+
 GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT / 4> display(GxEPD2_750c(/*CS=15*/ SS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16)); //display a colori
 #else
-GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT / 2> display(GxEPD2_750(/*CS=15*/ SS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16));     //display in grayscale
+
+GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT / 2> display(GxEPD2_750(/*CS=15*/ SS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16)); //display in grayscale
 #endif
 
 // FUNZIONI DEFINITE INIZIALEMTE PER POI ESSERE IMPLEMENTATE
@@ -25,7 +70,10 @@ GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT / 2> display(GxEPD2_750(/*CS=15*/ SS, /
 void update_display(int page_mode, String string_1, String string_2); // Funzione di gestione degli eventi
 
 void dithering(); //funzione per la gestione delle tonalià di grigio dei quadrati
-void tabella();   //funzione per il disegno della tabella principale
+
+void startup();     //funzione di sturtup
+void acces_point(); //funzione per la comunicazione di access point
+void tabella();     //funzione per il disegno della tabella principale
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
 
@@ -48,12 +96,18 @@ void loop()
 {
 }
 
+/**
+ * 
+ *     FUNZIONI E GESTIONE DEL DISPLAY 
+ **/
+
 void update_display(int page_mode, String string_1, String string_2)
 {
-  tabella();
+  //startup();
+  acces_point();
 }
 
-void dithering(int sx, int sy, int h, int w, int percent, int size)
+void dithering(int sx, int sy, int w, int h, int percent, int size)
 {
   switch (percent)
   {
@@ -80,8 +134,133 @@ void dithering(int sx, int sy, int h, int w, int percent, int size)
       }
     }
     break;
+
+    // 25% (DARK GREY)
+  case (25):
+
+    for (int y = sy; y < sy + h; y++)
+    {
+      for (int x = sx; x < sx + w; x++)
+      {
+        display.fillRect(x, y, size, size, (y % 2 == 0) ? GxEPD_WHITE : ((x % 2 == 0) ? GxEPD_BLACK : GxEPD_WHITE));
+      }
+    }
+    break;
   }
 }
+
+/**
+ * ---------------------------------------------------------------------------------------------
+ *  Funzione che gestisce la schermata di accensione del SOMMM
+ * 
+ **/
+
+void startup()
+{
+  display.setRotation(0);
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+    if (display.epd2.hasColor)
+    {
+      display.fillScreen(GxEPD_RED);
+    }
+    else
+    {
+      display.fillScreen(GxEPD_WHITE);
+      dithering(0, 0, 640, 384, 25, 1);
+    }
+
+    // LOGO IN 3D
+    display.drawBitmap(145, 144, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
+    display.drawBitmap(145, 144, gImage_sommm_text, 350, 95, GxEPD_WHITE);   //text
+
+    display.setFont(&FreeSans12pt7b);
+    display.setCursor(142, 297);
+    display.setTextColor(GxEPD_BLACK);
+    display.println("The new way to manage your time");
+    //------shadow
+    display.setCursor(140, 295);
+    display.setTextColor(GxEPD_WHITE);
+    display.println("The new way to manage your time");
+
+  } while (display.nextPage());
+}
+
+/**
+ * ---------------------------------------------------------------------------------------------
+ *  Funzione per la comunicazione dell'acces_point
+ * 
+ **/
+
+void acces_point()
+{
+  display.setRotation(0);
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+    if (display.epd2.hasColor)
+    {
+      display.fillScreen(GxEPD_RED);
+    }
+    else
+    {
+      display.fillScreen(GxEPD_WHITE);
+      dithering(0, 0, 640, 384, 25, 1);
+    }
+
+    // LOGO SMALLL IN 3D
+    display.drawBitmap(468, 10, gImage_s_shadow, 163, 45, GxEPD_BLACK); //shadow
+    display.drawBitmap(468, 10, gImage_s_text, 163, 45, GxEPD_WHITE);   //text
+
+    //CHROME TAB (fatta di primitive; paurissima)
+
+    dithering(175, 295, 145, 50, 50, 1);
+    display.fillRect(0, 324, 640, 60, GxEPD_BLACK);         //base della scheda
+    display.fillRoundRect(0, 285, 175, 60, 5, GxEPD_BLACK); // indicatore tab principlae
+    display.fillRoundRect(25, 340, 450, 30, 100, GxEPD_WHITE);
+
+    display.setFont(&FreeSans12pt7b);
+    display.setCursor(35, 313);
+    display.setTextColor(GxEPD_WHITE);
+    display.print("SOMMM");
+
+    display.setCursor(35, 363);
+    display.setTextColor(GxEPD_BLACK);
+    display.print("192.168.4.1");
+
+    // Scritta Guida
+
+    //Titolo
+
+    display.setFont(&FreeSans18pt7b);
+    display.setCursor(15, 110);
+    display.setTextColor(GxEPD_BLACK);
+    display.print("Configurazione SOMMM");
+
+    display.setFont(&FreeSans12pt7b);
+    display.setCursor(15, 150);
+
+    display.epd2.hasColor ? display.setTextColor(GxEPD_WHITE) : display.setTextColor(GxEPD_BLACK);
+
+    display.print("Connetteti alla rete \"SOMMM\" e apri il browser");
+    display.setCursor(15, 175);
+    display.print("Digitare 192:168.4.1 e compilare i vari campi");
+    display.setCursor(15, 200);
+    display.print("Premere Salva e aspettare la conferma dal device");
+    display.setCursor(15, 225);
+    display.print("Una volta ricevuta la conferma riavviare il sistema");
+
+  } while (display.nextPage());
+}
+
+/**
+ * -----------------------------------------------------------------------------------------
+ *    Funzione che gestisce la tabella orario del SOMMM
+ * 
+ **/
 
 void tabella()
 {
@@ -100,8 +279,9 @@ void tabella()
 
     display.fillRect(335, 0, 305, 60, GxEPD_BLACK);
 
-    //display.drawImage(gImage_logo, 500, 3, 125, 55, false, false, false);
-    display.drawBitmap(500, 3, gImage_logo, 125, 55, GxEPD_WHITE);
+    display.epd2.hasColor ? display.fillRect(335, 0, 305, 60, GxEPD_RED) : display.fillRect(335, 0, 305, 60, GxEPD_BLACK);
+
+    //display.drawBitmap(500, 3, gImage_logo, 125, 55, GxEPD_WHITE);
 
     // Disegno i separatori
 
@@ -117,21 +297,14 @@ void tabella()
 
     //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
 
-    dithering(0, 0, 331, 335, 50, 2); // SFONDO GRIGIO 50%
-    display.drawFastVLine(335,0,331,GxEPD_BLACK);
-
-#if defined(RED)
-    display.fillRect(0, 331, 336, 53, GxEPD_RED);
-#else
-    dithering(0, 331, 53, 335, 75, 2); // SFONDO GRIGIO 75%
-    display.drawFastVLine(335,331,53,GxEPD_BLACK);
-#endif
-    
+    dithering(0, 0, 335, 331, 50, 1); // SFONDO GRIGIO 50%
+    display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
+    display.drawFastVLine(335, 331, 53, GxEPD_BLACK);
 
     // GRIGLIA GIORNI
 
     display.setFont(&FreeSans12pt7b);
-    display.setTextColor(GxEPD_BLACK);
+    display.setTextColor(GxEPD_WHITE);
 
     // Indicatore di ore dei vari giorni
 
@@ -157,12 +330,12 @@ void tabella()
     {
       for (int i = 0; i < 6; i++)
       {
-        /*
-        display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
-        display.fillRoundRect(28 + (50 * j), 23 + (50 * i), 45, 45, 5, GxEPD_WHITE);*/
 
-        display.fillRect(30 + (50 * j), 25 + (50 * i), 47, 47, GxEPD_BLACK);
-        display.fillRect(28 + (50 * j), 23 + (50 * i), 45, 45, GxEPD_WHITE);
+        display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
+        display.fillRoundRect(29 + (50 * j), 24 + (50 * i), 46, 46, 5, GxEPD_WHITE);
+
+        //display.fillRect(30 + (50 * j), 25 + (50 * i), 47, 47, GxEPD_BLACK);
+        //display.fillRect(29 + (50 * j), 24 + (50 * i), 46, 46, GxEPD_WHITE);
       }
     }
 
