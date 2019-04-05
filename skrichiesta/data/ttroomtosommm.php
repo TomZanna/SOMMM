@@ -121,7 +121,7 @@ if ($oraTondaNow >= 6 && $oraTondaNow <= 8) $oraAttuale = 1; // Dalle 6:00 simul
  * @return string|null
  */
 function maxTxtLength($str) {
-    if ($str == NULL) return NULL;
+    if (is_null($str)) return null;
 
     $length = strlen(utf8_decode($str));
     if ($length > 16) {
@@ -137,7 +137,7 @@ function maxTxtLength($str) {
  * @return array|null
  */
 function splitTwo($str) {
-    if ($str == NULL) return NULL;
+    if (is_null($str)) return null;
 
     $str1 = null;
     $str2 = null;
@@ -168,7 +168,7 @@ function todayRows($rows) {
     $oggi = array();
     while ($row = $rows->fetch_assoc()) {
         $res = $row['risorsa'];
-        if ($res != NULL) {
+        if (!is_null($res)) {
             if (strlen($res) > 3) { // Se lunghezza 'materia' è maggiore di 3, non è più classe ma un altro evento
                 $splitted = splitTwo($res);
                 $o = array(
@@ -210,7 +210,7 @@ function weekRows($rows) {
     $oggi = array();
 
     while ($row = $rows->fetch_assoc()) {
-        $res = ($row['risorsa'] != null) ? strtoupper($row['risorsa']) : null;
+        $res = (is_null($row['risorsa'])) ? null : strtoupper($row['risorsa']);
         if (strlen($res) > 3) $res = 'OC.'; // Se attività extra solitamente la descrizione è maggiore di 3 caratteri, quindi 'OC.' per 'OCCUPATO'
         $oggi[$row['giorno_settimana']][$row['ora']] = $res; // La query dovrebbe essere già ordinata per giorno_settimana, ora
     }
