@@ -179,10 +179,12 @@ function todayRows($rows) {
                     'res' => null
                 );
             } else { // In questa ora c'è una classe
+                // Operazioni di uppercase e lowercase trasformano valori null in stringa vuota
+                // Il SOMMM preferisce valori null
                 $o = array(
                     'ora' => $row['ora'],
-                    'prof1' => maxTxtLength(ucwords(strtolower($row['professore1']))), // Prima lettera maiuscola di ogni parola, tagliata a 16 caratteri
-                    'prof2' => maxTxtLength(ucwords(strtolower($row['professore2']))), // Prima lettera maiuscola di ogni parola, tagliata a 16 caratteri
+                    'prof1' => is_null($row['professore1']) ? null : maxTxtLength(ucwords(strtolower($row['professore1']))), // Prima lettera maiuscola di ogni parola, tagliata a 16 caratteri
+                    'prof2' => is_null($row['professore2']) ? null : maxTxtLength(ucwords(strtolower($row['professore2']))), // Prima lettera maiuscola di ogni parola, tagliata a 16 caratteri
                     'mat' => $row['materia'],
                     'res' => $res
                 );
