@@ -107,7 +107,7 @@ void setup()
   Serial.println("SOMMM STARTUP");
   delay(100);
   display.init(115200);
-  //startup();
+  startup();
 
   // Monto il mio SPIFFS File System
 
@@ -261,7 +261,7 @@ void setup()
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
     //update_display(1, "AP SOMMM", "192.168.4.1"); // 192.168.4.1 + porta default
-    // Avviso con modalità 1 il display che ho creato un access point
+    acces_point();
 
     server.on("/info", []() {
       return server.send(200, "text/plain", aula_id);
@@ -274,8 +274,25 @@ void setup()
   }
 }
 
+long time_start = millis();
+
 void loop()
 {
+  server.handleClient();
+
+  if (request)
+  {
+    if (delay_time >= 1000)
+    { // verifica se l'update_s è almeno maggiore di 1s
+      if ((millis() - time_start) >= delay_time)
+      {
+        // mando la richiesta
+        Serial.println("--------------------");
+        tabella();
+        time_start = millis(); // azzerro il contatore
+      }
+    }
+  }
 }
 
 void dithering(int sx, int sy, int w, int h, int percent, int size)
