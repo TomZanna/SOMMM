@@ -103,9 +103,8 @@ $mesiTxt = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Lugli
 $giornoTxt = $giorniTxt[date('w')]; // Mercoledi`
 $giorno = date('d'); // 05
 $meseTxt = $mesiTxt[date('n') - 1]; // Dicembre
-$anno = date('o'); // 2018
 
-$today = "$giornoTxt, $giorno $meseTxt $anno"; // Mercoledi`, 05 Dicembre 2018
+$today = "$giornoTxt, $giorno $meseTxt"; // Mercoledi`, 05 Dicembre
 
 $giornoSet = date('w'); // 2 sta per martedì
 
