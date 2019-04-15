@@ -2,7 +2,7 @@
 /**
  * API per risposta a dispositivo SOMMM per visualizzazione dinamica delle classi in aula/laboratorio
  *
- * @param string $stanza identificativo dell'aula/laboratorio
+ * @param string stanza identificativo dell'aula/laboratorio
  *
  * @author Cucino Federico (17336) 5^Ai - 2018/2019
  * @group n.1 Annunziata Victor - Bussola Riccardo - Cucino Federico
@@ -98,14 +98,14 @@ if (!$resultWeek) {
 
 $conn->close();
 
-$giorniTxt = ['Domenica', "Lunedi'", "Martedi'", "Mercoledi'", "Giovedi'", "Venerdi'", "Sabato'"];
+$giorniTxt = ['Domenica`', 'Lunedi`', 'Martedi`', 'Mercoledi`', 'Giovedi`', 'Venerdi`', 'Sabato'];
 $mesiTxt = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-$giornoTxt = $giorniTxt[date('w')]; // Mercoledi'
+$giornoTxt = $giorniTxt[date('w')]; // Mercoledi`
 $giorno = date('d'); // 05
 $meseTxt = $mesiTxt[date('n') - 1]; // Dicembre
 $anno = date('o'); // 2018
 
-$today = "$giornoTxt, $giorno $meseTxt $anno"; // Mercoledi', 05 Dicembre 2018
+$today = "$giornoTxt, $giorno $meseTxt $anno"; // Mercoledi`, 05 Dicembre 2018
 
 $giornoSet = date('w'); // 2 sta per martedì
 
