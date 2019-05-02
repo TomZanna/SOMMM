@@ -76,8 +76,14 @@ void save_json();
 void startup();     // funzione di sturtup
 void acces_point(); // funzione per la comunicazione di access point
 void tabella();     // funzione per il disegno della tabella principale
+void reboot_page(); //funzione per il disegno della pagina di salvataggio e reboot
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
+
+//CREDENZIALI WEB
+
+const char *www_username = "SOMMM";
+const char *www_password = "laPasswordQui";
 
 bool request = 0;
 const char *payload = ""; // payload come variabile globale
@@ -107,7 +113,8 @@ void setup()
   Serial.println("SOMMM STARTUP");
   delay(100);
   display.init(115200);
-  startup();
+  //startup();
+  reboot_page();
 
   // Monto il mio SPIFFS File System
 
@@ -247,7 +254,7 @@ void setup()
     server.serveStatic("/", SPIFFS, "/index.html");
     server.begin(); //Faccio partire il server
     delay(5000);
-    tabella();
+    //tabella();
     //update_display(2, "", ""); // Mostro l'avvenuto successo della connesione su display e do informazioni utili all'utente
   }
   else
@@ -433,7 +440,7 @@ void acces_point()
 
     display.print("Connettersi alla rete \"SOMMM\" e aprire il browser");
     display.setCursor(15, 175);
-    display.print("Digitare 192:168.4.1 e compilare i vari campi");
+    display.print("Digitare 192.168.4.1 e compilare i vari campi");
     display.setCursor(15, 200);
     display.print("Premere Salva e aspettare la conferma dal device");
     display.setCursor(15, 225);
@@ -548,14 +555,17 @@ void tabella()
 
     display.epd2.hasColor ? display.fillRect(335, 0, 305, 60, GxEPD_RED) : dithering(335, 0, 305, 60, 50, 1);
 
-    display.setFont(&FreeSans18pt7b);
-    display.setTextColor(GxEPD_WHITE);
-    display.setCursor(363, 42);
-    display.println("L142");
-
     // LOGO SMALLL IN 3D
     display.drawBitmap(468, 5, gImage_s_shadow, 163, 45, GxEPD_BLACK); // shadow
     display.drawBitmap(468, 5, gImage_s_text, 163, 45, GxEPD_WHITE);   // text
+
+    // Scrivo la stanza
+
+    display.setFont(&FreeSans18pt7b);
+    display.setTextColor(GxEPD_WHITE);
+
+    display.setCursor(363, 42);
+    display.println(stanza);
 
     // Disegno i separatori
 
@@ -734,12 +744,47 @@ void tabella()
       }
     }
 
-  display.setTextColor(GxEPD_BLACK);
+    display.setTextColor(GxEPD_BLACK);
+
     // Parte sotto del giorno
     display.setFont(&FreeSans12pt7b);
 
     display.setCursor(8, 365);
     display.println(giorno); // info giorno
+
+    //Parte di icona
+
+    display.drawBitmap(275, 329, gImage_scuola, 50, 50, GxEPD_BLACK);
+
+  } while (display.nextPage());
+}
+
+void reboot_page()
+{
+
+  display.setRotation(0);
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+    if (display.epd2.hasColor)
+    {
+      display.fillScreen(GxEPD_RED);
+    }
+    else
+    {
+      display.fillScreen(GxEPD_WHITE);
+      dithering(0, 0, 640, 384, 25, 1);
+    }
+
+    // LOGO IN 3D
+    display.drawBitmap(145, 124, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
+    display.drawBitmap(145, 124, gImage_sommm_text, 350, 95, GxEPD_WHITE);   //text
+
+
+    display.fillRoundRect(550, 62, 65, 260, 10, GxEPD_WHITE);
+    display.drawBitmap(564, 77, gImage_reboot, 36, 36, GxEPD_BLACK); //shadow
+
 
   } while (display.nextPage());
 }
