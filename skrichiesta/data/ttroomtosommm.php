@@ -8,7 +8,7 @@
  * @group n.1 Annunziata Victor - Bussola Riccardo - Cucino Federico
  */
 
-date_default_timezone_set('Europe/Rome'); // Può servire a classe DateTime usata successivamente
+date_default_timezone_set('Europe/Rome'); // Serve a classe DateTime, usata successivamente
 
 if (!isset($_GET['stanza'])) {
     echo json_encode("Missing parameter 'stanza'");
@@ -98,7 +98,7 @@ if (!$resultWeek) {
 
 $conn->close();
 
-$giorniTxt = ['Domenica`', 'Lunedi`', 'Martedi`', 'Mercoledi`', 'Giovedi`', 'Venerdi`', 'Sabato'];
+$giorniTxt = ['Domenica', 'Lunedi`', 'Martedi`', 'Mercoledi`', 'Giovedi`', 'Venerdi`', 'Sabato'];
 $mesiTxt = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 $giornoTxt = $giorniTxt[date('w')]; // Mercoledi`
 $giorno = date('d'); // 05
