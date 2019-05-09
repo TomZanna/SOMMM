@@ -7,10 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
+    <link rel="shortcut icon" type="image/png" href="./img/favico.png"/>
   </head>
   <body>
     <div id="navbar">
-      <div id="sommmwrite">SOMMM</div>
       <div id="logo"></div>
     </div>
     <div id="container">
@@ -86,9 +86,9 @@
         return str.join("&");
       };
       // and here's the trick (works everywhere)
-      function r(f) { /in/.test(document.readyState) ? setTimeout('r(' + f + ')', 9) : f() }
+      function g(f) { /in/.test(document.readyState) ? setTimeout('g(' + f + ')', 9) : f() }
 
-      r(function() { // On document ready
+      g(function() { // On document ready
           var r = new XMLHttpRequest();
           r.open('GET', '/info', true);
           r.onload = function() {
@@ -102,10 +102,7 @@
           var reGexSM = /^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$/;
           qs("#salva").addEventListener("click", function(e) {
               e.preventDefault(); //stop form from submitting
-              var net_dfgw_0 = ['', '', '', ''];
-              var net_ip_0 = ['', '', '', ''];
-              var net_dns_0 = ['', '', '', ''];
-              var net_sm_0 = ['', '', '', ''];
+              
 
               var net_ssid = qs("#net_ssid").value;
               var net_pswd = qs("#net_pswd").value;
