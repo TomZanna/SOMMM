@@ -73,10 +73,11 @@ ESP8266WebServer server(1518); //settaggio server sulla porta 1518
 
 void dithering(int sx, int sy, int w, int h, int percent, int size); // funzione per la gestione delle tonalià di grigio dei quadrati
 void save_json();
-void startup();     // funzione di sturtup
-void acces_point(); // funzione per la comunicazione di access point
-void tabella();     // funzione per il disegno della tabella principale
-void reboot_page(); //funzione per il disegno della pagina di salvataggio e reboot
+void startup();                        // funzione di sturtup
+void acces_point();                    // funzione per la comunicazione di access point
+void tabella();                        // funzione per il disegno della tabella principale
+void reboot_page();                    //funzione per il disegno della pagina di salvataggio e reboot
+void error_page(String codice_errore); //funzione per il disegno della pagina di errore con codice errore
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
 
@@ -113,15 +114,14 @@ void setup()
   Serial.println("SOMMM STARTUP");
   delay(100);
   display.init(115200);
-  //startup();
-  reboot_page();
-
+  startup();
   // Monto il mio SPIFFS File System
 
   if (!SPIFFS.begin())
   {
     Serial.println("File system non montato ");
-    //update_display(1, "Errore File System", ":X");
+    delay(5000);
+    error_page("Errore caricamento File System");
   }
   else
   {
@@ -143,7 +143,8 @@ void setup()
     Serial.print("deserializeJson() line142 failed: ");
     Serial.println(errorRead.c_str());
     Serial.println("Impossibile leggere la configurazione");
-    //update_display(1, "Errore di lettura json", ":X");
+    delay(5000);
+    error_page("Errore lettura JSON configurazione");
     return;
   }
   else
@@ -254,8 +255,7 @@ void setup()
     server.serveStatic("/", SPIFFS, "/index.html");
     server.begin(); //Faccio partire il server
     delay(5000);
-    //tabella();
-    //update_display(2, "", ""); // Mostro l'avvenuto successo della connesione su display e do informazioni utili all'utente
+    tabella();
   }
   else
   {
@@ -267,7 +267,7 @@ void setup()
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
-    //update_display(1, "AP SOMMM", "192.168.4.1"); // 192.168.4.1 + porta default
+    delay(5000);
     acces_point();
 
     server.on("/info", []() {
@@ -487,12 +487,13 @@ void tabella()
   const char *stanza = doc["stanza"];            // "L145"
   const char *giorno = doc["giorno"];            // "Venerdi', 23 Novembre 2018"
   int giorno_settimana = doc["giornoSettimana"]; // 5
-  giorno_settimana += -1;
+  giorno_settimana -= 1;
   int oraAttuale = doc["oraAttuale"]; // 3
 
   if (httpCode == -1)
   {
-    giorno = "Errore di connessione x(";
+    delay(5000);
+    error_page("Errore di connessione, verifica la rete");
   }
 
   // ################################################################################################################
@@ -718,13 +719,15 @@ void tabella()
       }
     }
 
-    for (int i = 0; i < 6; i++)
+    if (giorno_settimana != -1)
     {
+      for (int i = 0; i < 6; i++)
+      {
 
-      display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
-      display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
-    };
-
+        display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
+        display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
+      };
+    }
     display.setFont(&FreeSans9pt7b);
 
     for (int i = 0; i < 6; i++)
@@ -732,7 +735,7 @@ void tabella()
       for (int j = 0; j < 6; j++)
       {
         display.setCursor(35 + (50 * j), 55 + (50 * i));
-        if (giorno_settimana == j)
+        if (giorno_settimana == j && giorno_settimana != -1)
         {
           display.setTextColor(GxEPD_WHITE);
         }
@@ -777,15 +780,45 @@ void reboot_page()
       dithering(0, 0, 640, 384, 25, 1);
     }
 
-    // LOGO IN 3D
-    display.drawBitmap(145, 124, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
-    display.drawBitmap(145, 124, gImage_sommm_text, 350, 95, GxEPD_WHITE);   //text
+    display.setTextColor(GxEPD_BLACK);
+    display.setFont(&FreeSans12pt7b);
+    display.setCursor(50, 180);
+    display.println("Riavviare il dispositivo per caricare le nuove");
+    display.setCursor(50, 210);
+    display.println("impostazioni, attendere la conferma dalla");
+    display.setCursor(50, 240);
+    display.println("pagina web");
 
+    // LOGO IN 3D
+    display.drawBitmap(50, 50, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
+    display.drawBitmap(50, 50, gImage_sommm_text, 350, 95, GxEPD_WHITE);   //text
 
     display.fillRoundRect(550, 62, 65, 260, 10, GxEPD_WHITE);
-    display.drawBitmap(564, 77, gImage_reboot, 36, 36, GxEPD_BLACK); //shadow
+    display.drawBitmap(550, 62, gImage_reboot, 65, 260, GxEPD_BLACK);
 
+  } while (display.nextPage());
+}
 
+void error_page(String codice_errore)
+{
+  display.setRotation(0);
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+    display.fillScreen(GxEPD_WHITE);
+
+    display.setTextColor(GxEPD_BLACK);
+    display.setFont(&FreeSans12pt7b);
+
+    dithering(0, 0, 640, 384, 25, 1);
+    display.drawChar(140, 150, 'X', GxEPD_BLACK, GxEPD_WHITE, 4);
+    display.drawChar(440, 150, 'X', GxEPD_BLACK, GxEPD_WHITE, 4);
+
+    display.setCursor(80, 250);
+    display.println("Ops! Sembra che qualcosa sia andato storto!");
+    display.setCursor(100, 285);
+    display.println(codice_errore);
   } while (display.nextPage());
 }
 
@@ -796,6 +829,8 @@ void save_json()
     // Se viene visualizzato c'è un problema al filesystem
     server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
     Serial.println("SPIFFS2 Mount failed");
+    delay(5000);
+    error_page("Errore caricamento File System");
     return;
   }
   else
@@ -815,6 +850,7 @@ void save_json()
     Serial.print("deserializeJson() line327 failed: ");
     Serial.println(errorConf.c_str());
     Serial.println("Impossibile leggere la configurazione");
+    error_page("Errore lettura JSON configurazione");
     return;
   }
   else
@@ -908,10 +944,8 @@ void save_json()
   serializeJson(json, save);   // salvo la nuova configurazione
   serializeJson(json, Serial); // stampo la nuova configurazione
 
+  reboot_page();
   server.send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
-  Serial.println("");
-  Serial.println("Riavvia il dispositivo appena led rosso spento");
-  //update_display(1, "Salvataggio effettuato", "Riavvia SOMM appena led rosso spento"); // Riavvio dispositivo
 
   // N.B. No reboot lato software per problemi successivi a stack di memoria, riavvio hardware
 }
