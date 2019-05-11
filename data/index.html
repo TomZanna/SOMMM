@@ -70,7 +70,7 @@
           <input class="input_and_titles long" type="text" value='http://172.16.1.98/orario/ttroomtosommm.php' id="api_url" required>
         </div>
         <div class="box" style="padding-top:1.5rem;">
-          <input id="salva" class='button' type="button" value="Salva">
+          <input id="salva" class='button' type="submit" value="Salva">
         </div>
       </form>
     </div>
@@ -87,7 +87,6 @@
       };
       // and here's the trick (works everywhere)
       function g(f) { /in/.test(document.readyState) ? setTimeout('g(' + f + ')', 9) : f() }
-
       g(function() { // On document ready
           var r = new XMLHttpRequest();
           r.open('GET', '/info', true);
@@ -100,9 +99,12 @@
 
           var reGex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
           var reGexSM = /^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$/;
-          qs("#salva").addEventListener("click", function(e) {
+          qs("#send").addEventListener("submit", function(e) {
               e.preventDefault(); //stop form from submitting
-              
+              var net_dfgw_0 = ['', '', '', ''];
+              var net_ip_0 = ['', '', '', ''];
+              var net_dns_0 = ['', '', '', ''];
+              var net_sm_0 = ['', '', '', ''];
 
               var net_ssid = qs("#net_ssid").value;
               var net_pswd = qs("#net_pswd").value;
@@ -152,19 +154,27 @@
               var r = new XMLHttpRequest();
               r.open('POST', '/save');
               r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+              r.onprogress = function(){
+                document.body.style.cursor = 'wait';
+                qs("#salva").disabled = true;
+              };
               r.onload = function() {
+                document.body.style.cursor = 'default';
+                qs("#salva").disabled = false;
                   if (r.status >= 200 && r.status < 400) { // Success!
                       var resp = r.responseText;
                       console.log(resp);
                       alert(resp);
-                  } else {
-                      // We reached our target server, but it returned an error (500)
-                      console.error(r.responseText);
-                      alert(r.responseText);
+                  } else { // We reached our target server, but it returned an error (500)
+                      var resp = r.responseText;
+                      console.error(resp);
+                      alert(resp);
                   }
               };
               r.onerror = function() {
                   // There was a connection error of some sort
+                  document.body.style.cursor = 'default';
+                  qs("#salva").disabled = false;
                   console.error('Errore di connessione');
                   console.error(r.responseText);
                   alert(r.responseText);

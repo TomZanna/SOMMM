@@ -1,3 +1,7 @@
+body {
+    margin: 0px;
+    padding: 0px;
+ }
 #logo,#net_static{
     position:relative;
 }
@@ -91,6 +95,16 @@ input{
     height:2rem;
     font-size: 170%;
 }
+input[type="submit"]:not(:disabled){
+    cursor: pointer;
+}
+input[type="text"], textarea {
+    background-color : white; 
+}
+input, select, textarea{
+    color: black!important;
+}
+
 @media only screen and (min-width:800px){
     #logo,#net_static{
         position:relative;
@@ -113,7 +127,6 @@ input{
         font-family:arial;
         font-style:italic;
         font-size:2rem;
-        color:#617583;
         height:2rem;
         margin:auto;
         border-radius:.5rem;
