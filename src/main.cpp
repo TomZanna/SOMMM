@@ -74,7 +74,7 @@ ESP8266WebServer server(1518); //settaggio server sulla porta 1518
 void dithering(int sx, int sy, int w, int h, int percent, int size); // funzione per la gestione delle tonalià di grigio dei quadrati
 void save_json();
 void startup();                        // funzione di sturtup
-void acces_point();                    // funzione per la comunicazione di access point
+void access_point();                    // funzione per la comunicazione di accesss point
 void tabella();                        // funzione per il disegno della tabella principale
 void reboot_page();                    //funzione per il disegno della pagina di salvataggio e reboot
 void error_page(String codice_errore); //funzione per il disegno della pagina di errore con codice errore
@@ -236,7 +236,7 @@ void setup()
 
     // Setto http sull'indirizzo del mio server
 
-    String http_address = String(api_url) + "?stanza=" + String(aula); // Creo l'url per indirizzo API
+    String http_address = String(api_url) + "?stanza=" + aula_id; // Creo l'url per indirizzo API
 
     Serial.print("Richiesta settata su: "); // Stampo l'indirizzo
     Serial.println(http_address);
@@ -259,16 +259,16 @@ void setup()
   }
   else
   {
-    // Problemi di connessione (probabilmente rete non raggiungibile e/o settato), avvio Access Point
+    // Problemi di connessione (probabilmente rete non raggiungibile e/o settato), avvio accesss Point
     WiFi.disconnect(true); // Disconnetto la wifi
-    WiFi.mode(WIFI_AP);    // Wifi Mode Access-Point
+    WiFi.mode(WIFI_AP);    // Wifi Mode accesss-Point
 
-    WiFi.softAP("SOMMM", "laPasswordQui"); // dichiaro i parametri del mio access point
+    WiFi.softAP("SOMMM", "laPasswordQui"); // dichiaro i parametri del mio accesss point
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
     delay(5000);
-    acces_point();
+    access_point();
 
     server.on("/info", []() {
       return server.send(200, "text/plain", aula_id);
@@ -384,10 +384,10 @@ void startup()
 
 /**
  * ---------------------------------------------------------------------------------------------
- *  Funzione per la comunicazione dell'acces_point
+ *  Funzione per la comunicazione dell'access_point
  * 
  */
-void acces_point()
+void access_point()
 {
   display.setRotation(0);
   display.setFullWindow();
@@ -431,20 +431,20 @@ void acces_point()
     display.setFont(&FreeSans18pt7b);
     display.setCursor(15, 110);
     display.setTextColor(GxEPD_BLACK);
-    display.print("Configurazione SOMMM");
+    display.print("Configurazione");
 
     display.setFont(&FreeSans12pt7b);
     display.setCursor(15, 150);
 
     display.epd2.hasColor ? display.setTextColor(GxEPD_WHITE) : display.setTextColor(GxEPD_BLACK);
 
-    display.print("Connettersi alla rete \"SOMMM\" e aprire il browser");
+    display.print("Connettersi alla rete \"SOMMM\" e aprire il browser.");
     display.setCursor(15, 175);
-    display.print("Digitare 192.168.4.1 e compilare i vari campi");
+    display.print("Digitare 192.168.4.1 e compilare i vari campi.");
     display.setCursor(15, 200);
-    display.print("Premere Salva e aspettare la conferma dal device");
+    display.print("Premere Salva e aspettare la conferma dal device;");
     display.setCursor(15, 225);
-    display.print("Una volta ricevuta la conferma riavviare il sistema");
+    display.print("una volta ricevuta la conferma riavviare il sistema.");
 
   } while (display.nextPage());
 }
@@ -591,7 +591,7 @@ void tabella()
 
         if (j + 1 == oraAttuale)
         {
-          display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
+          display.epd2.hasColor?display.fillRect(340, pos_y[j], 15, 5, GxEPD_RED):display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
         }
         else
         {
@@ -692,12 +692,10 @@ void tabella()
 
     // Indicatore di ore dei vari giorni
 
-    String num_ore[6] = {"1", "2", "3", "4", "5", "6"};
-
     for (int i = 0; i < 6; i++)
     {
       display.setCursor(7, 52 + (50 * i));
-      display.println(num_ore[i]);
+      display.println(i+1);
     }
 
     // Nome dei giorni
@@ -755,10 +753,6 @@ void tabella()
     display.setCursor(8, 365);
     display.println(giorno); // info giorno
 
-    //Parte di icona
-
-    display.drawBitmap(275, 329, gImage_scuola, 50, 50, GxEPD_BLACK);
-
   } while (display.nextPage());
 }
 
@@ -783,11 +777,11 @@ void reboot_page()
     display.setTextColor(GxEPD_BLACK);
     display.setFont(&FreeSans12pt7b);
     display.setCursor(50, 180);
-    display.println("Riavviare il dispositivo per caricare le nuove");
+    display.println("Attendere la conferma dalla pagina web;");
     display.setCursor(50, 210);
-    display.println("impostazioni, attendere la conferma dalla");
+    display.println("successivamente riavviare il dispositivo per");
     display.setCursor(50, 240);
-    display.println("pagina web");
+    display.println("caricare le nuove impostazioni.");
 
     // LOGO IN 3D
     display.drawBitmap(50, 50, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
