@@ -147,6 +147,9 @@
                   return false;
               }
 
+              document.body.style.cursor = 'wait';
+              qs("#salva").disabled = true;
+
               var params = {net_ssid: net_ssid, net_pswd: net_pswd, net_ip_0: net_ip_0[0], net_ip_1: net_ip_0[1], net_ip_2: net_ip_0[2], net_ip_3: net_ip_0[3], net_dns_0: net_dns_0[0], net_dns_1: net_dns_0[1], net_dns_2: net_dns_0[2], net_dns_3: net_dns_0[3], net_dfgw_0: net_dfgw_0[0], net_dfgw_1: net_dfgw_0[1], net_dfgw_2: net_dfgw_0[2], net_dfgw_3: net_dfgw_0[3], net_sm_0: net_sm_0[0], net_sm_1: net_sm_0[1], net_sm_2: net_sm_0[2], net_sm_3: net_sm_0[3], net_static: net_static, aula: aula, api_url: api_url};
               console.log(params);
               var enc = serialize(params);
@@ -154,13 +157,7 @@
               var r = new XMLHttpRequest();
               r.open('POST', '/save');
               r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-              r.onprogress = function(){
-                document.body.style.cursor = 'wait';
-                qs("#salva").disabled = true;
-              };
               r.onload = function() {
-                document.body.style.cursor = 'default';
-                qs("#salva").disabled = false;
                   if (r.status >= 200 && r.status < 400) { // Success!
                       var resp = r.responseText;
                       console.log(resp);
@@ -170,13 +167,14 @@
                       console.error(resp);
                       alert(resp);
                   }
+                  document.body.style.cursor = 'default';
+                  qs("#salva").disabled = false;
               };
               r.onerror = function() {
                   // There was a connection error of some sort
                   document.body.style.cursor = 'default';
                   qs("#salva").disabled = false;
-                  console.error('Errore di connessione');
-                  console.error(r.responseText);
+                  console.error('Errore di connessione: ' + r.responseText);
                   alert(r.responseText);
               };
               r.send(enc);
