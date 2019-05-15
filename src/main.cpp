@@ -34,8 +34,26 @@
        \::::/    /               \::/____/                /:::/    /               /:::/    /               /:::/    /       
         \::/    /                 ~~                      \::/    /                \::/    /                \::/    /        
          \/____/                                           \/____/                  \/____/                  \/____/         V 2.0
-                                                                                                                             
- * 
+
+
+                                  ./oo/-             `-+++/`                  /ydmdy:         
+                                .so++omy           odhddmMN.                ymsohmNMy        
+                                .`` .-/m-          N`   /mM+               .m:```:yNd        
+                                `::`:-.+.          :.:`-+oy-               .:.:/:shm-        
+                                  .`.-`-/` `         ```-`:s-`              `-`-:s+y-         
+                              `.:::/--:::../+-    `  o-:/+o+-:/.          ``-///ohdy          
+                            `+sdNm/-.:+ohdmNNds-+-  `y/-://-`:Nmo-   `..+syhmooydmmNy/-`      
+                          .hdyhmNh:/hmNmddmddNmNds:..m::+y:ydNMMNo -syhNdhmdhhhoydNMMMmdo-`  
+                          `yhhdhddhshhhyyymdhmNMMNNdh`dNMdoNMMMMMMNohhddmysyhhyNmmNNmNNmdmNh. 
+                          sdhmmdddhyyhhdmNmydNNMMMMNh-yMMymMNmNMMMmNdmmNdsssydddhydddddddMNMm`
+                        +hddNNmdmNmmmmm+shyNNMMMMMMh+yMMdMNMMNMMMNNmhdMmdhhhdNdhhshdmmMMMMMMo
+                        -dhdNhssysyyhhhyoshdMmNMMMhdmmdMmNmsMs/MMMMMNdNMNNmdmdMdhhdNNNMMMMMMMo
+                        +dhyyhmhhyyysysshshNMNNMMMomNNNNNmNmmdNMMMMMNNNMMNmmdmmhdmNMMMMMMNNMMo
+                        -mmddhhmmmmmdddhddNMMNNMNNNMMMMMMMMMMMMMMMMMNMMMNmmdmmddmNNMNMMMNNmmNo
+                        `:+dNNNmdmmmmNNMMMMMMMMMMNMMMMMMMMMMMMMMMMmddmNmyyyyhyyhyhmNMMMMNmmmo
+                          `-yysssssosyhdmmNNmmNNhhNNNNNNNNNNNNNNNdmy/:/ymdhysssyyhhhdmNNmyyydo
+
+
  */
 
 #include <Arduino.h>
@@ -74,10 +92,11 @@ ESP8266WebServer server(1518); //settaggio server sulla porta 1518
 void dithering(int sx, int sy, int w, int h, int percent, int size); // funzione per la gestione delle tonalià di grigio dei quadrati
 void save_json();
 void startup();                        // funzione di sturtup
-void access_point();                    // funzione per la comunicazione di accesss point
+void access_point();                   // funzione per la comunicazione di accesss point
 void tabella();                        // funzione per il disegno della tabella principale
 void reboot_page();                    //funzione per il disegno della pagina di salvataggio e reboot
 void error_page(String codice_errore); //funzione per il disegno della pagina di errore con codice errore
+void not_school(String frase);         //funzione per il disegno della pagina dove avvisiamoche non c'è scuola
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
 
@@ -85,6 +104,7 @@ void error_page(String codice_errore); //funzione per il disegno della pagina di
 
 const char *www_username = "SOMMM";
 const char *www_password = "laPasswordQui";
+String random_id = "SOMMM_";
 
 bool request = 0;
 const char *payload = ""; // payload come variabile globale
@@ -259,11 +279,17 @@ void setup()
   }
   else
   {
+    //Creo una stringa random e la aggiungo al device
+    for (int i = 0; i < 3; i++)
+    {
+      random_id += char(random(97, 122));
+    }
+
     // Problemi di connessione (probabilmente rete non raggiungibile e/o settato), avvio accesss Point
     WiFi.disconnect(true); // Disconnetto la wifi
     WiFi.mode(WIFI_AP);    // Wifi Mode accesss-Point
 
-    WiFi.softAP("SOMMM", "laPasswordQui"); // dichiaro i parametri del mio accesss point
+    WiFi.softAP(random_id.c_str(), "laPasswordQui"); // dichiaro i parametri del mio accesss point
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
@@ -342,6 +368,37 @@ void dithering(int sx, int sy, int w, int h, int percent, int size)
     }
     break;
   }
+}
+
+void not_school(String frase)
+{
+  display.setRotation(0);
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+    display.fillScreen(GxEPD_WHITE);
+    display.setFont(&FreeSans18pt7b);
+    display.setTextColor(GxEPD_BLACK);
+
+    // LOGO SMALLL IN 3D
+    display.drawBitmap(468, 5, gImage_s_shadow, 163, 45, GxEPD_BLACK); // shadow
+    display.drawBitmap(468, 5, gImage_s_text, 163, 45, GxEPD_WHITE);   // text
+
+    display.setCursor(55, 135);
+    display.println(frase);
+    display.setFont(&FreeSans12pt7b);
+    display.setCursor(55, 170);
+    display.println("Il team SOMMM vi augura una buona giornata!");
+
+    display.setFont(&FreeSans9pt7b);
+
+    display.setCursor(55, 200);
+    display.println("developed by R. Bussola, F. Cucino, V. Annunziata");
+
+    display.drawBitmap(211, 277, gImage_dev, 224, 107, GxEPD_BLACK);
+
+  } while (display.nextPage());
 }
 
 /**
@@ -438,7 +495,7 @@ void access_point()
 
     display.epd2.hasColor ? display.setTextColor(GxEPD_WHITE) : display.setTextColor(GxEPD_BLACK);
 
-    display.print("Connettersi alla rete \"SOMMM\" e aprire il browser.");
+    display.print("Connettersi alla rete \"" + random_id + "\" e aprire il browser.");
     display.setCursor(15, 175);
     display.print("Digitare 192.168.4.1 e compilare i vari campi.");
     display.setCursor(15, 200);
@@ -479,6 +536,12 @@ void tabella()
   {
     Serial.print("deserializeJson() line79 failed: ");
     Serial.println(error.c_str());
+  }
+
+  if (httpCode == -1)
+  {
+    delay(5000);
+    error_page("Errore di connessione, verifica la rete");
     return;
   }
 
@@ -490,16 +553,15 @@ void tabella()
   giorno_settimana -= 1;
   int oraAttuale = doc["oraAttuale"]; // 3
 
-  if (httpCode == -1)
-  {
-    delay(5000);
-    error_page("Errore di connessione, verifica la rete");
-  }
-
   // ################################################################################################################
   // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
 
   JsonArray oggi = doc["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
+
+  if(oggi.size()==0){
+    not_school("Oggi non c'e` scuola, buon riposo ;P");
+    return;
+  }
 
   JsonObject prima = oggi[0];
   JsonObject seconda = oggi[1];
@@ -511,6 +573,8 @@ void tabella()
   JsonObject ottava = oggi[7];
   JsonObject nona = oggi[8];
   JsonObject decima = oggi[9];
+
+
 
   const char *today_matrix[10][5] = {{prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["res"]},
                                      {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]},
@@ -591,7 +655,7 @@ void tabella()
 
         if (j + 1 == oraAttuale)
         {
-          display.epd2.hasColor?display.fillRect(340, pos_y[j], 15, 5, GxEPD_RED):display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
+          display.epd2.hasColor ? display.fillRect(340, pos_y[j], 15, 5, GxEPD_RED) : display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
         }
         else
         {
@@ -666,92 +730,89 @@ void tabella()
     else if (oraAttuale == 0 && httpCode != -1)
     { // Giornata terminata
 
-      display.setFont(&FreeSans9pt7b);
+      not_school("La giornata scolastica e` terminata.");
+      return;
 
-      display.setCursor(363, 82);
-      display.println("Giornata scolastica");
-
-      display.setCursor(363, 107);
-      display.println("terminata");
     }
 
     // ---------------------------------------------------------------------
     //                    LATO SINISTRO DEL DISPLAY
     // ----------------------------------------------------------------------
 
-    //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
+      //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
 
-    dithering(0, 0, 335, 331, 75, 1); // SFONDO GRIGIO 75%
-    display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
-    display.drawFastVLine(335, 332, 53, GxEPD_BLACK);
+      dithering(0, 0, 335, 331, 75, 1); // SFONDO GRIGIO 75%
+      display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
+      display.drawFastVLine(335, 332, 53, GxEPD_BLACK);
 
-    // GRIGLIA GIORNI
+      // GRIGLIA GIORNI
 
-    display.setFont(&FreeSans12pt7b);
-    display.setTextColor(GxEPD_WHITE);
+      display.setFont(&FreeSans12pt7b);
+      display.setTextColor(GxEPD_WHITE);
 
-    // Indicatore di ore dei vari giorni
+      // Indicatore di ore dei vari giorni
 
-    for (int i = 0; i < 6; i++)
-    {
-      display.setCursor(7, 52 + (50 * i));
-      display.println(i+1);
-    }
-
-    // Nome dei giorni
-    display.setFont(&FreeSans9pt7b);
-    String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
-
-    for (int i = 0; i < 6; i++)
-    {
-      display.setCursor(33 + ((48 * i) + i * 2), 18);
-      display.println(gior_name[i]);
-    }
-
-    for (int j = 0; j < 6; j++)
-    {
       for (int i = 0; i < 6; i++)
       {
-        display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
-        display.fillRoundRect(31 + (50 * j), 26 + (50 * i), 45, 45, 5, GxEPD_WHITE);
+        display.setCursor(7, 52 + (50 * i));
+        display.println(i + 1);
       }
-    }
 
-    if (giorno_settimana != -1)
-    {
+      // Nome dei giorni
+      display.setFont(&FreeSans9pt7b);
+      String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
+
       for (int i = 0; i < 6; i++)
       {
+        display.setCursor(33 + ((48 * i) + i * 2), 18);
+        display.println(gior_name[i]);
+      }
 
-        display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
-        display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
-      };
-    }
-    display.setFont(&FreeSans9pt7b);
-
-    for (int i = 0; i < 6; i++)
-    {
       for (int j = 0; j < 6; j++)
       {
-        display.setCursor(35 + (50 * j), 55 + (50 * i));
-        if (giorno_settimana == j && giorno_settimana != -1)
+        for (int i = 0; i < 6; i++)
         {
-          display.setTextColor(GxEPD_WHITE);
+          display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
+          display.fillRoundRect(31 + (50 * j), 26 + (50 * i), 45, 45, 5, GxEPD_WHITE);
         }
-        else
-        {
-          display.setTextColor(GxEPD_BLACK);
-        }
-        display.println(settimana_matrix[j][i]); // Settimana giorno per giorno
       }
-    }
 
-    display.setTextColor(GxEPD_BLACK);
+      if (giorno_settimana != -1)
+      {
+        for (int i = 0; i < 6; i++)
+        {
 
-    // Parte sotto del giorno
-    display.setFont(&FreeSans12pt7b);
+          display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
+          display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
+        };
+      }
+      display.setFont(&FreeSans9pt7b);
 
-    display.setCursor(8, 365);
-    display.println(giorno); // info giorno
+      for (int i = 0; i < 6; i++)
+      {
+        for (int j = 0; j < 6; j++)
+        {
+          display.setCursor(35 + (50 * j), 55 + (50 * i));
+          if (giorno_settimana == j && giorno_settimana != -1)
+          {
+            display.setTextColor(GxEPD_WHITE);
+          }
+          else
+          {
+            display.setTextColor(GxEPD_BLACK);
+          }
+          display.println(settimana_matrix[j][i]); // Settimana giorno per giorno
+        }
+      }
+
+      display.setTextColor(GxEPD_BLACK);
+
+      // Parte sotto del giorno
+      display.setFont(&FreeSans12pt7b);
+
+      display.setCursor(8, 365);
+      display.println(giorno); // info giorno
+    
 
   } while (display.nextPage());
 }
@@ -927,10 +988,10 @@ void save_json()
 
   delay(100); // aspetto che tutto sia correttamente settato e poi scrivo
 
-  /*if (!server.authenticate(www_username, www_password))
+  if (!server.authenticate(www_username, www_password))
   {
     return server.requestAuthentication();
-  }*/
+  }
 
   File save = SPIFFS.open("/config.json", "w"); // Apro il file in modalità scrittura
 
