@@ -267,6 +267,7 @@ void setup()
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
     server.on("/info", []() {
+      server.sendHeader("Access-Control-Allow-Origin","*");
       return server.send(200, "text/plain", aula_id);
     });
     server.on("/save", save_json);
@@ -297,6 +298,7 @@ void setup()
     access_point();
 
     server.on("/info", []() {
+      server.sendHeader("Access-Control-Allow-Origin","*");
       return server.send(200, "text/plain", aula_id);
     });
     server.on("/save", save_json);
@@ -394,7 +396,7 @@ void not_school(String frase)
     display.setFont(&FreeSans9pt7b);
 
     display.setCursor(55, 200);
-    display.println("developed by R. Bussola, F. Cucino, V. Annunziata");
+    display.println("developed by V. Annunziata, R. Bussola, F. Cucino ");
 
     display.drawBitmap(211, 277, gImage_dev, 224, 107, GxEPD_BLACK);
 
