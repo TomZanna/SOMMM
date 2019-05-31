@@ -10,7 +10,7 @@
  *           *- Cucino Federico
  *           *- Victor Annunziata
  * 
- *            Project : SOMMM
+ *            Project : SOMMM x ESP32
  *           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  *                                                               
           _____                   _______                   _____                    _____                    _____          
@@ -64,13 +64,18 @@
 #include <GxEPD2_3C.h>
 #include <GxEPD2_BW.h>
 
-#include <ESP8266HTTPClient.h>
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
+#include <WiFiMulti.h>
+
+#include <HTTPClient.h>
+
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+
+#include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
 
 #include "FS.h"
+#include "SPIFFS.h"
 
 // Font di varia grandezza per il display
 #include <Fonts/FreeSans9pt7b.h>
@@ -80,18 +85,14 @@
 
 //#define RED // commentare o decommentare a seconda se il display supporta un terzo colore
 
-#if defined(RED)
-GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT / 4> display(GxEPD2_750c(/*CS=15*/ SS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16)); //display a colori
-#else
-GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT / 2> display(GxEPD2_750(/*CS=15*/ SS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16)); //display in grayscale
-#endif
+GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT> display(GxEPD2_750(/*CS=*/15, /*DC=*/27, /*RST=*/26, /*BUSY=*/25));
 
-ESP8266WebServer server(1518); //settaggio server sulla porta 1518
+AsyncWebServer server(1518); //settaggio server sulla porta 1518
 
 // FUNZIONI DEFINITE INIZIALMENTE PER POI ESSERE IMPLEMENTATE
 
 void dithering(int sx, int sy, int w, int h, int percent, int size); // funzione per la gestione delle tonalià di grigio dei quadrati
-void save_json();
+void save_json(AsyncWebServerRequest *richiesta);
 void startup();                        // funzione di sturtup
 void access_point();                   // funzione per la comunicazione di accesss point
 void tabella();                        // funzione per il disegno della tabella principale
@@ -135,13 +136,17 @@ void setup()
   Serial.println("SOMMM STARTUP");
   delay(100);
   display.init(115200);
+
+  SPI.end(); // release standard SPI pins, e.g. SCK(18), MISO(19), MOSI(23), SS(5)
+  //SPI: void begin(int8_t sck=-1, int8_t miso=-1, int8_t mosi=-1, int8_t ss=-1);
+  SPI.begin(13, 12, 14, 15); // map and init SPI pins SCK(13), MISO(12), MOSI(14), SS(15)
+
   startup();
   // Monto il mio SPIFFS File System
 
   if (!SPIFFS.begin())
   {
     Serial.println("File system non montato ");
-    delay(5000);
     error_page("Errore caricamento File System");
   }
   else
@@ -164,7 +169,6 @@ void setup()
     Serial.print("deserializeJson() line142 failed: ");
     Serial.println(errorRead.c_str());
     Serial.println("Impossibile leggere la configurazione");
-    delay(5000);
     error_page("Errore lettura JSON configurazione");
     return;
   }
@@ -267,16 +271,23 @@ void setup()
     http.begin(http_address); // configuro e avvio http sul'url precedentemente dichiarato
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
-    server.on("/info", []() {
-      server.sendHeader("Access-Control-Allow-Origin","*");
-      return server.send(200, "text/plain", aula_id);
+    //server.on("/info", []() {      //server.sendHeader("Access-Control-Allow-Origin","*");
+
+    server.on("/info", HTTP_GET, [](AsyncWebServerRequest *request) {
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", aula_id);
+      response->addHeader("Access-Control-Allow-Origin", "*");
+      request->send(response);
     });
-    server.on("/save", save_json);
+
+    server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
+      save_json(request);
+    });
+
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
-    server.serveStatic("/", SPIFFS, "/index.html");
+    server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
     server.begin(); //Faccio partire il server
-    delay(5000);
+
     tabella();
   }
   else
@@ -295,27 +306,30 @@ void setup()
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
-    delay(5000);
     access_point();
 
-    server.on("/info", []() {
-      server.sendHeader("Access-Control-Allow-Origin","*");
-      return server.send(200, "text/plain", aula_id);
+    server.on("/info", HTTP_GET, [](AsyncWebServerRequest *request) {
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", aula_id);
+      response->addHeader("Access-Control-Allow-Origin", "*");
+      request->send(response);
     });
-    server.on("/save", save_json);
+
+    server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
+      save_json(request);
+    });
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
-    server.serveStatic("/", SPIFFS, "/index.html");
+    server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
     server.begin(); // Faccio partire il server
   }
 }
 
-long time_start = millis();
+//long time_start = millis();
 
 void loop()
 {
-  server.handleClient();
-
+  //server.handleClient();
+  /*
   if (request)
   {
     if (delay_time >= 1000)
@@ -328,7 +342,7 @@ void loop()
         time_start = millis(); // azzerro il contatore
       }
     }
-  }
+  }*/
 }
 
 void dithering(int sx, int sy, int w, int h, int percent, int size)
@@ -543,7 +557,6 @@ void tabella()
 
   if (httpCode == -1)
   {
-    delay(5000);
     error_page("Errore di connessione, verifica la rete");
     return;
   }
@@ -561,7 +574,8 @@ void tabella()
 
   JsonArray oggi = doc["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
 
-  if(oggi.size()==0){
+  if (oggi.size() == 0)
+  {
     not_school("Oggi non c'e` scuola, buon riposo ;P");
     return;
   }
@@ -576,8 +590,6 @@ void tabella()
   JsonObject ottava = oggi[7];
   JsonObject nona = oggi[8];
   JsonObject decima = oggi[9];
-
-
 
   const char *today_matrix[10][5] = {{prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["res"]},
                                      {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]},
@@ -735,87 +747,85 @@ void tabella()
 
       not_school("La giornata scolastica e` terminata.");
       return;
-
     }
 
     // ---------------------------------------------------------------------
     //                    LATO SINISTRO DEL DISPLAY
     // ----------------------------------------------------------------------
 
-      //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
+    //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
 
-      dithering(0, 0, 335, 331, 75, 1); // SFONDO GRIGIO 75%
-      display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
-      display.drawFastVLine(335, 332, 53, GxEPD_BLACK);
+    dithering(0, 0, 335, 331, 75, 1); // SFONDO GRIGIO 75%
+    display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
+    display.drawFastVLine(335, 332, 53, GxEPD_BLACK);
 
-      // GRIGLIA GIORNI
+    // GRIGLIA GIORNI
 
-      display.setFont(&FreeSans12pt7b);
-      display.setTextColor(GxEPD_WHITE);
+    display.setFont(&FreeSans12pt7b);
+    display.setTextColor(GxEPD_WHITE);
 
-      // Indicatore di ore dei vari giorni
+    // Indicatore di ore dei vari giorni
 
+    for (int i = 0; i < 6; i++)
+    {
+      display.setCursor(7, 52 + (50 * i));
+      display.println(i + 1);
+    }
+
+    // Nome dei giorni
+    display.setFont(&FreeSans9pt7b);
+    String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
+
+    for (int i = 0; i < 6; i++)
+    {
+      display.setCursor(33 + ((48 * i) + i * 2), 18);
+      display.println(gior_name[i]);
+    }
+
+    for (int j = 0; j < 6; j++)
+    {
       for (int i = 0; i < 6; i++)
       {
-        display.setCursor(7, 52 + (50 * i));
-        display.println(i + 1);
+        display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
+        display.fillRoundRect(31 + (50 * j), 26 + (50 * i), 45, 45, 5, GxEPD_WHITE);
       }
+    }
 
-      // Nome dei giorni
-      display.setFont(&FreeSans9pt7b);
-      String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
-
+    if (giorno_settimana != -1)
+    {
       for (int i = 0; i < 6; i++)
       {
-        display.setCursor(33 + ((48 * i) + i * 2), 18);
-        display.println(gior_name[i]);
-      }
 
+        display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
+        display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
+      };
+    }
+    display.setFont(&FreeSans9pt7b);
+
+    for (int i = 0; i < 6; i++)
+    {
       for (int j = 0; j < 6; j++)
       {
-        for (int i = 0; i < 6; i++)
+        display.setCursor(35 + (50 * j), 55 + (50 * i));
+        if (giorno_settimana == j && giorno_settimana != -1)
         {
-          display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
-          display.fillRoundRect(31 + (50 * j), 26 + (50 * i), 45, 45, 5, GxEPD_WHITE);
+          display.setTextColor(GxEPD_WHITE);
         }
-      }
-
-      if (giorno_settimana != -1)
-      {
-        for (int i = 0; i < 6; i++)
+        else
         {
-
-          display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
-          display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
-        };
-      }
-      display.setFont(&FreeSans9pt7b);
-
-      for (int i = 0; i < 6; i++)
-      {
-        for (int j = 0; j < 6; j++)
-        {
-          display.setCursor(35 + (50 * j), 55 + (50 * i));
-          if (giorno_settimana == j && giorno_settimana != -1)
-          {
-            display.setTextColor(GxEPD_WHITE);
-          }
-          else
-          {
-            display.setTextColor(GxEPD_BLACK);
-          }
-          display.println(settimana_matrix[j][i]); // Settimana giorno per giorno
+          display.setTextColor(GxEPD_BLACK);
         }
+        display.println(settimana_matrix[j][i]); // Settimana giorno per giorno
       }
+    }
 
-      display.setTextColor(GxEPD_BLACK);
+    display.setTextColor(GxEPD_BLACK);
 
-      // Parte sotto del giorno
-      display.setFont(&FreeSans12pt7b);
+    // Parte sotto del giorno
+    display.setFont(&FreeSans12pt7b);
 
-      display.setCursor(8, 365);
-      display.println(giorno); // info giorno
-    
+    display.setCursor(8, 365);
+    display.println(giorno); // info giorno
 
   } while (display.nextPage());
 }
@@ -880,14 +890,14 @@ void error_page(String codice_errore)
   } while (display.nextPage());
 }
 
-void save_json()
+void save_json(AsyncWebServerRequest *richiesta)
 {
   if (!SPIFFS.begin()) // controllo di aver accesso al filesystem
   {
     // Se viene visualizzato c'è un problema al filesystem
-    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
+    richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
+
     Serial.println("SPIFFS2 Mount failed");
-    delay(5000);
     error_page("Errore caricamento File System");
     return;
   }
@@ -904,7 +914,7 @@ void save_json()
   DeserializationError errorConf = deserializeJson(json, conf_read_file);
   if (errorConf)
   {
-    server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
+    richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
     Serial.print("deserializeJson() line327 failed: ");
     Serial.println(errorConf.c_str());
     Serial.println("Impossibile leggere la configurazione");
@@ -924,84 +934,26 @@ void save_json()
 
   const String param[21] = {"net_ssid", "net_pswd", "api_url", "aula", "net_static", "net_ip_0", "net_ip_1", "net_ip_2", "net_ip_3", "net_dns_0", "net_dns_1", "net_dns_2", "net_dns_3", "net_sm_0", "net_sm_1", "net_sm_2", "net_sm_3", "net_dfgw_0", "net_dfgw_1", "net_dfgw_2", "net_dfgw_3"};
 
-  for (int i = 0; i < 21; i++) 
-  {  
-    if (server.arg(param[i]) != "")
-    { 
-      json[param[i]] = server.arg(param[i]);
-      Serial.print(param[i]);
-      Serial.println(" writed");
+  for (int i = 0; i < 21; i++)
+  {
+    if (richiesta->hasParam(param[i], true))
+    {
+      AsyncWebParameter *p = richiesta->getParam(param[i], true);
+      if (p->value() != "")
+      {
+        json[param[i]] = p->value();
+        Serial.print(p->value());
+        Serial.println(" writed");
+      }
     }
   }
-
-  /*if (server.arg("net_pswd") != "")
-  { // password
-    json["net_pswd"] = server.arg("net_pswd");
-  }
-
-  if (server.arg("api_url") != "")
-  { // codice dispositivo
-    json["api_url"] = server.arg("api_url");
-  }
-
-  if (server.arg("aula") != "")
-  { // url server con api
-    json["aula"] = server.arg("aula");
-  }
-
-  if (server.arg("net_static") != "")
-  { // 1-0 abilita configurazione statica
-    json["net_static"] = server.arg("net_static");
-  }
-
-  if (server.arg("net_ip_0") != "")
-  { // ip[0]
-    json["net_ip_0"] = server.arg("net_ip_0");
-  }
-
-  if (server.arg("net_ip_1") != "")
-  { // ip[1]
-    json["net_ip_1"] = server.arg("net_ip_1");
-  }
-
-  if (server.arg("net_ip_2") != "")
-  { // ip[2]
-    json["net_ip_2"] = server.arg("net_ip_2");
-  }
-
-  if (server.arg("net_ip_3") != "")
-  { // ip[3]
-    json["net_ip_3"] = server.arg("net_ip_3");
-  }
-
-  if (server.arg("net_dns_0") != "")
-  { // dns[0]
-    json["net_dns_0"] = server.arg("net_dns_0");
-  }
-
-  if (server.arg("net_dns_1") != "")
-  { // dns[1]
-    json["net_dns_1"] = server.arg("net_dns_1");
-  }
-
-  if (server.arg("net_dns_2") != "")
-  { // dns[2]
-    json["net_dns_2"] = server.arg("net_dns_2");
-  }
-
-  if (server.arg("net_dns_3") != "")
-  { // dns[3]
-    json["net_dns_3"] = server.arg("net_dns_3");
-  }*/
 
   request = 0;
 
   delay(100); // aspetto che tutto sia correttamente settato e poi scrivo
 
-  if (!server.authenticate(www_username, www_password))
-  {
-    return server.requestAuthentication();
-  }
+  if (!richiesta->authenticate(www_username, www_password))
+    return richiesta->requestAuthentication();
 
   File save = SPIFFS.open("/config.json", "w"); // Apro il file in modalità scrittura
 
@@ -1010,7 +962,7 @@ void save_json()
   serializeJson(json, Serial); // stampo la nuova configurazione
 
   reboot_page();
-  server.send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
+  richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
 
   // N.B. No reboot lato software per problemi successivi a stack di memoria, riavvio hardware
 }
