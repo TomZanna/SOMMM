@@ -83,8 +83,6 @@
 #include <Fonts/FreeSans18pt7b.h>
 #include <Fonts/FreeSansBold9pt7b.h>
 
-//#define RED // commentare o decommentare a seconda se il display supporta un terzo colore
-
 GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT> display(GxEPD2_750(/*CS=*/15, /*DC=*/27, /*RST=*/26, /*BUSY=*/25));
 
 AsyncWebServer server(1518); //settaggio server sulla porta 1518
@@ -119,7 +117,7 @@ const char *api_url = "";
 const char *aula = "";
 String aula_id = "";
 
-int delay_time = 600000; // Intervallo di aggiornamento richiesta e display
+int delay_time = 600000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
 bool static_config = 0;  // static or DHCP
 
 int ip[4], dns[4], default_gw[4], subnet_m[4];
@@ -130,6 +128,7 @@ HTTPClient http;
 
 void setup()
 {
+
   // parte iniziale per il display e la seriale
   Serial.begin(115200);
   Serial.println();
@@ -166,7 +165,7 @@ void setup()
   DeserializationError errorRead = deserializeJson(jsonRead, file_config);
   if (errorRead)
   {
-    Serial.print("deserializeJson() line142 failed: ");
+    Serial.print("deserializeJson() line168 failed: ");
     Serial.println(errorRead.c_str());
     Serial.println("Impossibile leggere la configurazione");
     error_page("Errore lettura JSON configurazione");
@@ -233,8 +232,8 @@ void setup()
 
   Serial.print("Connecting");
 
-  long start_c = millis();
-  long counter = 0;
+  unsigned long start_c = millis();
+  unsigned long counter = 0;
   long soglia = 300000; // soglia di controllo per passare il AP (default 25s)
 
   while (WiFi.status() != WL_CONNECTED) // Wait for connection
@@ -253,6 +252,7 @@ void setup()
   }
   Serial.println("");
   Serial.println(WiFi.macAddress());
+  Serial.println(WiFi.getHostname());
 
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -324,25 +324,23 @@ void setup()
   }
 }
 
-//long time_start = millis();
+unsigned long timeCounter = millis();
 
 void loop()
 {
-  //server.handleClient();
-  /*
   if (request)
   {
     if (delay_time >= 1000)
     { // verifica se l'update_s è almeno maggiore di 1s
-      if ((millis() - time_start) >= delay_time)
+      if ((millis() - timeCounter) >= delay_time)
       {
         // mando la richiesta
         Serial.println("--------------------");
         tabella();
-        time_start = millis(); // azzerro il contatore
+        timeCounter = millis(); // azzerro il contatore
       }
     }
-  }*/
+  }
 }
 
 void dithering(int sx, int sy, int w, int h, int percent, int size)
@@ -551,7 +549,7 @@ void tabella()
   DeserializationError error = deserializeJson(doc, payload);
   if (error) // Se errore a elaborare json
   {
-    Serial.print("deserializeJson() line79 failed: ");
+    Serial.print("deserializeJson() line552 failed: ");
     Serial.println(error.c_str());
   }
 
@@ -915,7 +913,7 @@ void save_json(AsyncWebServerRequest *richiesta)
   if (errorConf)
   {
     richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
-    Serial.print("deserializeJson() line327 failed: ");
+    Serial.print("deserializeJson() line916 failed: ");
     Serial.println(errorConf.c_str());
     Serial.println("Impossibile leggere la configurazione");
     error_page("Errore lettura JSON configurazione");
@@ -962,7 +960,7 @@ void save_json(AsyncWebServerRequest *richiesta)
   serializeJson(json, Serial); // stampo la nuova configurazione
 
   reboot_page();
-  richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
+  richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM."); // messaggio di callback per client web
 
   // N.B. No reboot lato software per problemi successivi a stack di memoria, riavvio hardware
 }
