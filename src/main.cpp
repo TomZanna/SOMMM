@@ -10,7 +10,7 @@
  *           *- Cucino Federico
  *           *- Victor Annunziata
  * 
- *            Project : SOMMM
+ *            Project : SOMMM x ESP8266
  *           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  *                                                               
           _____                   _______                   _____                    _____                    _____          
@@ -161,7 +161,7 @@ void setup()
   DeserializationError errorRead = deserializeJson(jsonRead, file_config);
   if (errorRead)
   {
-    Serial.print("deserializeJson() line142 failed: ");
+    Serial.print("deserializeJson() line164 failed: ");
     Serial.println(errorRead.c_str());
     Serial.println("Impossibile leggere la configurazione");
     delay(5000);
@@ -229,8 +229,8 @@ void setup()
 
   Serial.print("Connecting");
 
-  long start_c = millis();
-  long counter = 0;
+  unsigned long start_c = millis();
+  unsigned long counter = 0;
   long soglia = 300000; // soglia di controllo per passare il AP (default 25s)
 
   while (WiFi.status() != WL_CONNECTED) // Wait for connection
@@ -249,6 +249,7 @@ void setup()
   }
   Serial.println("");
   Serial.println(WiFi.macAddress());
+  Serial.println(WiFi.hostname().c_str());
 
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -310,7 +311,7 @@ void setup()
   }
 }
 
-long time_start = millis();
+unsigned long time_start = millis();
 
 void loop()
 {
@@ -537,7 +538,7 @@ void tabella()
   DeserializationError error = deserializeJson(doc, payload);
   if (error) // Se errore a elaborare json
   {
-    Serial.print("deserializeJson() line79 failed: ");
+    Serial.print("deserializeJson() line541 failed: ");
     Serial.println(error.c_str());
   }
 
@@ -905,7 +906,7 @@ void save_json()
   if (errorConf)
   {
     server.send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
-    Serial.print("deserializeJson() line327 failed: ");
+    Serial.print("deserializeJson() line909 failed: ");
     Serial.println(errorConf.c_str());
     Serial.println("Impossibile leggere la configurazione");
     error_page("Errore lettura JSON configurazione");
@@ -922,7 +923,7 @@ void save_json()
   // controllo e salvataggio dei dati in caso di cambiamento
   // #######################################################
 
-  const String param[21] = {"net_ssid", "net_pswd", "api_url", "aula", "net_static", "net_ip_0", "net_ip_1", "net_ip_2", "net_ip_3", "net_dns_0", "net_dns_1", "net_dns_2", "net_dns_3", "net_sm_0", "net_sm_1", "net_sm_2", "net_sm_3", "net_dfgw_0", "net_dfgw_1", "net_dfgw_2", "net_dfgw_3"};
+  const  String param[21] = {"net_ssid", "net_pswd", "api_url", "aula", "net_static", "net_ip_0", "net_ip_1", "net_ip_2", "net_ip_3", "net_dns_0", "net_dns_1", "net_dns_2", "net_dns_3", "net_sm_0", "net_sm_1", "net_sm_2", "net_sm_3", "net_dfgw_0", "net_dfgw_1", "net_dfgw_2", "net_dfgw_3"};
 
   for (int i = 0; i < 21; i++) 
   {  
@@ -933,66 +934,6 @@ void save_json()
       Serial.println(" writed");
     }
   }
-
-  /*if (server.arg("net_pswd") != "")
-  { // password
-    json["net_pswd"] = server.arg("net_pswd");
-  }
-
-  if (server.arg("api_url") != "")
-  { // codice dispositivo
-    json["api_url"] = server.arg("api_url");
-  }
-
-  if (server.arg("aula") != "")
-  { // url server con api
-    json["aula"] = server.arg("aula");
-  }
-
-  if (server.arg("net_static") != "")
-  { // 1-0 abilita configurazione statica
-    json["net_static"] = server.arg("net_static");
-  }
-
-  if (server.arg("net_ip_0") != "")
-  { // ip[0]
-    json["net_ip_0"] = server.arg("net_ip_0");
-  }
-
-  if (server.arg("net_ip_1") != "")
-  { // ip[1]
-    json["net_ip_1"] = server.arg("net_ip_1");
-  }
-
-  if (server.arg("net_ip_2") != "")
-  { // ip[2]
-    json["net_ip_2"] = server.arg("net_ip_2");
-  }
-
-  if (server.arg("net_ip_3") != "")
-  { // ip[3]
-    json["net_ip_3"] = server.arg("net_ip_3");
-  }
-
-  if (server.arg("net_dns_0") != "")
-  { // dns[0]
-    json["net_dns_0"] = server.arg("net_dns_0");
-  }
-
-  if (server.arg("net_dns_1") != "")
-  { // dns[1]
-    json["net_dns_1"] = server.arg("net_dns_1");
-  }
-
-  if (server.arg("net_dns_2") != "")
-  { // dns[2]
-    json["net_dns_2"] = server.arg("net_dns_2");
-  }
-
-  if (server.arg("net_dns_3") != "")
-  { // dns[3]
-    json["net_dns_3"] = server.arg("net_dns_3");
-  }*/
 
   request = 0;
 
