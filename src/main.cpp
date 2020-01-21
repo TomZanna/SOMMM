@@ -205,6 +205,10 @@ void setup()
   dns[2] = jsonRead["net_dns_2"];
   dns[3] = jsonRead["net_dns_3"];
 
+/*
+
+  Disabilito configurazione statica via firmware, da fixare ma risulta inutile per ora
+
   if (static_config)
   {
     Serial.println("Configurazione statica....");
@@ -224,6 +228,8 @@ void setup()
     }
   }
 
+  */
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(net_ssid, net_pswd); // Provo a eseguire una connessione con le credenziali che ho
 
@@ -231,7 +237,7 @@ void setup()
 
   unsigned long start_c = millis();
   unsigned long counter = 0;
-  long soglia = 300000; // soglia di controllo per passare il AP (default 25s)
+  unsigned long soglia = 300000; // soglia di controllo per passare il AP (default 25s)
 
   while (WiFi.status() != WL_CONNECTED) // Wait for connection
   {
@@ -844,9 +850,9 @@ void reboot_page()
     display.setCursor(50, 180);
     display.println("Attendere la conferma dalla pagina web;");
     display.setCursor(50, 210);
-    display.println("successivamente riavviare il dispositivo per");
+    display.println("successivamente il dispositivo verra` riavviato");
     display.setCursor(50, 240);
-    display.println("caricare le nuove impostazioni.");
+    display.println("per caricare le nuove impostazioni.");
 
     // LOGO IN 3D
     display.drawBitmap(50, 50, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
@@ -950,8 +956,15 @@ void save_json()
   serializeJson(json, save);   // salvo la nuova configurazione
   serializeJson(json, Serial); // stampo la nuova configurazione
 
+  // chiudo stream file e SPIFFS
+
+  save.close();
+  SPIFFS.end();
+
   reboot_page();
   server.send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM appena led rosso spento"); // messaggio di callback per client web
 
-  // N.B. No reboot lato software per problemi successivi a stack di memoria, riavvio hardware
+  delay(5000);
+
+  ESP.restart(); //riavvio dispositivo via software, ora funzionante
 }
