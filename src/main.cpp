@@ -208,6 +208,10 @@ void setup()
   dns[2] = jsonRead["net_dns_2"];
   dns[3] = jsonRead["net_dns_3"];
 
+
+/*  Per questioni non ben definite è sempre settato a true, possibile errore di deserializzazione
+    Caudsa inoltre problemi di connessione con il nuovo compilatore per esp32
+
   if (static_config)
   {
     Serial.println("Configurazione statica....");
@@ -226,6 +230,7 @@ void setup()
       Serial.println("Errore configurazione statica");
     }
   }
+*/
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(net_ssid, net_pswd); // Provo a eseguire una connessione con le credenziali che ho
@@ -959,8 +964,16 @@ void save_json(AsyncWebServerRequest *richiesta)
   serializeJson(json, save);   // salvo la nuova configurazione
   serializeJson(json, Serial); // stampo la nuova configurazione
 
-  reboot_page();
+  // chiudo il file di salvataggio e chiudo anche la connessione col FileSystem; posso ora riavviare anche a fronte di errori
+
+  save.close();
+  SPIFFS.end();
+
+
+  // reboot_page(); causa bug e successivo reboot (cause ancora sconosciute :>( )
+
   richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM."); // messaggio di callback per client web
 
-  // N.B. No reboot lato software per problemi successivi a stack di memoria, riavvio hardware
+  // ora il reboot software funziona senza danneggiare la memoria
+  ESP.restart();
 }
