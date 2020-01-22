@@ -98,8 +98,20 @@ void tabella();                        // funzione per il disegno della tabella 
 void reboot_page();                    //funzione per il disegno della pagina di salvataggio e reboot
 void error_page(String codice_errore); //funzione per il disegno della pagina di errore con codice errore
 void not_school(String frase);         //funzione per il disegno della pagina dove avvisiamoche non c'è scuola
-
+void log_error(String error_m);        //funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
+enum wifi_stat
+{
+  MY_WL_NO_SHIELD = 255,
+  MY_WL_IDLE_STATUS = 0,
+  MY_WL_NO_SSID_AVAIL = 1,
+  MY_WL_SCAN_COMPLETED = 2,
+  MY_WL_CONNECTED = 3,
+  MY_WL_CONNECT_FAILED = 4,
+  MY_WL_CONNECTION_LOST = 5,
+  MY_WL_DISCONNECTED = 6,
+};
+
 
 //CREDENZIALI WEB
 
@@ -205,7 +217,7 @@ void setup()
   dns[2] = jsonRead["net_dns_2"];
   dns[3] = jsonRead["net_dns_3"];
 
-/*
+  /*
 
   Disabilito configurazione statica via firmware, da fixare ma risulta inutile per ora
 
@@ -275,13 +287,14 @@ void setup()
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
     server.on("/info", []() {
-      server.sendHeader("Access-Control-Allow-Origin","*");
+      server.sendHeader("Access-Control-Allow-Origin", "*");
       return server.send(200, "text/plain", aula_id);
     });
     server.on("/save", save_json);
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
+    server.serveStatic("/error_log", SPIFFS, "/log.txt");
     server.begin(); //Faccio partire il server
     delay(5000);
     tabella();
@@ -306,7 +319,7 @@ void setup()
     access_point();
 
     server.on("/info", []() {
-      server.sendHeader("Access-Control-Allow-Origin","*");
+      server.sendHeader("Access-Control-Allow-Origin", "*");
       return server.send(200, "text/plain", aula_id);
     });
     server.on("/save", save_json);
@@ -568,7 +581,8 @@ void tabella()
 
   JsonArray oggi = doc["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
 
-  if(oggi.size()==0){
+  if (oggi.size() == 0)
+  {
     not_school("Oggi non c'e` scuola, buon riposo ;P");
     return;
   }
@@ -583,8 +597,6 @@ void tabella()
   JsonObject ottava = oggi[7];
   JsonObject nona = oggi[8];
   JsonObject decima = oggi[9];
-
-
 
   const char *today_matrix[10][5] = {{prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["res"]},
                                      {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]},
@@ -742,87 +754,85 @@ void tabella()
 
       not_school("La giornata scolastica e` terminata.");
       return;
-
     }
 
     // ---------------------------------------------------------------------
     //                    LATO SINISTRO DEL DISPLAY
     // ----------------------------------------------------------------------
 
-      //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
+    //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
 
-      dithering(0, 0, 335, 331, 75, 1); // SFONDO GRIGIO 75%
-      display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
-      display.drawFastVLine(335, 332, 53, GxEPD_BLACK);
+    dithering(0, 0, 335, 331, 75, 1); // SFONDO GRIGIO 75%
+    display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
+    display.drawFastVLine(335, 332, 53, GxEPD_BLACK);
 
-      // GRIGLIA GIORNI
+    // GRIGLIA GIORNI
 
-      display.setFont(&FreeSans12pt7b);
-      display.setTextColor(GxEPD_WHITE);
+    display.setFont(&FreeSans12pt7b);
+    display.setTextColor(GxEPD_WHITE);
 
-      // Indicatore di ore dei vari giorni
+    // Indicatore di ore dei vari giorni
 
+    for (int i = 0; i < 6; i++)
+    {
+      display.setCursor(7, 52 + (50 * i));
+      display.println(i + 1);
+    }
+
+    // Nome dei giorni
+    display.setFont(&FreeSans9pt7b);
+    String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
+
+    for (int i = 0; i < 6; i++)
+    {
+      display.setCursor(33 + ((48 * i) + i * 2), 18);
+      display.println(gior_name[i]);
+    }
+
+    for (int j = 0; j < 6; j++)
+    {
       for (int i = 0; i < 6; i++)
       {
-        display.setCursor(7, 52 + (50 * i));
-        display.println(i + 1);
+        display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
+        display.fillRoundRect(31 + (50 * j), 26 + (50 * i), 45, 45, 5, GxEPD_WHITE);
       }
+    }
 
-      // Nome dei giorni
-      display.setFont(&FreeSans9pt7b);
-      String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
-
+    if (giorno_settimana != -1)
+    {
       for (int i = 0; i < 6; i++)
       {
-        display.setCursor(33 + ((48 * i) + i * 2), 18);
-        display.println(gior_name[i]);
-      }
 
+        display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
+        display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
+      };
+    }
+    display.setFont(&FreeSans9pt7b);
+
+    for (int i = 0; i < 6; i++)
+    {
       for (int j = 0; j < 6; j++)
       {
-        for (int i = 0; i < 6; i++)
+        display.setCursor(35 + (50 * j), 55 + (50 * i));
+        if (giorno_settimana == j && giorno_settimana != -1)
         {
-          display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
-          display.fillRoundRect(31 + (50 * j), 26 + (50 * i), 45, 45, 5, GxEPD_WHITE);
+          display.setTextColor(GxEPD_WHITE);
         }
-      }
-
-      if (giorno_settimana != -1)
-      {
-        for (int i = 0; i < 6; i++)
+        else
         {
-
-          display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
-          display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
-        };
-      }
-      display.setFont(&FreeSans9pt7b);
-
-      for (int i = 0; i < 6; i++)
-      {
-        for (int j = 0; j < 6; j++)
-        {
-          display.setCursor(35 + (50 * j), 55 + (50 * i));
-          if (giorno_settimana == j && giorno_settimana != -1)
-          {
-            display.setTextColor(GxEPD_WHITE);
-          }
-          else
-          {
-            display.setTextColor(GxEPD_BLACK);
-          }
-          display.println(settimana_matrix[j][i]); // Settimana giorno per giorno
+          display.setTextColor(GxEPD_BLACK);
         }
+        display.println(settimana_matrix[j][i]); // Settimana giorno per giorno
       }
+    }
 
-      display.setTextColor(GxEPD_BLACK);
+    display.setTextColor(GxEPD_BLACK);
 
-      // Parte sotto del giorno
-      display.setFont(&FreeSans12pt7b);
+    // Parte sotto del giorno
+    display.setFont(&FreeSans12pt7b);
 
-      display.setCursor(8, 365);
-      display.println(giorno); // info giorno
-    
+    display.setCursor(8, 365);
+    display.println(giorno); // info giorno
 
   } while (display.nextPage());
 }
@@ -884,6 +894,7 @@ void error_page(String codice_errore)
     display.println("Ops! Sembra che qualcosa sia andato storto!");
     display.setCursor(100, 285);
     display.println(codice_errore);
+    log_error(codice_errore + String(", WiFi status: ") + String(wifi_stat(WiFi.status())));
   } while (display.nextPage());
 }
 
@@ -929,12 +940,12 @@ void save_json()
   // controllo e salvataggio dei dati in caso di cambiamento
   // #######################################################
 
-  const  String param[21] = {"net_ssid", "net_pswd", "api_url", "aula", "net_static", "net_ip_0", "net_ip_1", "net_ip_2", "net_ip_3", "net_dns_0", "net_dns_1", "net_dns_2", "net_dns_3", "net_sm_0", "net_sm_1", "net_sm_2", "net_sm_3", "net_dfgw_0", "net_dfgw_1", "net_dfgw_2", "net_dfgw_3"};
+  const String param[21] = {"net_ssid", "net_pswd", "api_url", "aula", "net_static", "net_ip_0", "net_ip_1", "net_ip_2", "net_ip_3", "net_dns_0", "net_dns_1", "net_dns_2", "net_dns_3", "net_sm_0", "net_sm_1", "net_sm_2", "net_sm_3", "net_dfgw_0", "net_dfgw_1", "net_dfgw_2", "net_dfgw_3"};
 
-  for (int i = 0; i < 21; i++) 
-  {  
+  for (int i = 0; i < 21; i++)
+  {
     if (server.arg(param[i]) != "")
-    { 
+    {
       json[param[i]] = server.arg(param[i]);
       Serial.print(param[i]);
       Serial.println(" writed");
@@ -967,4 +978,31 @@ void save_json()
   delay(5000);
 
   ESP.restart(); //riavvio dispositivo via software, ora funzionante
+}
+
+void log_error(String error_m)
+{
+
+  File log_file;
+
+  log_file = SPIFFS.open("/log.txt", "a");
+
+  //Serial.print("Dimensione file di log: ");
+  long f_size = log_file.size();
+  //Serial.println(f_size);
+
+  if (f_size > 1000 /* 1000 byte */)
+  {
+    log_file.close();
+
+    log_file = SPIFFS.open("/log.txt", "w"); // reset del file
+    log_file.write("");
+    log_file.close();
+
+    log_file = SPIFFS.open("/log.txt", "a");
+  }
+
+  log_file.write((String(millis()) + " -> error: " + error_m + "\n").c_str());
+
+  log_file.close();
 }
