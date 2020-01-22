@@ -97,8 +97,21 @@ void tabella();                        // funzione per il disegno della tabella 
 void reboot_page();                    //funzione per il disegno della pagina di salvataggio e reboot
 void error_page(String codice_errore); //funzione per il disegno della pagina di errore con codice errore
 void not_school(String frase);         //funzione per il disegno della pagina dove avvisiamoche non c'è scuola
+void log_error(String error_m);        //funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
+
+enum wifi_stat
+{
+  MY_WL_NO_SHIELD = 255,
+  MY_WL_IDLE_STATUS = 0,
+  MY_WL_NO_SSID_AVAIL = 1,
+  MY_WL_SCAN_COMPLETED = 2,
+  MY_WL_CONNECTED = 3,
+  MY_WL_CONNECT_FAILED = 4,
+  MY_WL_CONNECTION_LOST = 5,
+  MY_WL_DISCONNECTED = 6,
+};
 
 //CREDENZIALI WEB
 
@@ -291,6 +304,7 @@ void setup()
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+    server.serveStatic("/error_log", SPIFFS, "/log.txt");
     server.begin(); //Faccio partire il server
 
     tabella();
@@ -890,6 +904,8 @@ void error_page(String codice_errore)
     display.println("Ops! Sembra che qualcosa sia andato storto!");
     display.setCursor(100, 285);
     display.println(codice_errore);
+    log_error(codice_errore + String(", WiFi status: ") + String(wifi_stat(WiFi.status())));
+
   } while (display.nextPage());
 }
 
@@ -976,4 +992,31 @@ void save_json(AsyncWebServerRequest *richiesta)
 
   // ora il reboot software funziona senza danneggiare la memoria
   ESP.restart();
+}
+
+void log_error(String error_m)
+{
+
+  File log_file;
+
+  log_file = SPIFFS.open("/log.txt", "a");
+
+  //Serial.print("Dimensione file di log: ");
+  long f_size = log_file.size();
+  //Serial.println(f_size);
+
+  if (f_size > 1000 /* 1000 byte */)
+  {
+    log_file.close();
+
+    log_file = SPIFFS.open("/log.txt", "w"); // reset del file
+    log_file.println("");
+    log_file.close();
+
+    log_file = SPIFFS.open("/log.txt", "a");
+  }
+
+  log_file.println((String(millis()) + " -> error: " + error_m).c_str());
+
+  log_file.close();
 }
