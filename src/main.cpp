@@ -115,7 +115,6 @@ enum wifi_stat
 
 String version = "V2.0 x32";
 
-
 //CREDENZIALI WEB
 
 const char *www_username = "SOMMM";
@@ -575,7 +574,7 @@ void tabella()
   if (httpCode < 0)
   {
     error_page("Errore di connessione, verifica la rete");
-    log_error("Codice http -> "+String(httpCode));
+    log_error("Codice http -> " + String(httpCode));
     delay(5000);
     ESP.restart();
   }
@@ -589,7 +588,8 @@ void tabella()
     Serial.print("deserializeJson() line552 failed: ");
     Serial.println(error.c_str());
     log_error("Deserializzazione API fallita");
-    return;
+    delay(5000);
+    ESP.restart();
   }
 
   // Dati header
