@@ -112,6 +112,7 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
+String version = "V2.0 x8266";
 
 //CREDENZIALI WEB
 
@@ -130,7 +131,7 @@ const char *api_url = "";
 const char *aula = "";
 String aula_id = "";
 
-int delay_time = 600000; // Intervallo di aggiornamento richiesta e display
+unsigned int delay_time = 300000; // Intervallo di aggiornamento richiesta e display
 bool static_config = 0;  // static or DHCP
 
 int ip[4], dns[4], default_gw[4], subnet_m[4];
@@ -249,11 +250,11 @@ void setup()
 
   unsigned long start_c = millis();
   unsigned long counter = 0;
-  unsigned long soglia = 300000; // soglia di controllo per passare il AP (default 25s)
+  unsigned long soglia = 40000; // soglia di controllo per passare il AP (default 25s)
 
   while (WiFi.status() != WL_CONNECTED) // Wait for connection
   {
-    counter += millis() - start_c;
+    counter = millis() - start_c;
     Serial.println(counter);
     if (counter < soglia)
     {
@@ -326,8 +327,11 @@ void setup()
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/index.html");
+    server.serveStatic("/error_log", SPIFFS, "/log.txt");
     server.begin(); // Faccio partire il server
   }
+
+  config_json_file.close();
 }
 
 unsigned long time_start = millis();
@@ -454,6 +458,10 @@ void startup()
     display.setCursor(142, 297);
     display.setTextColor(GxEPD_BLACK);
     display.println("The new way to manage your time");
+
+    display.setCursor(10, 25);
+    display.println(version);
+
     //------shadow
     display.setCursor(140, 295);
     display.setTextColor(GxEPD_WHITE);
@@ -546,6 +554,15 @@ void tabella()
 
   http.end();
 
+  if (httpCode < 0)
+  {
+    delay(5000);
+    error_page("Errore di connessione, verifica la rete");
+    log_error("Codice http -> "+String(httpCode));
+    delay(5000);
+    ESP.restart();
+  }
+
   /**
     !!!!PAURISSIMAAA!!!!!
     Provo a gestire l'interpretazione del mio json
@@ -559,14 +576,11 @@ void tabella()
   {
     Serial.print("deserializeJson() line541 failed: ");
     Serial.println(error.c_str());
+    log_error("Deserializzazione API fallita");
+    delay(5000);
+    ESP.restart();
   }
 
-  if (httpCode == -1)
-  {
-    delay(5000);
-    error_page("Errore di connessione, verifica la rete");
-    return;
-  }
 
   // Dati header
 
