@@ -113,6 +113,9 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
+String version = "V2.0 x32";
+
+
 //CREDENZIALI WEB
 
 const char *www_username = "SOMMM";
@@ -130,8 +133,9 @@ const char *api_url = "";
 const char *aula = "";
 String aula_id = "";
 
-int delay_time = 600000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
-bool static_config = 0;  // static or DHCP
+int delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
+
+bool static_config = 0; // static or DHCP
 
 int ip[4], dns[4], default_gw[4], subnet_m[4];
 
@@ -221,8 +225,7 @@ void setup()
   dns[2] = jsonRead["net_dns_2"];
   dns[3] = jsonRead["net_dns_3"];
 
-
-/*  Per questioni non ben definite è sempre settato a true, possibile errore di deserializzazione
+  /*  Per questioni non ben definite è sempre settato a true, possibile errore di deserializzazione
     Caudsa inoltre problemi di connessione con il nuovo compilatore per esp32
 
   if (static_config)
@@ -252,11 +255,11 @@ void setup()
 
   unsigned long start_c = millis();
   unsigned long counter = 0;
-  long soglia = 300000; // soglia di controllo per passare il AP (default 25s)
+  unsigned long soglia = 40000; // soglia di controllo per passare il AP (default 25s)
 
   while (WiFi.status() != WL_CONNECTED) // Wait for connection
   {
-    counter += millis() - start_c;
+    counter = millis() - start_c;
     Serial.println(counter);
     if (counter < soglia)
     {
@@ -339,8 +342,11 @@ void setup()
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+    server.serveStatic("/error_log", SPIFFS, "/log.txt");
     server.begin(); // Faccio partire il server
   }
+
+  config_json_file.close();
 }
 
 unsigned long timeCounter = millis();
@@ -465,6 +471,10 @@ void startup()
     display.setCursor(142, 297);
     display.setTextColor(GxEPD_BLACK);
     display.println("The new way to manage your time");
+
+    display.setCursor(10, 25);
+    display.println(version);
+
     //------shadow
     display.setCursor(140, 295);
     display.setTextColor(GxEPD_WHITE);
@@ -562,6 +572,14 @@ void tabella()
     Provo a gestire l'interpretazione del mio json
   */
 
+  if (httpCode < 0)
+  {
+    error_page("Errore di connessione, verifica la rete");
+    log_error("Codice http -> "+String(httpCode));
+    delay(5000);
+    ESP.restart();
+  }
+
   const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
   DynamicJsonDocument doc(bufferSize);
 
@@ -570,11 +588,7 @@ void tabella()
   {
     Serial.print("deserializeJson() line552 failed: ");
     Serial.println(error.c_str());
-  }
-
-  if (httpCode == -1)
-  {
-    error_page("Errore di connessione, verifica la rete");
+    log_error("Deserializzazione API fallita");
     return;
   }
 
@@ -984,7 +998,6 @@ void save_json(AsyncWebServerRequest *richiesta)
 
   save.close();
   SPIFFS.end();
-
 
   // reboot_page(); causa bug e successivo reboot (cause ancora sconosciute :>( )
 
