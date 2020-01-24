@@ -82,7 +82,7 @@
 
 GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT> display(GxEPD2_750(/*CS=*/15, /*DC=*/27, /*RST=*/26, /*BUSY=*/25));
 
-AsyncWebServer server(1518); //settaggio server sulla porta 1518
+AsyncWebServer server(1518); // settaggio server sulla porta 1518
 
 // FUNZIONI DEFINITE INIZIALMENTE PER POI ESSERE IMPLEMENTATE
 
@@ -91,10 +91,10 @@ void save_json(AsyncWebServerRequest *richiesta);
 void startup();                        // funzione di sturtup
 void access_point();                   // funzione per la comunicazione di accesss point
 void tabella();                        // funzione per il disegno della tabella principale
-void reboot_page();                    //funzione per il disegno della pagina di salvataggio e reboot
-void error_page(String codice_errore); //funzione per il disegno della pagina di errore con codice errore
-void not_school(String frase);         //funzione per il disegno della pagina dove avvisiamoche non c'è scuola
-void log_error(String error_m);        //funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
+void reboot_page();                    // funzione per il disegno della pagina di salvataggio e reboot
+void error_page(String codice_errore); // funzione per il disegno della pagina di errore con codice errore
+void not_school(String frase);         // funzione per il disegno della pagina dove avvisiamoche non c'è scuola
+void log_error(String error_m);        // funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
 
@@ -110,7 +110,7 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
-String version = "V2.0 x32";
+const String version = "V2.1.0.0 x32";
 
 //CREDENZIALI WEB
 
@@ -129,7 +129,7 @@ const char *api_url = "";
 const char *aula = "";
 String aula_id = "";
 
-int delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
+const int delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
 
 bool static_config = 0; // static or DHCP
 
@@ -241,7 +241,6 @@ void setup()
     }
   }
 
-
   WiFi.mode(WIFI_STA);
   WiFi.begin(net_ssid, net_pswd); // Provo a eseguire una connessione con le credenziali che ho
 
@@ -279,8 +278,6 @@ void setup()
     http.begin(http_address); // configuro e avvio http sul'url precedentemente dichiarato
 
     // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
-    //server.on("/info", []() {      //server.sendHeader("Access-Control-Allow-Origin","*");
-
     server.on("/info", HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", aula_id);
       response->addHeader("Access-Control-Allow-Origin", "*");
@@ -304,7 +301,7 @@ void setup()
     //Creo una stringa random e la aggiungo al device
     for (int i = 0; i < 3; i++)
     {
-      random_id += char(random('a', 'z'+1));
+      random_id += char(random('a', 'z' + 1));
     }
 
     // Problemi di connessione (probabilmente rete non raggiungibile e/o settato), avvio accesss Point
@@ -342,15 +339,12 @@ void loop()
 {
   if (canRequest)
   {
-    if (delay_time >= 1000)
-    { // verifica se l'update_s è almeno maggiore di 1s
-      if ((millis() - timeCounter) >= delay_time)
-      {
-        // mando la richiesta
-        Serial.println("--------------------");
-        tabella();
-        timeCounter = millis(); // azzerro il contatore
-      }
+    if ((millis() - timeCounter) >= delay_time)
+    {
+      // mando la richiesta
+      Serial.println("--------------------");
+      tabella();
+      timeCounter = millis(); // azzerro il contatore
     }
   }
 }
@@ -566,6 +560,8 @@ void tabella()
     delay(5000);
     ESP.restart();
   }
+
+  // TODO: Valutare e implementare, se possibile, un do-while sulla richiesta fino a quando httpCode > 0
 
   const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
   DynamicJsonDocument doc(bufferSize);
@@ -998,7 +994,6 @@ void save_json(AsyncWebServerRequest *richiesta)
 void log_error(String error_m)
 {
   File log_file;
-
   log_file = SPIFFS.open("/log.txt", "a");
 
   //Serial.print("Dimensione file di log: ");
