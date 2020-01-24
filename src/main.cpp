@@ -110,7 +110,7 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
-const String version = "V2.1.0.0 x32";
+const String version = "v2.1.0.0 x32";
 
 //CREDENZIALI WEB
 
@@ -129,7 +129,7 @@ const char *api_url = "";
 const char *aula = "";
 String aula_id = "";
 
-const int delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
+const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
 
 bool static_config = 0; // static or DHCP
 
