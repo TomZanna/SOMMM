@@ -52,9 +52,6 @@
                         -mmddhhmmmmmdddhddNMMNNMNNNMMMMMMMMMMMMMMMMMNMMMNmmdmmddmNNMNMMMNNmmNo
                         `:+dNNNmdmmmmNNMMMMMMMMMMNMMMMMMMMMMMMMMMMmddmNmyyyyhyyhyhmNMMMMNmmmo
                           `-yysssssosyhdmmNNmmNNhhNNNNNNNNNNNNNNNdmy/:/ymdhysssyyhhhdmNNmyyydo
-
-
-
  */
 
 #include <Arduino.h>
@@ -95,10 +92,11 @@ void save_json();
 void startup();                        // funzione di sturtup
 void access_point();                   // funzione per la comunicazione di accesss point
 void tabella();                        // funzione per il disegno della tabella principale
-void reboot_page();                    //funzione per il disegno della pagina di salvataggio e reboot
-void error_page(String codice_errore); //funzione per il disegno della pagina di errore con codice errore
-void not_school(String frase);         //funzione per il disegno della pagina dove avvisiamoche non c'è scuola
-void log_error(String error_m);        //funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
+void reboot_page();                    // funzione per il disegno della pagina di salvataggio e reboot
+void error_page(String codice_errore); // funzione per il disegno della pagina di errore con codice errore
+void not_school(String frase);         // funzione per il disegno della pagina dove avvisiamoche non c'è scuola
+void log_error(String error_m);        // funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
+
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
 enum wifi_stat
 {
@@ -112,15 +110,15 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
-String version = "V2.0 x8266";
+const String version = "v2.1.0.0 x8266";
 
-//CREDENZIALI WEB
+// CREDENZIALI WEB
 
 const char *www_username = "SOMMM";
 const char *www_password = "laPasswordQui";
 String random_id = "SOMMM_";
 
-bool request = 0;
+bool canRequest = false;
 const char *payload = ""; // payload come variabile globale
 int oraAttuale = 1;       // sisema di switch per le giornate con + di 6 ore
 int httpCode = 0;
@@ -131,8 +129,8 @@ const char *api_url = "";
 const char *aula = "";
 String aula_id = "";
 
-unsigned int delay_time = 300000; // Intervallo di aggiornamento richiesta e display
-bool static_config = 0;  // static or DHCP
+unsigned const long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
+bool static_config = 0;                  // static or DHCP
 
 int ip[4], dns[4], default_gw[4], subnet_m[4];
 
@@ -196,43 +194,39 @@ void setup()
   aula = jsonRead["aula"];
   aula_id = String(aula); // Per API raggiungibile a /info
 
-  static_config = jsonRead["net_static"];
+  static_config = atoi(jsonRead["net_static"]);
 
   ip[0] = jsonRead["net_ip_0"];
   ip[1] = jsonRead["net_ip_1"];
   ip[2] = jsonRead["net_ip_2"];
   ip[3] = jsonRead["net_ip_3"];
 
-  default_gw[0] = jsonRead["net_dfgw_0"];
-  default_gw[1] = jsonRead["net_dfgw_1"];
-  default_gw[2] = jsonRead["net_dfgw_2"];
-  default_gw[3] = jsonRead["net_dfgw_3"];
-
   subnet_m[0] = jsonRead["net_sm_0"];
   subnet_m[1] = jsonRead["net_sm_1"];
   subnet_m[2] = jsonRead["net_sm_2"];
   subnet_m[3] = jsonRead["net_sm_3"];
+
+  default_gw[0] = jsonRead["net_dfgw_0"];
+  default_gw[1] = jsonRead["net_dfgw_1"];
+  default_gw[2] = jsonRead["net_dfgw_2"];
+  default_gw[3] = jsonRead["net_dfgw_3"];
 
   dns[0] = jsonRead["net_dns_0"];
   dns[1] = jsonRead["net_dns_1"];
   dns[2] = jsonRead["net_dns_2"];
   dns[3] = jsonRead["net_dns_3"];
 
-  /*
-
-  Disabilito configurazione statica via firmware, da fixare ma risulta inutile per ora
-
   if (static_config)
   {
-    Serial.println("Configurazione statica....");
+    Serial.println("Configurazione statica...");
     IPAddress ip_addr(ip[0], ip[1], ip[2], ip[3]);
-    IPAddress dns_addr(dns[0], dns[1], dns[2], dns[3]);
-    IPAddress gw_addr(default_gw[0], default_gw[1], default_gw[2], default_gw[3]);
     IPAddress sm_addr(subnet_m[0], subnet_m[1], subnet_m[2], subnet_m[3]);
+    IPAddress gw_addr(default_gw[0], default_gw[1], default_gw[2], default_gw[3]);
+    IPAddress dns_addr(dns[0], dns[1], dns[2], dns[3]);
 
     Serial.println(ip_addr);
-    Serial.println(gw_addr);
     Serial.println(sm_addr);
+    Serial.println(gw_addr);
     Serial.println(dns_addr);
 
     if (!WiFi.config(ip_addr, gw_addr, sm_addr, dns_addr))
@@ -241,31 +235,23 @@ void setup()
     }
   }
 
-  */
-
   WiFi.mode(WIFI_STA);
   WiFi.begin(net_ssid, net_pswd); // Provo a eseguire una connessione con le credenziali che ho
 
-  Serial.print("Connecting");
+  Serial.println("Connecting");
 
-  unsigned long start_c = millis();
+  const unsigned long start_c = millis();
   unsigned long counter = 0;
-  unsigned long soglia = 40000; // soglia di controllo per passare il AP (default 25s)
+  const unsigned long soglia = 40000; // soglia di controllo per passare il AP (default 40s)
 
-  while (WiFi.status() != WL_CONNECTED) // Wait for connection
+  while (WiFi.status() != WL_CONNECTED && counter < soglia) // Wait for connection
   {
     counter = millis() - start_c;
     Serial.println(counter);
-    if (counter < soglia)
-    {
-      delay(1000);
-      Serial.print(".");
-    }
-    else
-    {
-      break;
-    }
+    delay(1000);
+    Serial.print(".");
   }
+
   Serial.println("");
   Serial.println(WiFi.macAddress());
   Serial.println(WiFi.hostname().c_str());
@@ -282,7 +268,7 @@ void setup()
     Serial.print("Richiesta settata su: "); // Stampo l'indirizzo
     Serial.println(http_address);
 
-    request = 1; // Abilito l'invio del dato
+    canRequest = true; // Abilito l'invio del dato
 
     http.begin(http_address); // configuro e avvio http sul'url precedentemente dichiarato
 
@@ -305,7 +291,7 @@ void setup()
     //Creo una stringa random e la aggiungo al device
     for (int i = 0; i < 3; i++)
     {
-      random_id += char(random(97, 122));
+      random_id += char(random('a', 'z' + 1));
     }
 
     // Problemi di connessione (probabilmente rete non raggiungibile e/o settato), avvio accesss Point
@@ -340,17 +326,14 @@ void loop()
 {
   server.handleClient();
 
-  if (request)
+  if (canRequest)
   {
-    if (delay_time >= 1000)
-    { // verifica se l'update_s è almeno maggiore di 1s
-      if ((millis() - time_start) >= delay_time)
-      {
-        // mando la richiesta
-        Serial.println("--------------------");
-        tabella();
-        time_start = millis(); // azzerro il contatore
-      }
+    if ((millis() - time_start) >= delay_time)
+    {
+      // mando la richiesta
+      Serial.println("--------------------");
+      tabella();
+      time_start = millis(); // azzerro il contatore
     }
   }
 }
@@ -558,7 +541,7 @@ void tabella()
   {
     delay(5000);
     error_page("Errore di connessione, verifica la rete");
-    log_error("Codice http -> "+String(httpCode));
+    log_error("Codice http -> " + String(httpCode));
     delay(5000);
     ESP.restart();
   }
@@ -567,6 +550,8 @@ void tabella()
     !!!!PAURISSIMAAA!!!!!
     Provo a gestire l'interpretazione del mio json
   */
+
+  // TODO: Valutare e implementare, se possibile, un do-while sulla richiesta fino a quando httpCode > 0
 
   const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
   DynamicJsonDocument doc(bufferSize);
@@ -580,7 +565,6 @@ void tabella()
     delay(5000);
     ESP.restart();
   }
-
 
   // Dati header
 
@@ -966,7 +950,7 @@ void save_json()
     }
   }
 
-  request = 0;
+  canRequest = false;
 
   delay(100); // aspetto che tutto sia correttamente settato e poi scrivo
 
@@ -996,7 +980,6 @@ void save_json()
 
 void log_error(String error_m)
 {
-
   File log_file;
 
   log_file = SPIFFS.open("/log.txt", "a");
