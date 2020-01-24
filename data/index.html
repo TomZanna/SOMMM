@@ -102,42 +102,22 @@
           qs("#send").addEventListener("submit", function(e) {
               e.preventDefault(); //stop form from submitting
               var net_ip_0 = ['', '', '', ''];
-              var net_dns_0 = ['', '', '', ''];
-              var net_dfgw_0 = ['', '', '', ''];
               var net_sm_0 = ['', '', '', ''];
+              var net_dfgw_0 = ['', '', '', ''];
+              var net_dns_0 = ['', '', '', ''];
 
               var net_ssid = qs("#net_ssid").value;
               var net_pswd = qs("#net_pswd").value;
 
               var net_static = qs("#net_static").checked ? "1" : "0";
               if (net_static == "1") {
-                
-                  var pa = ["#net_ip_0", "#net_dns_0", "#net_dfgw_0"];
 
-                  for (var p in pa) {
-                    if (reGex.test(qs(pa[p]).value)) {
-                      net_ip_0 = qs(pa[p]).value.split(".")
-                    } else {
-                      alert("Inserisci un IP valido");
-                      return false;
-                    }
-                  }
-
-                  /*
-                  if (reGex.test(qs("#net_dns_0").value)) {
-                    net_dns_0 = qs("#net_dns_0").value.split(".")
+                  if (reGex.test(qs("#net_ip_0").value)) {
+                    net_ip_0 = qs("#net_ip_0").value.split(".")
                   } else {
-                    alert("Inserisci un IP DNS valido");
+                    alert("Inserisci un IP dispositivo valido!");
                     return false;
                   }
-
-                  if (reGex.test(qs("#net_dfgw_0").value)) {
-                    net_dfgw_0 = qs("#net_dfgw_0").value.split(".")
-                  } else {
-                    alert("Inserisci un IP Default Gateway valido");
-                    return false;
-                  }
-                  */
 
                   if (reGexSM.test(qs("#net_sm_0").value)) {
                     net_sm_0 = qs("#net_sm_0").value.split(".")
@@ -145,6 +125,21 @@
                     alert("Inserisci un IP subnet mask valido");
                     return false;
                   }
+                  
+                  if (reGex.test(qs("#net_dfgw_0").value)) {
+                    net_dfgw_0 = qs("#net_dfgw_0").value.split(".")
+                  } else {
+                    alert("Inserisci un IP Default Gateway valido");
+                    return false;
+                  }
+                  
+                  if (reGex.test(qs("#net_dns_0").value)) {
+                    net_dns_0 = qs("#net_dns_0").value.split(".")
+                  } else {
+                    alert("Inserisci un IP DNS valido");
+                    return false;
+                  }
+
               }
 
               var aula = qs("#aula").value;
