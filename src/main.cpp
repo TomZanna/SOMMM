@@ -110,7 +110,7 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
-const String version = "v2.1.0.0 x8266";
+const String version = "v2.1.1.0 x8266";
 
 // CREDENZIALI WEB
 
@@ -692,12 +692,12 @@ void tabella()
 
         display.setFont(&FreeSans9pt7b);
 
-        display.setCursor(522, 110 + (53 * j) + j);
+        display.setCursor(510, 110 + (53 * j) + j);
         display.println(today_matrix[j][3]); // Materia
 
         display.setFont(&FreeSans18pt7b);
 
-        display.setCursor(573, 110 + (53 * j) + j);
+        display.setCursor(566, 110 + (53 * j) + j);
         display.println(today_matrix[j][4]); // Classe
       }
     }
@@ -738,12 +738,12 @@ void tabella()
 
         display.setFont(&FreeSans9pt7b);
 
-        display.setCursor(522, 110 + (53 * (j - 4)) + j - 4);
+        display.setCursor(510, 110 + (53 * (j - 4)) + j - 4);
         display.println(today_matrix[j][3]); // Materia
 
         display.setFont(&FreeSans18pt7b);
 
-        display.setCursor(573, 110 + (53 * (j - 4)) + j - 4);
+        display.setCursor(566, 110 + (53 * (j - 4)) + j - 4);
         display.println(today_matrix[j][4]); // Classe
       }
     }
