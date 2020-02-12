@@ -110,7 +110,7 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
-const String version = "v2.1.0.0 x8266";
+const String version = "v2.2.0.0 x8266";
 
 // CREDENZIALI WEB
 
