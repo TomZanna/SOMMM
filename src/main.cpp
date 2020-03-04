@@ -637,38 +637,30 @@ void tabella()
   giorno_settimana -= 1;
   int oraAttuale = doc["oraAttuale"]; // 3
 
-  // ################################################################################################################
   // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
-
   JsonArray oggi = doc["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
+  const char *today_matrix[10][5];
 
-  if (oggi.size() == 0)
-  {
+  if (oggi.size() == 0) {
     not_school("Oggi non c'e` scuola, buon riposo ;P");
     return;
   }
-
-  JsonObject prima = oggi[0];
-  JsonObject seconda = oggi[1];
-  JsonObject terza = oggi[2];
-  JsonObject quarta = oggi[3];
-  JsonObject quinta = oggi[4];
-  JsonObject sesta = oggi[5];
-  JsonObject settima = oggi[6];
-  JsonObject ottava = oggi[7];
-  JsonObject nona = oggi[8];
-  JsonObject decima = oggi[9];
-
-  const char *today_matrix[10][5] = {{prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["res"]},
-                                     {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]},
-                                     {terza["ora"], terza["prof1"], terza["prof2"], terza["mat"], terza["res"]},
-                                     {quarta["ora"], quarta["prof1"], quarta["prof2"], quarta["mat"], quarta["res"]},
-                                     {quinta["ora"], quinta["prof1"], quinta["prof2"], quinta["mat"], quinta["res"]},
-                                     {sesta["ora"], sesta["prof1"], sesta["prof2"], sesta["mat"], sesta["res"]},
-                                     {settima["ora"], settima["prof1"], settima["prof2"], settima["mat"], settima["res"]},
-                                     {ottava["ora"], ottava["prof1"], ottava["prof2"], ottava["mat"], ottava["res"]},
-                                     {nona["ora"], nona["prof1"], nona["prof2"], nona["mat"], nona["res"]},
-                                     {decima["ora"], decima["prof1"], decima["prof2"], decima["mat"], decima["res"]}};
+  {
+    int row, column;
+    row = 0;
+    for(JsonObject oraN: oggi) {
+      column = 0;
+      for(JsonPair pair: oraN){
+        // se supero le massime dimensioni dell'array mi fermo
+        if(column>=5) break;
+        today_matrix[row][column] = pair.value();
+        column++;
+      }
+      // se supero le massime dimensioni dell'array mi fermo
+      if(row>=10) break;
+      row++;
+    }
+  }
 
   // ################################################################################################################
   // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "SETTIMANA"
