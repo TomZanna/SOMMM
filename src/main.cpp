@@ -662,24 +662,24 @@ void tabella()
     }
   }
 
-  // ################################################################################################################
   // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "SETTIMANA"
-
   JsonObject settimana = doc["settimana"]; // Oggetto "settima" contenente tutte le informazioni
-
-  JsonObject settimana_1 = settimana["1"];
-  JsonObject settimana_2 = settimana["2"];
-  JsonObject settimana_3 = settimana["3"];
-  JsonObject settimana_4 = settimana["4"];
-  JsonObject settimana_5 = settimana["5"];
-  JsonObject settimana_6 = settimana["6"];
-
-  const char *settimana_matrix[6][6] = {{settimana_1["1"], settimana_1["2"], settimana_1["3"], settimana_1["4"], settimana_1["5"], settimana_1["6"]},
-                                        {settimana_2["1"], settimana_2["2"], settimana_2["3"], settimana_2["4"], settimana_2["5"], settimana_2["6"]},
-                                        {settimana_3["1"], settimana_3["2"], settimana_3["3"], settimana_3["4"], settimana_3["5"], settimana_3["6"]},
-                                        {settimana_4["1"], settimana_4["2"], settimana_4["3"], settimana_4["4"], settimana_4["5"], settimana_4["6"]},
-                                        {settimana_5["1"], settimana_5["2"], settimana_5["3"], settimana_5["4"], settimana_5["5"], settimana_5["6"]},
-                                        {settimana_6["1"], settimana_6["2"], settimana_6["3"], settimana_6["4"], settimana_6["5"], settimana_6["6"]}};
+  const char *settimana_matrix[6][6];
+  
+  {
+    int row, column;
+    row = 0;
+    for(JsonPair giornoN: settimana) {
+      column = 0;
+      for(JsonPair oraN: giornoN.value().as<JsonObject>()){
+        if(column>=6) break;
+        settimana_matrix[row][column] = oraN.value();
+        column++;
+      }
+      if(row>=6) break;
+      row++;
+    }
+  }
 
   display.setRotation(0);
   display.setFullWindow();
