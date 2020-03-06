@@ -134,9 +134,6 @@ String aula_id = "";
 
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
 
-bool static_config = 0; // static or DHCP
-
-int ip[4], dns[4], default_gw[4], subnet_m[4];
 
 String getData, Link, file_config;
 
@@ -203,30 +200,30 @@ void setup()
   aula_id = String(aula); // Per API raggiungibile a /info
 
   // static config nel json DEVE essere una stringa
-  static_config = atoi(jsonRead["net_static"]);
+  bool static_config = atoi(jsonRead["net_static"]);
 
-  ip[0] = jsonRead["net_ip_0"];
-  ip[1] = jsonRead["net_ip_1"];
-  ip[2] = jsonRead["net_ip_2"];
-  ip[3] = jsonRead["net_ip_3"];
+  if (static_config) {
+    int ip[4], dns[4], default_gw[4], subnet_m[4];
+    ip[0] = jsonRead["net_ip_0"];
+    ip[1] = jsonRead["net_ip_1"];
+    ip[2] = jsonRead["net_ip_2"];
+    ip[3] = jsonRead["net_ip_3"];
 
-  subnet_m[0] = jsonRead["net_sm_0"];
-  subnet_m[1] = jsonRead["net_sm_1"];
-  subnet_m[2] = jsonRead["net_sm_2"];
-  subnet_m[3] = jsonRead["net_sm_3"];
+    subnet_m[0] = jsonRead["net_sm_0"];
+    subnet_m[1] = jsonRead["net_sm_1"];
+    subnet_m[2] = jsonRead["net_sm_2"];
+    subnet_m[3] = jsonRead["net_sm_3"];
 
-  default_gw[0] = jsonRead["net_dfgw_0"];
-  default_gw[1] = jsonRead["net_dfgw_1"];
-  default_gw[2] = jsonRead["net_dfgw_2"];
-  default_gw[3] = jsonRead["net_dfgw_3"];
+    default_gw[0] = jsonRead["net_dfgw_0"];
+    default_gw[1] = jsonRead["net_dfgw_1"];
+    default_gw[2] = jsonRead["net_dfgw_2"];
+    default_gw[3] = jsonRead["net_dfgw_3"];
 
-  dns[0] = jsonRead["net_dns_0"];
-  dns[1] = jsonRead["net_dns_1"];
-  dns[2] = jsonRead["net_dns_2"];
-  dns[3] = jsonRead["net_dns_3"];
+    dns[0] = jsonRead["net_dns_0"];
+    dns[1] = jsonRead["net_dns_1"];
+    dns[2] = jsonRead["net_dns_2"];
+    dns[3] = jsonRead["net_dns_3"];
 
-  if (static_config)
-  {
     Serial.println("Configurazione statica...");
     IPAddress ip_addr(ip[0], ip[1], ip[2], ip[3]);
     IPAddress sm_addr(subnet_m[0], subnet_m[1], subnet_m[2], subnet_m[3]);
