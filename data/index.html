@@ -27,7 +27,7 @@
           <br>
           <label class="input_and_titles" for="net_pswd">Wifi Password </label>
           <br>
-          <input class="input_and_titles long" type="text" name="FirstName" value="" id="net_pswd">
+          <input class="input_and_titles long" type="password" name="FirstName" value="" id="net_pswd">
         </div>
         <p class="title_1">Configurazione IP</p>
         <div class="box" style="left:5%;">
@@ -61,13 +61,13 @@
           <!-- aula -->
           <label class="input_and_titles" for="aula" style="margin-top:5px;">Aula/Laboratorio</label>
           <br>
-          <input class="input_and_titles long" type="text" value="" id="aula" required>
+          <input class="input_and_titles long" type="text" value="" id="aula" pattern="[\w\d]+" required>
           <br>
           <br>
           <!-- api_url -->
           <label class="input_and_titles" for="api_url">API Url</label>
           <br>
-          <input class="input_and_titles long" type="text" value='http://172.16.1.98/orario/ttroomtosommm.php' id="api_url" required>
+          <input class="input_and_titles long" type="url" value='http://172.16.1.98/orario/ttroomtosommm.php' id="api_url" required>
         </div>
         <div class="box" style="padding-top:1.5rem;">
           <input id="salva" class='button' type="submit" value="Salva">
@@ -97,63 +97,32 @@
           };
           r.send();
 
-          var reGex = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
-          var reGexSM = /^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$/;
           qs("#send").addEventListener("submit", function(e) {
               e.preventDefault(); //stop form from submitting
-              var net_ip_0 = ['', '', '', ''];
-              var net_sm_0 = ['', '', '', ''];
-              var net_dfgw_0 = ['', '', '', ''];
-              var net_dns_0 = ['', '', '', ''];
+              var net_static;
+              var net_ip = ['', '', '', ''];
+              var net_sm = ['', '', '', ''];
+              var net_dfgw = ['', '', '', ''];
+              var net_dns = ['', '', '', ''];
 
               var net_ssid = qs("#net_ssid").value;
               var net_pswd = qs("#net_pswd").value;
 
-              var net_static = qs("#net_static").checked ? "1" : "0";
-              if (net_static == "1") {
-
-                  if (reGex.test(qs("#net_ip_0").value)) {
-                    net_ip_0 = qs("#net_ip_0").value.split(".")
-                  } else {
-                    alert("Inserisci un IP dispositivo valido!");
-                    return false;
-                  }
-
-                  if (reGexSM.test(qs("#net_sm_0").value)) {
-                    net_sm_0 = qs("#net_sm_0").value.split(".")
-                  } else {
-                    alert("Inserisci un IP subnet mask valido");
-                    return false;
-                  }
-                  
-                  if (reGex.test(qs("#net_dfgw_0").value)) {
-                    net_dfgw_0 = qs("#net_dfgw_0").value.split(".")
-                  } else {
-                    alert("Inserisci un IP Default Gateway valido");
-                    return false;
-                  }
-                  
-                  if (reGex.test(qs("#net_dns_0").value)) {
-                    net_dns_0 = qs("#net_dns_0").value.split(".")
-                  } else {
-                    alert("Inserisci un IP DNS valido");
-                    return false;
-                  }
-
-              }
+              if (qs("#net_static").checked) {
+                  net_ip = qs("#net_ip_0").value.split(".");
+                  net_sm = qs("#net_sm_0").value.split(".");
+                  net_dfgw = qs("#net_dfgw_0").value.split(".");
+                  net_dns = qs("#net_dns_0").value.split(".");
+                  net_static = "1";
+              } else net_static = "0";
 
               var aula = qs("#aula").value;
               var api_url = qs("#api_url").value;
 
-              if (aula.trim().length == 0) {
-                  alert("Inserisci l'aula!");
-                  return false;
-              }
-
               document.body.style.cursor = 'wait';
               qs("#salva").disabled = true;
 
-              var params = {net_ssid: net_ssid, net_pswd: net_pswd, net_ip_0: net_ip_0[0], net_ip_1: net_ip_0[1], net_ip_2: net_ip_0[2], net_ip_3: net_ip_0[3], net_dns_0: net_dns_0[0], net_dns_1: net_dns_0[1], net_dns_2: net_dns_0[2], net_dns_3: net_dns_0[3], net_dfgw_0: net_dfgw_0[0], net_dfgw_1: net_dfgw_0[1], net_dfgw_2: net_dfgw_0[2], net_dfgw_3: net_dfgw_0[3], net_sm_0: net_sm_0[0], net_sm_1: net_sm_0[1], net_sm_2: net_sm_0[2], net_sm_3: net_sm_0[3], net_static: net_static, aula: aula, api_url: api_url};
+              var params = {net_ssid: net_ssid, net_pswd: net_pswd, net_ip_0: net_ip[0], net_ip_1: net_ip[1], net_ip_2: net_ip[2], net_ip_3: net_ip[3], net_dns_0: net_dns[0], net_dns_1: net_dns[1], net_dns_2: net_dns[2], net_dns_3: net_dns[3], net_dfgw_0: net_dfgw[0], net_dfgw_1: net_dfgw[1], net_dfgw_2: net_dfgw[2], net_dfgw_3: net_dfgw[3], net_sm_0: net_sm[0], net_sm_1: net_sm[1], net_sm_2: net_sm[2], net_sm_3: net_sm[3], net_static: net_static, aula: aula, api_url: api_url};
               console.log(params);
               var enc = serialize(params);
 
