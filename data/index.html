@@ -130,15 +130,11 @@
               r.open('POST', '/save');
               r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
               r.onload = function() {
-                  if (r.status >= 200 && r.status < 400) { // Success!
-                      var resp = r.responseText;
-                      console.log(resp);
-                      alert(resp);
-                  } else { // We reached our target server, but it returned an error (500)
-                      var resp = r.responseText;
-                      console.error("Error " + resp + " - status " + r.status);
-                      alert(resp);
-                  }
+                  var resp = r.responseText;
+                  if (r.status >= 200 && r.status < 400) console.log(resp); // Success!
+                  // We reached our target server, but it returned an error (500)
+                  else console.error("Error " + resp + " - status " + r.status);
+                  alert(resp);
                   document.body.style.cursor = 'default';
                   qs("#salva").disabled = false;
               };
