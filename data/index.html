@@ -76,7 +76,16 @@
     </div>
     <script>
       function qs(sel) { return document.querySelector(sel); }
-      function checkChange() { qs('#net_static').checked ? qs("#indirizzo_ip").style.display = '' : qs("#indirizzo_ip").style.display = 'none'; };
+      function checkChange() {
+        var ipInputs = document.querySelectorAll("input.casella");
+        if(qs('#net_static').checked){
+          qs("#indirizzo_ip").style.display = '';
+          ipInputs.forEach(function(userItem) { userItem.required = true; });
+        } else {
+          qs("#indirizzo_ip").style.display = 'none';
+          ipInputs.forEach(function(userItem) { userItem.required = false; });
+        }
+      }
       function serialize(obj) {
         var str = [];
         for (var p in obj)
