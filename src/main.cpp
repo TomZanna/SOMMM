@@ -134,7 +134,6 @@ String aula_id = "";
 
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
 
-
 String getData, Link, file_config;
 
 HTTPClient http;
@@ -198,37 +197,34 @@ void setup()
   api_url = jsonRead["api_url"];
   aula = jsonRead["aula"];
   aula_id = String(aula); // Per API raggiungibile a /info
-
-  // static config nel json DEVE essere una stringa
-  bool static_config = atoi(jsonRead["net_static"]);
-
-  if (static_config) {
-    int ip[4], dns[4], default_gw[4], subnet_m[4];
-    ip[0] = jsonRead["net_ip_0"];
-    ip[1] = jsonRead["net_ip_1"];
-    ip[2] = jsonRead["net_ip_2"];
-    ip[3] = jsonRead["net_ip_3"];
-
-    subnet_m[0] = jsonRead["net_sm_0"];
-    subnet_m[1] = jsonRead["net_sm_1"];
-    subnet_m[2] = jsonRead["net_sm_2"];
-    subnet_m[3] = jsonRead["net_sm_3"];
-
-    default_gw[0] = jsonRead["net_dfgw_0"];
-    default_gw[1] = jsonRead["net_dfgw_1"];
-    default_gw[2] = jsonRead["net_dfgw_2"];
-    default_gw[3] = jsonRead["net_dfgw_3"];
-
-    dns[0] = jsonRead["net_dns_0"];
-    dns[1] = jsonRead["net_dns_1"];
-    dns[2] = jsonRead["net_dns_2"];
-    dns[3] = jsonRead["net_dns_3"];
+  
+  // salvo l'oggetto static_config in una variabile 
+  JsonObject static_config = jsonRead["net_static"].as<JsonObject>();
+  // solo se viene richiesto l'ip statico processo i dati
+  if (!static_config.isNull()) {
+    // matrice contenente nell'ordine indirizzo ip, subnet mask, default gateway e dns
+    uint8_t settings[4][4];
+    
+    int row=0;
+    // per ogni oggetto/array contenuto in net_static
+    for(JsonPair array: static_config){
+      if(row>=4) break;
+      int column=0;
+      // per ogni elemento dell'array
+      for(JsonVariant settingN: array.value().as<JsonArray>()){
+        if(column>=4) break;
+        // salvo l'intero nella matrice
+        settings[row][column] = settingN.as<int>();
+        column++;
+      }
+      row++;
+    }
 
     Serial.println("Configurazione statica...");
-    IPAddress ip_addr(ip[0], ip[1], ip[2], ip[3]);
-    IPAddress sm_addr(subnet_m[0], subnet_m[1], subnet_m[2], subnet_m[3]);
-    IPAddress gw_addr(default_gw[0], default_gw[1], default_gw[2], default_gw[3]);
-    IPAddress dns_addr(dns[0], dns[1], dns[2], dns[3]);
+    IPAddress ip_addr(settings[0]);
+    IPAddress sm_addr(settings[1]);
+    IPAddress gw_addr(settings[2]);
+    IPAddress dns_addr(settings[3]);
 
     Serial.println(ip_addr);
     Serial.println(sm_addr);
