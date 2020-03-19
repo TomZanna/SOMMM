@@ -113,7 +113,7 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
-const String version = "v2.2.0.0 x32";
+const String version = "v2.2.0.1 x32";
 
 //CREDENZIALI WEB
 
@@ -134,9 +134,6 @@ String aula_id = "";
 
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
 
-bool static_config = 0; // static or DHCP
-
-int ip[4], dns[4], default_gw[4], subnet_m[4];
 
 String getData, Link, file_config;
 
@@ -203,30 +200,30 @@ void setup()
   aula_id = String(aula); // Per API raggiungibile a /info
 
   // static config nel json DEVE essere una stringa
-  static_config = atoi(jsonRead["net_static"]);
+  bool static_config = atoi(jsonRead["net_static"]);
 
-  ip[0] = jsonRead["net_ip_0"];
-  ip[1] = jsonRead["net_ip_1"];
-  ip[2] = jsonRead["net_ip_2"];
-  ip[3] = jsonRead["net_ip_3"];
+  if (static_config) {
+    int ip[4], dns[4], default_gw[4], subnet_m[4];
+    ip[0] = jsonRead["net_ip_0"];
+    ip[1] = jsonRead["net_ip_1"];
+    ip[2] = jsonRead["net_ip_2"];
+    ip[3] = jsonRead["net_ip_3"];
 
-  subnet_m[0] = jsonRead["net_sm_0"];
-  subnet_m[1] = jsonRead["net_sm_1"];
-  subnet_m[2] = jsonRead["net_sm_2"];
-  subnet_m[3] = jsonRead["net_sm_3"];
+    subnet_m[0] = jsonRead["net_sm_0"];
+    subnet_m[1] = jsonRead["net_sm_1"];
+    subnet_m[2] = jsonRead["net_sm_2"];
+    subnet_m[3] = jsonRead["net_sm_3"];
 
-  default_gw[0] = jsonRead["net_dfgw_0"];
-  default_gw[1] = jsonRead["net_dfgw_1"];
-  default_gw[2] = jsonRead["net_dfgw_2"];
-  default_gw[3] = jsonRead["net_dfgw_3"];
+    default_gw[0] = jsonRead["net_dfgw_0"];
+    default_gw[1] = jsonRead["net_dfgw_1"];
+    default_gw[2] = jsonRead["net_dfgw_2"];
+    default_gw[3] = jsonRead["net_dfgw_3"];
 
-  dns[0] = jsonRead["net_dns_0"];
-  dns[1] = jsonRead["net_dns_1"];
-  dns[2] = jsonRead["net_dns_2"];
-  dns[3] = jsonRead["net_dns_3"];
+    dns[0] = jsonRead["net_dns_0"];
+    dns[1] = jsonRead["net_dns_1"];
+    dns[2] = jsonRead["net_dns_2"];
+    dns[3] = jsonRead["net_dns_3"];
 
-  if (static_config)
-  {
     Serial.println("Configurazione statica...");
     IPAddress ip_addr(ip[0], ip[1], ip[2], ip[3]);
     IPAddress sm_addr(subnet_m[0], subnet_m[1], subnet_m[2], subnet_m[3]);
@@ -637,57 +634,63 @@ void tabella()
   giorno_settimana -= 1;
   int oraAttuale = doc["oraAttuale"]; // 3
 
-  // ################################################################################################################
   // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
-
   JsonArray oggi = doc["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
+  /* Matrice di strighe contenente le informazioni del girno in corso.
+   * Ad ogni riga equivale un'ora e ad ogni colonna un'informazione. 
+   */
+  const char *today_matrix[10][5];
 
-  if (oggi.size() == 0)
-  {
+  if (oggi.size() == 0) {
     not_school("Oggi non c'e` scuola, buon riposo ;P");
     return;
   }
+  {
+    int row, column;
+    row = 0;
+    // per ogni oggetto oraN presente nell'array oggi
+    for(JsonObject oraN: oggi) {
+      column = 0;
+      // per ogni coppia key-value nell'oggetto oraN
+      for(JsonPair pair: oraN){
+        // se supero le massime dimensioni dell'array mi fermo
+        if(column>=5) break;
+        // copio il riferimento alla stringa nella cella della matrice
+        today_matrix[row][column] = pair.value();
+        column++;
+      }
+      // se supero le massime dimensioni dell'array mi fermo
+      if(row>=10) break;
+      row++;
+    }
+  }
 
-  JsonObject prima = oggi[0];
-  JsonObject seconda = oggi[1];
-  JsonObject terza = oggi[2];
-  JsonObject quarta = oggi[3];
-  JsonObject quinta = oggi[4];
-  JsonObject sesta = oggi[5];
-  JsonObject settima = oggi[6];
-  JsonObject ottava = oggi[7];
-  JsonObject nona = oggi[8];
-  JsonObject decima = oggi[9];
-
-  const char *today_matrix[10][5] = {{prima["ora"], prima["prof1"], prima["prof2"], prima["mat"], prima["res"]},
-                                     {seconda["ora"], seconda["prof1"], seconda["prof2"], seconda["mat"], seconda["res"]},
-                                     {terza["ora"], terza["prof1"], terza["prof2"], terza["mat"], terza["res"]},
-                                     {quarta["ora"], quarta["prof1"], quarta["prof2"], quarta["mat"], quarta["res"]},
-                                     {quinta["ora"], quinta["prof1"], quinta["prof2"], quinta["mat"], quinta["res"]},
-                                     {sesta["ora"], sesta["prof1"], sesta["prof2"], sesta["mat"], sesta["res"]},
-                                     {settima["ora"], settima["prof1"], settima["prof2"], settima["mat"], settima["res"]},
-                                     {ottava["ora"], ottava["prof1"], ottava["prof2"], ottava["mat"], ottava["res"]},
-                                     {nona["ora"], nona["prof1"], nona["prof2"], nona["mat"], nona["res"]},
-                                     {decima["ora"], decima["prof1"], decima["prof2"], decima["mat"], decima["res"]}};
-
-  // ################################################################################################################
   // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "SETTIMANA"
-
   JsonObject settimana = doc["settimana"]; // Oggetto "settima" contenente tutte le informazioni
-
-  JsonObject settimana_1 = settimana["1"];
-  JsonObject settimana_2 = settimana["2"];
-  JsonObject settimana_3 = settimana["3"];
-  JsonObject settimana_4 = settimana["4"];
-  JsonObject settimana_5 = settimana["5"];
-  JsonObject settimana_6 = settimana["6"];
-
-  const char *settimana_matrix[6][6] = {{settimana_1["1"], settimana_1["2"], settimana_1["3"], settimana_1["4"], settimana_1["5"], settimana_1["6"]},
-                                        {settimana_2["1"], settimana_2["2"], settimana_2["3"], settimana_2["4"], settimana_2["5"], settimana_2["6"]},
-                                        {settimana_3["1"], settimana_3["2"], settimana_3["3"], settimana_3["4"], settimana_3["5"], settimana_3["6"]},
-                                        {settimana_4["1"], settimana_4["2"], settimana_4["3"], settimana_4["4"], settimana_4["5"], settimana_4["6"]},
-                                        {settimana_5["1"], settimana_5["2"], settimana_5["3"], settimana_5["4"], settimana_5["5"], settimana_5["6"]},
-                                        {settimana_6["1"], settimana_6["2"], settimana_6["3"], settimana_6["4"], settimana_6["5"], settimana_6["6"]}};
+  /* Matrice di strighe contenente le informazioni di tutta la settimana.
+   * Ad ogni riga equivale un giorno della settimana e ad ogni colonna un'informazione. 
+   */
+  const char *settimana_matrix[6][6];
+  
+  {
+    int row, column;
+    row = 0;
+    // per ogni oggetto giornoN presente nell'array settimana
+    for(JsonPair giornoN: settimana) {
+      column = 0;
+      // per ogni coppia key-value nell'oggetto giornoN
+      for(JsonPair oraN: giornoN.value().as<JsonObject>()){
+        // se supero le massime dimensioni dell'array mi fermo
+        if(column>=6) break;
+        // copio il riferimento alla stringa nella cella della matrice
+        settimana_matrix[row][column] = oraN.value();
+        column++;
+      }
+      // se supero le massime dimensioni dell'array mi fermo
+      if(row>=6) break;
+      row++;
+    }
+  }
 
   display.setRotation(0);
   display.setFullWindow();
