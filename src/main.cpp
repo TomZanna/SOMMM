@@ -73,6 +73,7 @@
 
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
+#include "AsyncJson.h"
 
 #include "FS.h"
 #include "SPIFFS.h"
@@ -90,7 +91,7 @@ AsyncWebServer server(1518); // settaggio server sulla porta 1518
 // FUNZIONI DEFINITE INIZIALMENTE PER POI ESSERE IMPLEMENTATE
 
 void dithering(int sx, int sy, int w, int h, int percent, int size); // funzione per la gestione delle tonalià di grigio dei quadrati
-void save_json(AsyncWebServerRequest *richiesta);
+void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json);
 void startup();                        // funzione di sturtup
 void access_point();                   // funzione per la comunicazione di accesss point
 void tabella();                        // funzione per il disegno della tabella principale
@@ -280,9 +281,8 @@ void setup()
       request->send(response);
     });
 
-    server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
-      save_json(request);
-    });
+    AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/save", save_json);
+    server.addHandler(handler);
 
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
@@ -363,9 +363,9 @@ void setup()
       request->send(response);
     });
 
-    server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
-      save_json(request);
-    });
+    AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/save", save_json);
+    server.addHandler(handler);
+
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
@@ -959,87 +959,32 @@ void error_page(String codice_errore)
   } while (display.nextPage());
 }
 
-void save_json(AsyncWebServerRequest *richiesta)
-{
-  if (!SPIFFS.begin()) // controllo di aver accesso al filesystem
-  {
+void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json) {
+  if (!SPIFFS.begin()) { // controllo di aver accesso al filesystem
     // Se viene visualizzato c'è un problema al filesystem
     richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
 
     Serial.println("SPIFFS2 Mount failed");
     error_page("Errore caricamento File System");
     return;
-  }
-  else
-  { // File system correttamente caricato
-    Serial.println("SPIFFS2 Mount succesfull");
-  }
-
-  File file_conf_saved = SPIFFS.open("/config.json", "r"); // Apro il file in modalità lettura
-
-  DynamicJsonDocument json(1024); // creo secondo buffer
-  String conf_read_file = file_conf_saved.readStringUntil('\n');
-
-  DeserializationError errorConf = deserializeJson(json, conf_read_file);
-  if (errorConf)
-  {
-    richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
-    Serial.print("deserializeJson() line916 failed: ");
-    Serial.println(errorConf.c_str());
-    Serial.println("Impossibile leggere la configurazione");
-    error_page("Errore lettura JSON configurazione");
-    return;
-  }
-  else
-  {
-    Serial.println("Configurazione attuale caricata correttamente");
-    serializeJson(json, Serial);
-    Serial.println("");
-  }
-
-  // #######################################################
-  // controllo e salvataggio dei dati in caso di cambiamento
-  // #######################################################
-
-  const String param[21] = {"net_ssid", "net_pswd", "api_url", "aula", "net_static", "net_ip_0", "net_ip_1", "net_ip_2", "net_ip_3", "net_dns_0", "net_dns_1", "net_dns_2", "net_dns_3", "net_sm_0", "net_sm_1", "net_sm_2", "net_sm_3", "net_dfgw_0", "net_dfgw_1", "net_dfgw_2", "net_dfgw_3"};
-
-  for (int i = 0; i < 21; i++)
-  {
-    if (richiesta->hasParam(param[i], true))
-    {
-      AsyncWebParameter *p = richiesta->getParam(param[i], true);
-      if (p->value() != "")
-      {
-        json[param[i]] = p->value();
-        Serial.print(p->value());
-        Serial.println(" writed");
-      }
-    }
-  }
+  } else Serial.println("SPIFFS2 Mount succesfull");
 
   canRequest = false;
-
-  delay(100); // aspetto che tutto sia correttamente settato e poi scrivo
 
   if (!richiesta->authenticate(www_username, www_password))
     return richiesta->requestAuthentication();
 
-  File save = SPIFFS.open("/config.json", "w"); // Apro il file in modalità scrittura
+  File save = SPIFFS.open("/config.json", "w");
 
   delay(200);
   serializeJson(json, save);   // salvo la nuova configurazione
   serializeJson(json, Serial); // stampo la nuova configurazione
 
-  // chiudo il file di salvataggio e chiudo anche la connessione col FileSystem; posso ora riavviare anche a fronte di errori
-
   save.close();
   SPIFFS.end();
 
-  // reboot_page(); causa bug e successivo reboot (cause ancora sconosciute :>( )
-
-  richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM."); // messaggio di callback per client web
-
-  // ora il reboot software funziona senza danneggiare la memoria
+  // messaggio di callback per client web
+  richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM.");
   ESP.restart();
 }
 
