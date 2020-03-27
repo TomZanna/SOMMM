@@ -130,7 +130,6 @@ int httpCode = 0;
 const char *net_ssid = "";
 const char *net_pswd = "";
 const char *api_url = "";
-const char *aula = "";
 String aula_id = "";
 
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
@@ -194,11 +193,13 @@ void setup()
   // vado a settare le variabili coi valori caricati dalla memoria
 
   net_ssid = jsonRead["net_ssid"];
-  net_pswd = jsonRead["net_pswd"];
+  File pswdFile = SPIFFS.open("/passwd.txt", "r");
+  String tempStr = pswdFile.readStringUntil('\n');
+  net_pswd = tempStr.c_str();
+  pswdFile.close();
   api_url = jsonRead["api_url"];
-  aula = jsonRead["aula"];
-  aula_id = String(aula); // Per API raggiungibile a /info
-  
+  aula_id = jsonRead["aula"].as<String>(); // Per API raggiungibile a /info
+
   // salvo l'oggetto static_config in una variabile 
   JsonObject static_config = jsonRead["net_static"].as<JsonObject>();
   // solo se viene richiesto l'ip statico processo i dati
@@ -281,13 +282,12 @@ void setup()
       request->send(response);
     });
 
-    AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/save", save_json);
-    server.addHandler(handler);
-
+    server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
     server.serveStatic("/error_log", SPIFFS, "/log.txt");
+    server.serveStatic("/config", SPIFFS, "/config.json");
     server.begin(); //Faccio partire il server
 
     // Port defaults to 3232
@@ -363,13 +363,12 @@ void setup()
       request->send(response);
     });
 
-    AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/save", save_json);
-    server.addHandler(handler);
-
+    server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
     server.serveStatic("/error_log", SPIFFS, "/log.txt");
+    server.serveStatic("/config", SPIFFS, "/config.json");
     server.begin(); // Faccio partire il server
   }
 
@@ -974,13 +973,19 @@ void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json) {
   if (!richiesta->authenticate(www_username, www_password))
     return richiesta->requestAuthentication();
 
-  File save = SPIFFS.open("/config.json", "w");
+  if(json["net_pswd"]!="") {
+    // salvo la password su un file non accessibile dalla rete
+    File pswdFile = SPIFFS.open("/passwd.txt", "w");
+    pswdFile.printf("%s\n",json["net_pswd"].as<char *>());
+    pswdFile.close();
+  }
+  json["net_pswd"]="x"; // la password non deve essere esposta all'esterno
 
-  delay(200);
-  serializeJson(json, save);   // salvo la nuova configurazione
+  File configFile = SPIFFS.open("/config.json", "w");
+  serializeJson(json, configFile);   // salvo la nuova configurazione
   serializeJson(json, Serial); // stampo la nuova configurazione
 
-  save.close();
+  configFile.close();
   SPIFFS.end();
 
   // messaggio di callback per client web
