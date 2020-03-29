@@ -200,26 +200,22 @@ void setup()
   api_url = jsonRead["api_url"];
   aula_id = jsonRead["aula"].as<String>(); // Per API raggiungibile a /info
 
-  // salvo l'oggetto static_config in una variabile 
+  // Solo se viene richiesto l'ip statico processo i dati
   JsonObject static_config = jsonRead["net_static"].as<JsonObject>();
-  // solo se viene richiesto l'ip statico processo i dati
   if (!static_config.isNull()) {
-    // matrice contenente nell'ordine indirizzo ip, subnet mask, default gateway e dns
+    // Memorizzo le chiavi così la matrice sarà sempre nello stesso ordine
+    const char *settingsKeys[] = {"net_ip", "net_sm", "net_dfgw", "net_dns"};
+
+    // Copio le impostazioni in una matrice contenente nell'ordine 
+    // indirizzo ip, subnet mask, default gateway e dns 
     uint8_t settings[4][4];
-    
-    int row=0;
-    // per ogni oggetto/array contenuto in net_static
-    for(JsonPair array: static_config){
-      if(row>=4) break;
+    for(int row = 0; row<4; row++){
       int column=0;
-      // per ogni elemento dell'array
-      for(JsonVariant settingN: array.value().as<JsonArray>()){
+      for(JsonVariant settingN: static_config[settingsKeys[row]].as<JsonArray>()){
         if(column>=4) break;
-        // salvo l'intero nella matrice
         settings[row][column] = settingN.as<int>();
         column++;
       }
-      row++;
     }
 
     Serial.println("Configurazione statica...");
