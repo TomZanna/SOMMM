@@ -73,6 +73,7 @@
 
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
+#include "AsyncJson.h"
 
 #include "FS.h"
 #include "SPIFFS.h"
@@ -90,7 +91,7 @@ AsyncWebServer server(1518); // settaggio server sulla porta 1518
 // FUNZIONI DEFINITE INIZIALMENTE PER POI ESSERE IMPLEMENTATE
 
 void dithering(int sx, int sy, int w, int h, int percent, int size); // funzione per la gestione delle tonalià di grigio dei quadrati
-void save_json(AsyncWebServerRequest *richiesta);
+void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json);
 void startup();                        // funzione di sturtup
 void access_point();                   // funzione per la comunicazione di accesss point
 void tabella();                        // funzione per il disegno della tabella principale
@@ -113,7 +114,7 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
-const String version = "v2.2.0.1 x32";
+const String version = "v2.2.1.0 x32";
 
 //CREDENZIALI WEB
 
@@ -129,11 +130,9 @@ int httpCode = 0;
 const char *net_ssid = "";
 const char *net_pswd = "";
 const char *api_url = "";
-const char *aula = "";
 String aula_id = "";
 
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
-
 
 String getData, Link, file_config;
 
@@ -194,41 +193,36 @@ void setup()
   // vado a settare le variabili coi valori caricati dalla memoria
 
   net_ssid = jsonRead["net_ssid"];
-  net_pswd = jsonRead["net_pswd"];
+  File pswdFile = SPIFFS.open("/passwd.txt", "r");
+  String tempStr = pswdFile.readStringUntil('\n');
+  net_pswd = tempStr.c_str();
+  pswdFile.close();
   api_url = jsonRead["api_url"];
-  aula = jsonRead["aula"];
-  aula_id = String(aula); // Per API raggiungibile a /info
+  aula_id = jsonRead["aula"].as<String>(); // Per API raggiungibile a /info
 
-  // static config nel json DEVE essere una stringa
-  bool static_config = atoi(jsonRead["net_static"]);
+  // Solo se viene richiesto l'ip statico processo i dati
+  JsonObject static_config = jsonRead["net_static"].as<JsonObject>();
+  if (!static_config.isNull()) {
+    // Memorizzo le chiavi così la matrice sarà sempre nello stesso ordine
+    const char *settingsKeys[] = {"net_ip", "net_sm", "net_dfgw", "net_dns"};
 
-  if (static_config) {
-    int ip[4], dns[4], default_gw[4], subnet_m[4];
-    ip[0] = jsonRead["net_ip_0"];
-    ip[1] = jsonRead["net_ip_1"];
-    ip[2] = jsonRead["net_ip_2"];
-    ip[3] = jsonRead["net_ip_3"];
-
-    subnet_m[0] = jsonRead["net_sm_0"];
-    subnet_m[1] = jsonRead["net_sm_1"];
-    subnet_m[2] = jsonRead["net_sm_2"];
-    subnet_m[3] = jsonRead["net_sm_3"];
-
-    default_gw[0] = jsonRead["net_dfgw_0"];
-    default_gw[1] = jsonRead["net_dfgw_1"];
-    default_gw[2] = jsonRead["net_dfgw_2"];
-    default_gw[3] = jsonRead["net_dfgw_3"];
-
-    dns[0] = jsonRead["net_dns_0"];
-    dns[1] = jsonRead["net_dns_1"];
-    dns[2] = jsonRead["net_dns_2"];
-    dns[3] = jsonRead["net_dns_3"];
+    // Copio le impostazioni in una matrice contenente nell'ordine 
+    // indirizzo ip, subnet mask, default gateway e dns 
+    uint8_t settings[4][4];
+    for(int row = 0; row<4; row++){
+      int column=0;
+      for(JsonVariant settingN: static_config[settingsKeys[row]].as<JsonArray>()){
+        if(column>=4) break;
+        settings[row][column] = settingN.as<int>();
+        column++;
+      }
+    }
 
     Serial.println("Configurazione statica...");
-    IPAddress ip_addr(ip[0], ip[1], ip[2], ip[3]);
-    IPAddress sm_addr(subnet_m[0], subnet_m[1], subnet_m[2], subnet_m[3]);
-    IPAddress gw_addr(default_gw[0], default_gw[1], default_gw[2], default_gw[3]);
-    IPAddress dns_addr(dns[0], dns[1], dns[2], dns[3]);
+    IPAddress ip_addr(settings[0]);
+    IPAddress sm_addr(settings[1]);
+    IPAddress gw_addr(settings[2]);
+    IPAddress dns_addr(settings[3]);
 
     Serial.println(ip_addr);
     Serial.println(sm_addr);
@@ -284,14 +278,12 @@ void setup()
       request->send(response);
     });
 
-    server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
-      save_json(request);
-    });
-
+    server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
     server.serveStatic("/error_log", SPIFFS, "/log.txt");
+    server.serveStatic("/config", SPIFFS, "/config.json");
     server.begin(); //Faccio partire il server
 
     // Port defaults to 3232
@@ -367,13 +359,12 @@ void setup()
       request->send(response);
     });
 
-    server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
-      save_json(request);
-    });
+    server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
     server.serveStatic("/img", SPIFFS, "/img");
     server.serveStatic("/css", SPIFFS, "/css");
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
     server.serveStatic("/error_log", SPIFFS, "/log.txt");
+    server.serveStatic("/config", SPIFFS, "/config.json");
     server.begin(); // Faccio partire il server
   }
 
@@ -963,87 +954,38 @@ void error_page(String codice_errore)
   } while (display.nextPage());
 }
 
-void save_json(AsyncWebServerRequest *richiesta)
-{
-  if (!SPIFFS.begin()) // controllo di aver accesso al filesystem
-  {
+void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json) {
+  if (!SPIFFS.begin()) { // controllo di aver accesso al filesystem
     // Se viene visualizzato c'è un problema al filesystem
     richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
 
     Serial.println("SPIFFS2 Mount failed");
     error_page("Errore caricamento File System");
     return;
-  }
-  else
-  { // File system correttamente caricato
-    Serial.println("SPIFFS2 Mount succesfull");
-  }
-
-  File file_conf_saved = SPIFFS.open("/config.json", "r"); // Apro il file in modalità lettura
-
-  DynamicJsonDocument json(1024); // creo secondo buffer
-  String conf_read_file = file_conf_saved.readStringUntil('\n');
-
-  DeserializationError errorConf = deserializeJson(json, conf_read_file);
-  if (errorConf)
-  {
-    richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
-    Serial.print("deserializeJson() line916 failed: ");
-    Serial.println(errorConf.c_str());
-    Serial.println("Impossibile leggere la configurazione");
-    error_page("Errore lettura JSON configurazione");
-    return;
-  }
-  else
-  {
-    Serial.println("Configurazione attuale caricata correttamente");
-    serializeJson(json, Serial);
-    Serial.println("");
-  }
-
-  // #######################################################
-  // controllo e salvataggio dei dati in caso di cambiamento
-  // #######################################################
-
-  const String param[21] = {"net_ssid", "net_pswd", "api_url", "aula", "net_static", "net_ip_0", "net_ip_1", "net_ip_2", "net_ip_3", "net_dns_0", "net_dns_1", "net_dns_2", "net_dns_3", "net_sm_0", "net_sm_1", "net_sm_2", "net_sm_3", "net_dfgw_0", "net_dfgw_1", "net_dfgw_2", "net_dfgw_3"};
-
-  for (int i = 0; i < 21; i++)
-  {
-    if (richiesta->hasParam(param[i], true))
-    {
-      AsyncWebParameter *p = richiesta->getParam(param[i], true);
-      if (p->value() != "")
-      {
-        json[param[i]] = p->value();
-        Serial.print(p->value());
-        Serial.println(" writed");
-      }
-    }
-  }
+  } else Serial.println("SPIFFS2 Mount succesfull");
 
   canRequest = false;
-
-  delay(100); // aspetto che tutto sia correttamente settato e poi scrivo
 
   if (!richiesta->authenticate(www_username, www_password))
     return richiesta->requestAuthentication();
 
-  File save = SPIFFS.open("/config.json", "w"); // Apro il file in modalità scrittura
+  if(json["net_pswd"]!="") {
+    // salvo la password su un file non accessibile dalla rete
+    File pswdFile = SPIFFS.open("/passwd.txt", "w");
+    pswdFile.printf("%s\n",json["net_pswd"].as<char *>());
+    pswdFile.close();
+  }
+  json["net_pswd"]="x"; // la password non deve essere esposta all'esterno
 
-  delay(200);
-  serializeJson(json, save);   // salvo la nuova configurazione
+  File configFile = SPIFFS.open("/config.json", "w");
+  serializeJson(json, configFile);   // salvo la nuova configurazione
   serializeJson(json, Serial); // stampo la nuova configurazione
 
-  // chiudo il file di salvataggio e chiudo anche la connessione col FileSystem; posso ora riavviare anche a fronte di errori
-
-  save.close();
+  configFile.close();
   SPIFFS.end();
 
-  // reboot_page(); causa bug e successivo reboot (cause ancora sconosciute :>( )
-
-  richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM."); // messaggio di callback per client web
-
-  // ora il reboot software funziona senza danneggiare la memoria
+  // messaggio di callback per client web
+  richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM.");
   ESP.restart();
 }
 
