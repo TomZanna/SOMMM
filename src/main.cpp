@@ -61,7 +61,6 @@
 #include <ArduinoOTA.h>
 
 #define ENABLE_GxEPD2_GFX 1
-#include <GxEPD2_3C.h>
 #include <GxEPD2_BW.h>
 
 #include <WiFi.h>
@@ -475,15 +474,8 @@ void startup()
   display.firstPage();
   do
   {
-    if (display.epd2.hasColor)
-    {
-      display.fillScreen(GxEPD_RED);
-    }
-    else
-    {
-      display.fillScreen(GxEPD_WHITE);
-      dithering(0, 0, 640, 384, 25, 1);
-    }
+    display.fillScreen(GxEPD_WHITE);
+    dithering(0, 0, 640, 384, 25, 1);
 
     // LOGO IN 3D
     display.drawBitmap(145, 144, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
@@ -517,15 +509,8 @@ void access_point()
   display.firstPage();
   do
   {
-    if (display.epd2.hasColor)
-    {
-      display.fillScreen(GxEPD_RED);
-    }
-    else
-    {
-      display.fillScreen(GxEPD_WHITE);
-      dithering(0, 0, 640, 384, 25, 1);
-    }
+    display.fillScreen(GxEPD_WHITE);
+    dithering(0, 0, 640, 384, 25, 1);
 
     // LOGO SMALLL IN 3D
     display.drawBitmap(468, 10, gImage_s_shadow, 163, 45, GxEPD_BLACK); // shadow
@@ -559,7 +544,7 @@ void access_point()
     display.setFont(&FreeSans12pt7b);
     display.setCursor(15, 150);
 
-    display.epd2.hasColor ? display.setTextColor(GxEPD_WHITE) : display.setTextColor(GxEPD_BLACK);
+    display.setTextColor(GxEPD_BLACK);
 
     display.print("Connettersi alla rete \"" + random_id + "\" e aprire il browser.");
     display.setCursor(15, 175);
@@ -695,7 +680,7 @@ void tabella()
     //                    LATO DESTRO DEL DISPLAY
     //----------------------------------------------------------------------
 
-    display.epd2.hasColor ? display.fillRect(335, 0, 305, 60, GxEPD_RED) : dithering(335, 0, 305, 60, 50, 1);
+    dithering(335, 0, 305, 60, 50, 1);
 
     // LOGO SMALLL IN 3D
     display.drawBitmap(468, 5, gImage_s_shadow, 163, 45, GxEPD_BLACK); // shadow
@@ -731,13 +716,9 @@ void tabella()
         display.println(j + 1);
 
         if (j + 1 == oraAttuale)
-        {
-          display.epd2.hasColor ? display.fillRect(340, pos_y[j], 15, 5, GxEPD_RED) : display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
-        }
+          display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
         else
-        {
           display.drawRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
-        }
 
         display.setFont(&FreeSans9pt7b);
 
@@ -814,8 +795,6 @@ void tabella()
     // ---------------------------------------------------------------------
     //                    LATO SINISTRO DEL DISPLAY
     // ----------------------------------------------------------------------
-
-    //display.setTextColor(display.epd2.hasColor ? GxEPD_WHITE : GxEPD_BLACK);
 
     dithering(0, 0, 335, 331, 75, 1); // SFONDO GRIGIO 75%
     display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
@@ -900,15 +879,8 @@ void reboot_page()
   display.firstPage();
   do
   {
-    if (display.epd2.hasColor)
-    {
-      display.fillScreen(GxEPD_RED);
-    }
-    else
-    {
-      display.fillScreen(GxEPD_WHITE);
-      dithering(0, 0, 640, 384, 25, 1);
-    }
+    display.fillScreen(GxEPD_WHITE);
+    dithering(0, 0, 640, 384, 25, 1);
 
     display.setTextColor(GxEPD_BLACK);
     display.setFont(&FreeSans12pt7b);
