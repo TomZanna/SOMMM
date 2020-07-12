@@ -55,27 +55,20 @@
  */
 
 #include <Arduino.h>
-#include <images.h>
-#include <ESPmDNS.h>
-#include <WiFiUdp.h>
+#include "images.h"
+#include <SPIFFS.h>
+
 #include <ArduinoOTA.h>
 
 #define ENABLE_GxEPD2_GFX 1
 #include <GxEPD2_BW.h>
 
 #include <WiFi.h>
-#include <WiFiMulti.h>
-
 #include <HTTPClient.h>
-
-#include <WiFiClient.h>
-
 #include <ESPAsyncWebServer.h>
-#include <ArduinoJson.h>
-#include "AsyncJson.h"
 
-#include "FS.h"
-#include "SPIFFS.h"
+#include <ArduinoJson.h>
+#include <AsyncJson.h>
 
 // Font di varia grandezza per il display
 #include <Fonts/FreeSans9pt7b.h>
