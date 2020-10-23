@@ -271,9 +271,7 @@ void setup()
     });
 
     server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
-    server.serveStatic("/img", SPIFFS, "/img");
-    server.serveStatic("/css", SPIFFS, "/css");
-    server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+    server.serveStatic("/", SPIFFS, "/html/").setDefaultFile("index.html");
     server.serveStatic("/error_log", SPIFFS, "/log.txt");
     server.serveStatic("/config", SPIFFS, "/config.json");
     server.begin(); //Faccio partire il server
@@ -352,9 +350,7 @@ void setup()
     });
 
     server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
-    server.serveStatic("/img", SPIFFS, "/img");
-    server.serveStatic("/css", SPIFFS, "/css");
-    server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+    server.serveStatic("/", SPIFFS, "/html/").setDefaultFile("index.html");
     server.serveStatic("/error_log", SPIFFS, "/log.txt");
     server.serveStatic("/config", SPIFFS, "/config.json");
     server.begin(); // Faccio partire il server
