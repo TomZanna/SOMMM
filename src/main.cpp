@@ -55,13 +55,9 @@
  */
 
 #include <Arduino.h>
-#include "images.h"
 #include <SPIFFS.h>
 
 #include <ArduinoOTA.h>
-
-#define ENABLE_GxEPD2_GFX 1
-#include <GxEPD2_BW.h>
 
 #include <WiFi.h>
 #include <HTTPClient.h>
@@ -70,26 +66,13 @@
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
 
-// Font di varia grandezza per il display
-#include <Fonts/FreeSans9pt7b.h>
-#include <Fonts/FreeSans12pt7b.h>
-#include <Fonts/FreeSans18pt7b.h>
-#include <Fonts/FreeSansBold9pt7b.h>
-
-GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT> display(GxEPD2_750(/*CS=*/15, /*DC=*/27, /*RST=*/26, /*BUSY=*/25));
+#include "page/Page.hpp"
 
 AsyncWebServer server(1518); // settaggio server sulla porta 1518
 
 // FUNZIONI DEFINITE INIZIALMENTE PER POI ESSERE IMPLEMENTATE
-
-void dithering(int sx, int sy, int w, int h, int percent, int size); // funzione per la gestione delle tonalià di grigio dei quadrati
 void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json);
-void startup();                        // funzione di sturtup
-void access_point();                   // funzione per la comunicazione di accesss point
 void tabella();                        // funzione per il disegno della tabella principale
-void reboot_page();                    // funzione per il disegno della pagina di salvataggio e reboot
-void error_page(String codice_errore); // funzione per il disegno della pagina di errore con codice errore
-void not_school(String frase);         // funzione per il disegno della pagina dove avvisiamoche non c'è scuola
 void log_error(String error_m);        // funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
@@ -130,27 +113,26 @@ String getData, Link, file_config;
 
 HTTPClient http;
 
+GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT> display(GxEPD2_750(15, 27, 26, 25));
+PageSystem page(display);
+
 void setup()
 {
 
-  // parte iniziale per il display e la seriale
+  // parte iniziale per la seriale
   Serial.begin(115200);
   Serial.println();
   Serial.println("SOMMM STARTUP");
   delay(100);
-  display.init(115200);
+  page.initDisplay();
 
-  SPI.end(); // release standard SPI pins, e.g. SCK(18), MISO(19), MOSI(23), SS(5)
-  //SPI: void begin(int8_t sck=-1, int8_t miso=-1, int8_t mosi=-1, int8_t ss=-1);
-  SPI.begin(13, 12, 14, 15); // map and init SPI pins SCK(13), MISO(12), MOSI(14), SS(15)
+  page.startup(version);
 
-  startup();
   // Monto il mio SPIFFS File System
-
   if (!SPIFFS.begin())
   {
     Serial.println("File system non montato ");
-    error_page("Errore caricamento File System");
+    page.error("Errore caricamento File System");
   }
   else
   {
@@ -172,7 +154,7 @@ void setup()
     Serial.print("deserializeJson() line168 failed: ");
     Serial.println(errorRead.c_str());
     Serial.println("Impossibile leggere la configurazione");
-    error_page("Errore lettura JSON configurazione");
+    page.error("Errore lettura JSON configurazione");
     return;
   }
   else
@@ -341,7 +323,7 @@ void setup()
 
     Serial.println("Access Point Mode");
     Serial.println(WiFi.softAPIP());
-    access_point();
+    page.access_point(random_id);
 
     server.on("/info", HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", aula_id);
@@ -378,178 +360,6 @@ void loop()
   }
 }
 
-void dithering(int sx, int sy, int w, int h, int percent, int size)
-{
-  switch (percent)
-  {
-  // 75% (DARK GREY)
-  case (75):
-
-    for (int y = sy; y < sy + h; y++)
-    {
-      for (int x = sx; x < sx + w; x++)
-      {
-        display.fillRect(x, y, size, size, (y % 2 == 0) ? ((x % 2 == 0) ? GxEPD_WHITE : GxEPD_BLACK) : GxEPD_BLACK);
-      }
-    }
-    break;
-
-  // 50% (MIDDLE GREY)
-  case (50):
-
-    for (int y = sy; y < sy + h; y++)
-    {
-      for (int x = sx; x < sx + w; x++)
-      {
-        display.fillRect(x, y, size, size, (y % 2 == 0) ? ((x % 2 == 0) ? GxEPD_WHITE : GxEPD_BLACK) : ((x % 2 == 0) ? GxEPD_BLACK : GxEPD_WHITE));
-      }
-    }
-    break;
-
-    // 25% (DARK GREY)
-  case (25):
-
-    for (int y = sy; y < sy + h; y++)
-    {
-      for (int x = sx; x < sx + w; x++)
-      {
-        display.fillRect(x, y, size, size, (y % 2 == 0) ? GxEPD_WHITE : ((x % 2 == 0) ? GxEPD_BLACK : GxEPD_WHITE));
-      }
-    }
-    break;
-  }
-}
-
-void not_school(String frase)
-{
-  display.setRotation(0);
-  display.setFullWindow();
-  display.firstPage();
-  do
-  {
-    display.fillScreen(GxEPD_WHITE);
-    display.setFont(&FreeSans18pt7b);
-    display.setTextColor(GxEPD_BLACK);
-
-    // LOGO SMALLL IN 3D
-    display.drawBitmap(468, 5, gImage_s_shadow, 163, 45, GxEPD_BLACK); // shadow
-    display.drawBitmap(468, 5, gImage_s_text, 163, 45, GxEPD_WHITE);   // text
-
-    display.setCursor(55, 135);
-    display.println(frase);
-    display.setFont(&FreeSans12pt7b);
-    display.setCursor(55, 170);
-    display.println("Il team SOMMM vi augura una buona giornata!");
-
-    display.setFont(&FreeSans9pt7b);
-
-    display.setCursor(55, 200);
-    display.println("developed by V. Annunziata, R. Bussola, F. Cucino ");
-
-    display.drawBitmap(211, 277, gImage_dev, 224, 107, GxEPD_BLACK);
-
-  } while (display.nextPage());
-}
-
-/**
- * ---------------------------------------------------------------------------------------------
- *  Funzione che gestisce la schermata di accensione del SOMMM
- * 
- */
-void startup()
-{
-  display.setRotation(0);
-  display.setFullWindow();
-  display.firstPage();
-  do
-  {
-    display.fillScreen(GxEPD_WHITE);
-    dithering(0, 0, 640, 384, 25, 1);
-
-    // LOGO IN 3D
-    display.drawBitmap(145, 144, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
-    display.drawBitmap(145, 144, gImage_sommm_text, 350, 95, GxEPD_WHITE);   //text
-
-    display.setFont(&FreeSans12pt7b);
-    display.setCursor(142, 297);
-    display.setTextColor(GxEPD_BLACK);
-    display.println("The new way to manage your time");
-
-    display.setCursor(10, 25);
-    display.println(version);
-
-    //------shadow
-    display.setCursor(140, 295);
-    display.setTextColor(GxEPD_WHITE);
-    display.println("The new way to manage your time");
-
-  } while (display.nextPage());
-}
-
-/**
- * ---------------------------------------------------------------------------------------------
- *  Funzione per la comunicazione dell'access_point
- * 
- */
-void access_point()
-{
-  display.setRotation(0);
-  display.setFullWindow();
-  display.firstPage();
-  do
-  {
-    display.fillScreen(GxEPD_WHITE);
-    dithering(0, 0, 640, 384, 25, 1);
-
-    // LOGO SMALLL IN 3D
-    display.drawBitmap(468, 10, gImage_s_shadow, 163, 45, GxEPD_BLACK); // shadow
-    display.drawBitmap(468, 10, gImage_s_text, 163, 45, GxEPD_WHITE);   // text
-
-    // CHROME TAB (fatta di primitive; paurissima)
-
-    dithering(175, 295, 145, 50, 50, 1);
-    display.fillRect(0, 324, 640, 60, GxEPD_BLACK);         // base della scheda
-    display.fillRoundRect(0, 285, 175, 60, 5, GxEPD_BLACK); // indicatore tab principlae
-    display.fillRoundRect(25, 340, 450, 30, 100, GxEPD_WHITE);
-
-    display.setFont(&FreeSans12pt7b);
-    display.setCursor(35, 313);
-    display.setTextColor(GxEPD_WHITE);
-    display.print("SOMMM");
-
-    display.setCursor(35, 363);
-    display.setTextColor(GxEPD_BLACK);
-    display.print("192.168.4.1");
-
-    // Scritta Guida
-
-    // Titolo
-
-    display.setFont(&FreeSans18pt7b);
-    display.setCursor(15, 110);
-    display.setTextColor(GxEPD_BLACK);
-    display.print("Configurazione");
-
-    display.setFont(&FreeSans12pt7b);
-    display.setCursor(15, 150);
-
-    display.setTextColor(GxEPD_BLACK);
-
-    display.print("Connettersi alla rete \"" + random_id + "\" e aprire il browser.");
-    display.setCursor(15, 175);
-    display.print("Digitare 192.168.4.1 e compilare i vari campi.");
-    display.setCursor(15, 200);
-    display.print("Premere Salva e aspettare la conferma dal device;");
-    display.setCursor(15, 225);
-    display.print("una volta ricevuta la conferma riavviare il sistema.");
-
-  } while (display.nextPage());
-}
-
-/**
- * -----------------------------------------------------------------------------------------
- *    Funzione che gestisce la tabella orario del SOMMM
- */
 void tabella()
 {
   // CREO LA RICHIESTA ALLE API
@@ -570,7 +380,7 @@ void tabella()
 
   if (httpCode < 0)
   {
-    error_page("Errore di connessione, verifica la rete");
+    page.error("Errore di connessione, verifica la rete");
     log_error("Codice http -> " + String(httpCode));
     delay(5000);
     ESP.restart();
@@ -607,7 +417,7 @@ void tabella()
   const char *today_matrix[10][5];
 
   if (oggi.size() == 0) {
-    not_school("Oggi non c'e` scuola, buon riposo ;P");
+    page.not_school("Oggi non c'e` scuola, buon riposo ;P");
     return;
   }
   {
@@ -657,262 +467,7 @@ void tabella()
     }
   }
 
-  display.setRotation(0);
-  display.setFullWindow();
-  display.firstPage();
-
-  do
-  {
-    display.fillScreen(GxEPD_WHITE);
-
-    // ---------------------------------------------------------------------
-    //                    LATO DESTRO DEL DISPLAY
-    //----------------------------------------------------------------------
-
-    dithering(335, 0, 305, 60, 50, 1);
-
-    // LOGO SMALLL IN 3D
-    display.drawBitmap(468, 5, gImage_s_shadow, 163, 45, GxEPD_BLACK); // shadow
-    display.drawBitmap(468, 5, gImage_s_text, 163, 45, GxEPD_WHITE);   // text
-
-    // Scrivo la stanza
-
-    display.setFont(&FreeSans18pt7b);
-    display.setTextColor(GxEPD_WHITE);
-
-    display.setCursor(363, 42);
-    display.println(stanza);
-
-    // Disegno i separatori
-
-    display.fillRoundRect(355, 115, 280, 2, 10, GxEPD_BLACK);
-    display.fillRoundRect(355, 170, 280, 2, 10, GxEPD_BLACK);
-    display.fillRoundRect(355, 225, 280, 2, 10, GxEPD_BLACK);
-    display.fillRoundRect(355, 280, 280, 2, 10, GxEPD_BLACK);
-    display.fillRoundRect(355, 335, 280, 2, 10, GxEPD_BLACK);
-
-    int pos_y[6] = {100, 153, 205, 260, 315, 368};
-    display.setTextColor(GxEPD_BLACK);
-
-    if (oraAttuale != 0 && oraAttuale < 5)
-    { // mostro le prime 6 ore
-
-      for (int j = 0; j < 6; j++)
-      {
-        display.setFont(&FreeSans9pt7b);
-
-        display.setCursor(342, 90 + (53 * j) + j);
-        display.println(j + 1);
-
-        if (j + 1 == oraAttuale)
-          display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
-        else
-          display.drawRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
-
-        display.setFont(&FreeSans9pt7b);
-
-        display.setCursor(363, 110 + (53 * j) + j);
-        display.println(today_matrix[j][1]); // primo professore
-
-        display.setCursor(363, 85 + (53 * j) + j);
-        display.println(today_matrix[j][2]); // secondo professore
-
-        display.setFont(&FreeSans9pt7b);
-
-        display.setCursor(510, 110 + (53 * j) + j);
-        display.println(today_matrix[j][3]); // Materia
-
-        display.setFont(&FreeSans18pt7b);
-
-        display.setCursor(566, 110 + (53 * j) + j);
-        display.println(today_matrix[j][4]); // Classe
-      }
-    }
-    if (oraAttuale != 0 && oraAttuale >= 5)
-    { // mostro le ultime 6 ore
-
-      for (int j = 4; j < 10; j++)
-      {
-
-        display.setFont(&FreeSans9pt7b);
-
-        display.setCursor(342, 90 + (53 * (j - 4)) + j);
-        if (j + 1 == 10)
-        {
-          display.println('X');
-        }
-        else
-        {
-          display.println((j) + 1);
-        }
-
-        if (j + 1 == oraAttuale)
-        {
-          display.fillRect(340, pos_y[j - 4], 15, 5, GxEPD_BLACK);
-        }
-        else
-        {
-          display.drawRect(340, pos_y[j - 4], 15, 5, GxEPD_BLACK);
-        }
-
-        display.setFont(&FreeSans9pt7b);
-
-        display.setCursor(363, 110 + (53 * (j - 4)) + j - 4);
-        display.println(today_matrix[j][1]); // primo professore
-
-        display.setCursor(363, 85 + (53 * (j - 4)) + j - 4);
-        display.println(today_matrix[j][2]); // secondo professore
-
-        display.setFont(&FreeSans9pt7b);
-
-        display.setCursor(510, 110 + (53 * (j - 4)) + j - 4);
-        display.println(today_matrix[j][3]); // Materia
-
-        display.setFont(&FreeSans18pt7b);
-
-        display.setCursor(566, 110 + (53 * (j - 4)) + j - 4);
-        display.println(today_matrix[j][4]); // Classe
-      }
-    }
-    else if (oraAttuale == 0 && httpCode != -1)
-    { // Giornata terminata
-
-      not_school("La giornata scolastica e` terminata.");
-      return;
-    }
-
-    // ---------------------------------------------------------------------
-    //                    LATO SINISTRO DEL DISPLAY
-    // ----------------------------------------------------------------------
-
-    dithering(0, 0, 335, 331, 75, 1); // SFONDO GRIGIO 75%
-    display.drawFastVLine(335, 0, 331, GxEPD_BLACK);
-    display.drawFastVLine(335, 332, 53, GxEPD_BLACK);
-
-    // GRIGLIA GIORNI
-
-    display.setFont(&FreeSans12pt7b);
-    display.setTextColor(GxEPD_WHITE);
-
-    // Indicatore di ore dei vari giorni
-
-    for (int i = 0; i < 6; i++)
-    {
-      display.setCursor(7, 52 + (50 * i));
-      display.println(i + 1);
-    }
-
-    // Nome dei giorni
-    display.setFont(&FreeSans9pt7b);
-    String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
-
-    for (int i = 0; i < 6; i++)
-    {
-      display.setCursor(33 + ((48 * i) + i * 2), 18);
-      display.println(gior_name[i]);
-    }
-
-    for (int j = 0; j < 6; j++)
-    {
-      for (int i = 0; i < 6; i++)
-      {
-        display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
-        display.fillRoundRect(31 + (50 * j), 26 + (50 * i), 45, 45, 5, GxEPD_WHITE);
-      }
-    }
-
-    if (giorno_settimana != -1)
-    {
-      for (int i = 0; i < 6; i++)
-      {
-
-        display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
-        display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
-      };
-    }
-    display.setFont(&FreeSans9pt7b);
-
-    for (int i = 0; i < 6; i++)
-    {
-      for (int j = 0; j < 6; j++)
-      {
-        display.setCursor(35 + (50 * j), 55 + (50 * i));
-        if (giorno_settimana == j && giorno_settimana != -1)
-        {
-          display.setTextColor(GxEPD_WHITE);
-        }
-        else
-        {
-          display.setTextColor(GxEPD_BLACK);
-        }
-        display.println(settimana_matrix[j][i]); // Settimana giorno per giorno
-      }
-    }
-
-    display.setTextColor(GxEPD_BLACK);
-
-    // Parte sotto del giorno
-    display.setFont(&FreeSans12pt7b);
-
-    display.setCursor(8, 365);
-    display.println(giorno); // info giorno
-
-  } while (display.nextPage());
-}
-
-void reboot_page()
-{
-
-  display.setRotation(0);
-  display.setFullWindow();
-  display.firstPage();
-  do
-  {
-    display.fillScreen(GxEPD_WHITE);
-    dithering(0, 0, 640, 384, 25, 1);
-
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(&FreeSans12pt7b);
-    display.setCursor(50, 180);
-    display.println("Attendere la conferma dalla pagina web;");
-    display.setCursor(50, 210);
-    display.println("successivamente riavviare il dispositivo per");
-    display.setCursor(50, 240);
-    display.println("caricare le nuove impostazioni.");
-
-    // LOGO IN 3D
-    display.drawBitmap(50, 50, gImage_sommm_shadow, 350, 95, GxEPD_BLACK); //shadow
-    display.drawBitmap(50, 50, gImage_sommm_text, 350, 95, GxEPD_WHITE);   //text
-
-    display.fillRoundRect(550, 62, 65, 260, 10, GxEPD_WHITE);
-    display.drawBitmap(550, 62, gImage_reboot, 65, 260, GxEPD_BLACK);
-
-  } while (display.nextPage());
-}
-
-void error_page(String codice_errore)
-{
-  display.setRotation(0);
-  display.setFullWindow();
-  display.firstPage();
-  do
-  {
-    display.fillScreen(GxEPD_WHITE);
-
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(&FreeSans12pt7b);
-
-    dithering(0, 0, 640, 384, 25, 1);
-    display.drawChar(140, 150, 'X', GxEPD_BLACK, GxEPD_WHITE, 4);
-    display.drawChar(440, 150, 'X', GxEPD_BLACK, GxEPD_WHITE, 4);
-
-    display.setCursor(80, 250);
-    display.println("Ops! Sembra che qualcosa sia andato storto!");
-    display.setCursor(100, 285);
-    display.println(codice_errore);
-    log_error(codice_errore + String(", WiFi status: ") + String(wifi_stat(WiFi.status())));
-
-  } while (display.nextPage());
+  page.tabella(giorno_settimana, oraAttuale, stanza, giorno, today_matrix, settimana_matrix);
 }
 
 void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json) {
@@ -921,7 +476,7 @@ void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json) {
     richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
 
     Serial.println("SPIFFS2 Mount failed");
-    error_page("Errore caricamento File System");
+    page.error("Errore caricamento File System");
     return;
   } else Serial.println("SPIFFS2 Mount succesfull");
 
