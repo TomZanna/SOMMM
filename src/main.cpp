@@ -932,26 +932,18 @@ void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json) {
 
 void log_error(String error_m)
 {
-  File log_file;
-  log_file = SPIFFS.open("/log.txt", "a");
+  File log_file = SPIFFS.open("/log.txt", "a");
 
-  //Serial.print("Dimensione file di log: ");
-  long f_size = log_file.size();
-  //Serial.println(f_size);
+  const size_t f_size = log_file.size();
+  Serial.printf("Dimensione file di log: %d\n", f_size);
 
   if (f_size > 1000 /* 1000 byte */)
   {
     log_file.close();
-
-    log_file = SPIFFS.open("/log.txt", "w"); // reset del file
-    log_file.println("");
-    log_file.close();
-
-    log_file = SPIFFS.open("/log.txt", "a");
+    log_file = SPIFFS.open("/log.txt", "w"); // sovrascrivo il contenuto del file
   }
 
-  log_file.println((String(millis()) + " -> error: " + error_m).c_str());
-
+  log_file.printf("%lu -> error: %s\n", millis(), error_m.c_str());
   log_file.close();
 }
 
