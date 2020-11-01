@@ -86,6 +86,7 @@ void dithering(int sx, int sy, int w, int h, int percent, int size); // funzione
 void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json);
 void startup();                        // funzione di sturtup
 void access_point();                   // funzione per la comunicazione di accesss point
+void setup_server();
 void tabella();                        // funzione per il disegno della tabella principale
 void reboot_page();                    // funzione per il disegno della pagina di salvataggio e reboot
 void error_page(String codice_errore); // funzione per il disegno della pagina di errore con codice errore
@@ -263,18 +264,7 @@ void setup()
 
     http.begin(http_address); // configuro e avvio http sul'url precedentemente dichiarato
 
-    // Dichiaro la struttura del mio filesystem in modo da caricare i file archiviati con SPIFFS
-    server.on("/info", HTTP_GET, [](AsyncWebServerRequest *request) {
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", aula_id);
-      response->addHeader("Access-Control-Allow-Origin", "*");
-      request->send(response);
-    });
-
-    server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
-    server.serveStatic("/", SPIFFS, "/html/").setDefaultFile("index.html");
-    server.serveStatic("/error_log", SPIFFS, "/log.txt");
-    server.serveStatic("/config", SPIFFS, "/config.json");
-    server.begin(); //Faccio partire il server
+    setup_server();
 
     // Port defaults to 3232
     ArduinoOTA.setPort(1815);
@@ -343,17 +333,7 @@ void setup()
     Serial.println(WiFi.softAPIP());
     access_point();
 
-    server.on("/info", HTTP_GET, [](AsyncWebServerRequest *request) {
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", aula_id);
-      response->addHeader("Access-Control-Allow-Origin", "*");
-      request->send(response);
-    });
-
-    server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
-    server.serveStatic("/", SPIFFS, "/html/").setDefaultFile("index.html");
-    server.serveStatic("/error_log", SPIFFS, "/log.txt");
-    server.serveStatic("/config", SPIFFS, "/config.json");
-    server.begin(); // Faccio partire il server
+    setup_server();
   }
 
   config_json_file.close();
@@ -973,4 +953,19 @@ void log_error(String error_m)
   log_file.println((String(millis()) + " -> error: " + error_m).c_str());
 
   log_file.close();
+}
+
+void setup_server()
+{
+  server.on("/info", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", aula_id);
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    request->send(response);
+  });
+
+  server.addHandler(new AsyncCallbackJsonWebHandler("/save", save_json));
+  server.serveStatic("/", SPIFFS, "/html/").setDefaultFile("index.html");
+  server.serveStatic("/error_log", SPIFFS, "/log.txt");
+  server.serveStatic("/config", SPIFFS, "/config.json");
+  server.begin(); // Faccio partire il server
 }
