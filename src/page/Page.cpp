@@ -221,91 +221,35 @@ void PageSystem::tabella(int giorno_settimana, int oraAttuale, const char *stanz
         int pos_y[6] = {100, 153, 205, 260, 315, 368};
         display.setTextColor(GxEPD_BLACK);
 
-        if (oraAttuale != 0 && oraAttuale < 5)
-        { // mostro le prime 6 ore
+        int offset = 0;
+        if (oraAttuale > 4)
+            offset = 4;
 
-            for (int j = 0; j < 6; j++)
-            {
-                display.setFont(&FreeSans9pt7b);
+        for (int j = 0; j < 6; j++)
+        {
+            display.setFont(&FreeSans9pt7b);
 
-                display.setCursor(342, 90 + (53 * j) + j);
-                display.println(j + 1);
+            display.setCursor(342, 90 + 54 * j);
+            display.println(j + 1);
 
-                if (j + 1 == oraAttuale)
-                    display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
-                else
-                    display.drawRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
+            if (j + 1 == oraAttuale)
+                display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK); // Evidenzio l'ora attuale
+            else
+                display.drawRect(340, pos_y[j], 15, 5, GxEPD_BLACK);
 
-                display.setFont(&FreeSans9pt7b);
+            display.setCursor(363, 110 + 54 * j);
+            display.println(today_matrix[j + offset][1]); // primo professore
 
-                display.setCursor(363, 110 + (53 * j) + j);
-                display.println(today_matrix[j][1]); // primo professore
+            display.setCursor(363, 85 + 54 * j);
+            display.println(today_matrix[j + offset][2]); // secondo professore
 
-                display.setCursor(363, 85 + (53 * j) + j);
-                display.println(today_matrix[j][2]); // secondo professore
+            display.setCursor(522, 110 + 54 * j);
+            display.println(today_matrix[j + offset][3]); // Materia
 
-                display.setFont(&FreeSans9pt7b);
+            display.setFont(&FreeSans18pt7b);
 
-                display.setCursor(510, 110 + (53 * j) + j);
-                display.println(today_matrix[j][3]); // Materia
-
-                display.setFont(&FreeSans18pt7b);
-
-                display.setCursor(566, 110 + (53 * j) + j);
-                display.println(today_matrix[j][4]); // Classe
-            }
-        }
-        if (oraAttuale != 0 && oraAttuale >= 5)
-        { // mostro le ultime 6 ore
-
-            for (int j = 4; j < 10; j++)
-            {
-
-                display.setFont(&FreeSans9pt7b);
-
-                display.setCursor(342, 90 + (53 * (j - 4)) + j);
-                if (j + 1 == 10)
-                {
-                    display.println('X');
-                }
-                else
-                {
-                    display.println((j) + 1);
-                }
-
-                if (j + 1 == oraAttuale)
-                {
-                    display.fillRect(340, pos_y[j - 4], 15, 5, GxEPD_BLACK);
-                }
-                else
-                {
-                    display.drawRect(340, pos_y[j - 4], 15, 5, GxEPD_BLACK);
-                }
-
-                display.setFont(&FreeSans9pt7b);
-
-                display.setCursor(363, 110 + (53 * (j - 4)) + j - 4);
-                display.println(today_matrix[j][1]); // primo professore
-
-                display.setCursor(363, 85 + (53 * (j - 4)) + j - 4);
-                display.println(today_matrix[j][2]); // secondo professore
-
-                display.setFont(&FreeSans9pt7b);
-
-                display.setCursor(510, 110 + (53 * (j - 4)) + j - 4);
-                display.println(today_matrix[j][3]); // Materia
-
-                display.setFont(&FreeSans18pt7b);
-
-                display.setCursor(566, 110 + (53 * (j - 4)) + j - 4);
-                display.println(today_matrix[j][4]); // Classe
-            }
-        }
-        else if (oraAttuale == 0)
-        { // Giornata terminata
-
-            not_school("La giornata scolastica e` terminata.");
-            return;
+            display.setCursor(573, 110 + 54 * j);
+            display.println(today_matrix[j + offset][4]); // Classe
         }
 
         // ---------------------------------------------------------------------

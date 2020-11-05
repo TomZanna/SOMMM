@@ -416,10 +416,16 @@ void tabella()
    */
   const char *today_matrix[10][5];
 
-  if (oggi.size() == 0) {
+  if (doc["oggi"].size() == 0) {
     page.not_school("Oggi non c'e` scuola, buon riposo ;P");
     return;
   }
+  else if (oraAttuale == 0) // Giornata terminata
+  {
+    page.not_school("La giornata scolastica e` terminata.");
+    return;
+  }
+
   {
     int row, column;
     row = 0;
