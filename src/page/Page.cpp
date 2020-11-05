@@ -266,56 +266,52 @@ void PageSystem::tabella(int giorno_settimana, int oraAttuale, const char *stanz
         display.setTextColor(GxEPD_WHITE);
 
         // Indicatore di ore dei vari giorni
-
-        for (int i = 0; i < 6; i++)
+        for (int ora = 0; ora < 6; ora++)
         {
-            display.setCursor(7, 52 + (50 * i));
-            display.println(i + 1);
+            display.setCursor(7, 52 + (50 * ora));
+            display.println(ora + 1);
         }
 
         // Nome dei giorni
         display.setFont(&FreeSans9pt7b);
-        String gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
+        const char *gior_name[6] = {"LUN", "MAR", "MER", "GIO", "VEN", "SAB"};
 
-        for (int i = 0; i < 6; i++)
+        for (int giorno = 0; giorno < 6; giorno++)
         {
-            display.setCursor(33 + ((48 * i) + i * 2), 18);
-            display.println(gior_name[i]);
+            display.setCursor(33 + 50 * giorno, 18);
+            display.println(gior_name[giorno]);
         }
 
-        for (int j = 0; j < 6; j++)
+        // Disegno la griglia
+        for (int giorno = 0; giorno < 6; giorno++)
         {
-            for (int i = 0; i < 6; i++)
+            if (giorno == giorno_settimana)
+                continue;
+            for (int ora = 0; ora < 6; ora++)
             {
-                display.fillRoundRect(30 + (50 * j), 25 + (50 * i), 47, 47, 5, GxEPD_BLACK);
-                display.fillRoundRect(31 + (50 * j), 26 + (50 * i), 45, 45, 5, GxEPD_WHITE);
+                display.fillRoundRect(30 + (50 * giorno), 25 + (50 * ora), 47, 47, 5, GxEPD_BLACK);
+                display.fillRoundRect(31 + (50 * giorno), 26 + (50 * ora), 45, 45, 5, GxEPD_WHITE);
             }
         }
 
-        if (giorno_settimana != -1)
+        // Evidenzio il giorno corrente
+        for (int ora = 0; ora < 6; ora++)
         {
-            for (int i = 0; i < 6; i++)
-            {
-
-                display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * i), 47, 47, 5, GxEPD_WHITE);
-                display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * i), 45, 45, 5, GxEPD_BLACK);
-            };
+            display.fillRoundRect(30 + (50 * giorno_settimana), 25 + (50 * ora), 47, 47, 5, GxEPD_WHITE);
+            display.fillRoundRect(31 + (50 * giorno_settimana), 26 + (50 * ora), 45, 45, 5, GxEPD_BLACK);
         }
-        display.setFont(&FreeSans9pt7b);
 
+        // Scrivo la classe in ogni ora del giorno
+        display.setFont(&FreeSans9pt7b);
         for (int i = 0; i < 6; i++)
         {
             for (int j = 0; j < 6; j++)
             {
                 display.setCursor(35 + (50 * j), 55 + (50 * i));
-                if (giorno_settimana == j && giorno_settimana != -1)
-                {
+                if (giorno_settimana == j)
                     display.setTextColor(GxEPD_WHITE);
-                }
                 else
-                {
                     display.setTextColor(GxEPD_BLACK);
-                }
                 display.println(settimana_matrix[j][i]); // Settimana giorno per giorno
             }
         }
