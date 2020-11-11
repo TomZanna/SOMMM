@@ -37,7 +37,7 @@ public:
      *  Funzione che gestisce la schermata di accensione del SOMMM
      * 
      */
-    void startup(String version);
+    void startup(const char *version);
 
     /**
      * ---------------------------------------------------------------------------------------------

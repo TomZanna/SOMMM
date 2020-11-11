@@ -87,7 +87,7 @@ void PageSystem::not_school(String frase)
  *  Funzione che gestisce la schermata di accensione del SOMMM
  * 
  */
-void PageSystem::startup(String version)
+void PageSystem::startup(const char *version)
 {
     display.setRotation(0);
     display.setFullWindow();

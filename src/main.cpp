@@ -90,27 +90,18 @@ enum wifi_stat
   MY_WL_DISCONNECTED = 6,
 };
 
-const String version = "v2.2.1.0 x32";
+const char *version = "v2.2.1.0 x32";
 
 //CREDENZIALI WEB
 
 const char *www_username = "SOMMM";
 const char *www_password = "laPasswordQui";
-String random_id = "SOMMM_";
 
 bool canRequest = false;
-const char *payload = ""; // payload come variabile globale
-int oraAttuale = 1;       // sisema di switch per le giornate con + di 6 ore
-int httpCode = 0;
 
-const char *net_ssid = "";
-const char *net_pswd = "";
-const char *api_url = "";
 String aula_id = "";
 
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
-
-String getData, Link, file_config;
 
 HTTPClient http;
 
@@ -144,7 +135,7 @@ void setup()
 
   File config_json_file = SPIFFS.open("/config.json", "r");
 
-  file_config = config_json_file.readStringUntil('\n'); // questo è il nostro config.js salvato su stringa
+  String file_config = config_json_file.readStringUntil('\n'); // questo è il nostro config.js salvato su stringa
 
   // Creo buffer JSON per la lettura del file config.json
   DynamicJsonDocument jsonRead(1024);
@@ -167,12 +158,12 @@ void setup()
 
   // vado a settare le variabili coi valori caricati dalla memoria
 
-  net_ssid = jsonRead["net_ssid"];
   File pswdFile = SPIFFS.open("/passwd.txt", "r");
-  String tempStr = pswdFile.readStringUntil('\n');
-  net_pswd = tempStr.c_str();
+  const String net_pswd = pswdFile.readStringUntil('\n');
   pswdFile.close();
-  api_url = jsonRead["api_url"];
+
+  const String net_ssid = jsonRead["net_ssid"];
+  const char *api_url = jsonRead["api_url"];
   aula_id = jsonRead["aula"].as<String>(); // Per API raggiungibile a /info
 
   // Solo se viene richiesto l'ip statico processo i dati
@@ -211,7 +202,7 @@ void setup()
   }
 
   WiFi.mode(WIFI_STA);
-  WiFi.begin(net_ssid, net_pswd); // Provo a eseguire una connessione con le credenziali che ho
+  WiFi.begin(net_ssid.c_str(), net_pswd.c_str()); // Provo a eseguire una connessione con le credenziali che ho
 
   Serial.println("Connecting");
 
@@ -236,8 +227,10 @@ void setup()
     // Connessione stabilita
     Serial.println(WiFi.localIP().toString().c_str());
 
-    // Setto http sull'indirizzo del mio server
-    String http_address = String(api_url) + "?stanza=" + aula_id; // Creo l'url per indirizzo API
+    // Creo l'url per indirizzo API
+    String http_address(api_url);
+    http_address.concat("?stanza=");
+    http_address.concat(aula_id);
 
     Serial.print("Richiesta settata su: "); // Stampo l'indirizzo
     Serial.println(http_address);
@@ -299,13 +292,14 @@ void setup()
   }
   else
   {
-    //Creo una stringa random e la aggiungo al device
-    for (int i = 0; i < 3; i++)
-    {
-      random_id += char(random('a', 'z' + 1));
-    }
+    // Problemi di connessione (probabilmente rete non raggiungibile e/o settato)
 
-    // Problemi di connessione (probabilmente rete non raggiungibile e/o settato), avvio accesss Point
+    // Creo una stringa random e la aggiungo al device
+    String random_id("SOMMM_");
+    for (int i = 0; i < 3; i++)
+      random_id.concat(char(random('a', 'z' + 1)));
+
+    // avvio accesss Point
     WiFi.disconnect(true); // Disconnetto la wifi
     WiFi.mode(WIFI_AP);    // Wifi Mode accesss-Point
 
@@ -344,12 +338,11 @@ void tabella()
 {
   // CREO LA RICHIESTA ALLE API
 
-  httpCode = http.GET();
+  int httpCode = http.GET();
   String response = http.getString();
-  payload = response.c_str();
 
   Serial.println(httpCode);
-  Serial.println(payload);
+  Serial.println(response);
 
   http.end();
 
@@ -371,7 +364,7 @@ void tabella()
   const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
   DynamicJsonDocument doc(bufferSize);
 
-  DeserializationError error = deserializeJson(doc, payload);
+  DeserializationError error = deserializeJson(doc, response);
   if (error) // Se errore a elaborare json
   {
     Serial.print("deserializeJson() line552 failed: ");
