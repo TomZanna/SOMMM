@@ -67,6 +67,7 @@
 #include <AsyncJson.h>
 
 #include "page/Page.hpp"
+#include <JsonMapper.hpp>
 
 AsyncWebServer server(1518); // settaggio server sulla porta 1518
 
@@ -382,13 +383,6 @@ void tabella()
   giorno_settimana -= 1;
   int oraAttuale = doc["oraAttuale"]; // 3
 
-  // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "OGGI"
-  JsonArray oggi = doc["oggi"]; // Oggetto "oggi" contenente tutte le informazioni
-  /* Matrice di strighe contenente le informazioni del girno in corso.
-   * Ad ogni riga equivale un'ora e ad ogni colonna un'informazione. 
-   */
-  const char *today_matrix[10][5];
-
   if (doc["oggi"].size() == 0) {
     page.not_school("Oggi non c'e` scuola, buon riposo ;P");
     return;
@@ -399,52 +393,13 @@ void tabella()
     return;
   }
 
-  {
-    int row, column;
-    row = 0;
-    // per ogni oggetto oraN presente nell'array oggi
-    for(JsonObject oraN: oggi) {
-      column = 0;
-      // per ogni coppia key-value nell'oggetto oraN
-      for(JsonPair pair: oraN){
-        // se supero le massime dimensioni dell'array mi fermo
-        if(column>=5) break;
-        // copio il riferimento alla stringa nella cella della matrice
-        today_matrix[row][column] = pair.value();
-        column++;
-      }
-      // se supero le massime dimensioni dell'array mi fermo
-      if(row>=10) break;
-      row++;
-    }
-  }
+  // Matrice di puntatori a stringhe con le info del giorno in corso
+  const char *today_matrix[10][5];
 
-  // CREAZIONE DELL'OGGETTO CONTENENTE I DATI RIGUARDANTI A "SETTIMANA"
-  JsonObject settimana = doc["settimana"]; // Oggetto "settima" contenente tutte le informazioni
-  /* Matrice di strighe contenente le informazioni di tutta la settimana.
-   * Ad ogni riga equivale un giorno della settimana e ad ogni colonna un'informazione. 
-   */
+  // Matrice di puntatori a stringhe con le info della settima in corso
   const char *settimana_matrix[6][6];
-  
-  {
-    int row, column;
-    row = 0;
-    // per ogni oggetto giornoN presente nell'array settimana
-    for(JsonPair giornoN: settimana) {
-      column = 0;
-      // per ogni coppia key-value nell'oggetto giornoN
-      for(JsonPair oraN: giornoN.value().as<JsonObject>()){
-        // se supero le massime dimensioni dell'array mi fermo
-        if(column>=6) break;
-        // copio il riferimento alla stringa nella cella della matrice
-        settimana_matrix[row][column] = oraN.value();
-        column++;
-      }
-      // se supero le massime dimensioni dell'array mi fermo
-      if(row>=6) break;
-      row++;
-    }
-  }
+
+  json2array(doc, settimana_matrix, today_matrix);
 
   page.tabella(giorno_settimana, oraAttuale, stanza, giorno, today_matrix, settimana_matrix);
 }
