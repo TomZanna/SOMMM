@@ -69,32 +69,16 @@
 #include "page/Page.hpp"
 #include <JsonMapper.hpp>
 
-AsyncWebServer server(1518); // settaggio server sulla porta 1518
-
 // FUNZIONI DEFINITE INIZIALMENTE PER POI ESSERE IMPLEMENTATE
 void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json);
 void setup_server();
-void tabella();                        // funzione per il disegno della tabella principale
-void log_error(String error_m);        // funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
+void tabella();                 // funzione per il disegno della tabella principale
+void log_error(String error_m); // funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
-
-enum wifi_stat
-{
-  MY_WL_NO_SHIELD = 255,
-  MY_WL_IDLE_STATUS = 0,
-  MY_WL_NO_SSID_AVAIL = 1,
-  MY_WL_SCAN_COMPLETED = 2,
-  MY_WL_CONNECTED = 3,
-  MY_WL_CONNECT_FAILED = 4,
-  MY_WL_CONNECTION_LOST = 5,
-  MY_WL_DISCONNECTED = 6,
-};
-
 const char *version = "v2.2.1.0 x32";
 
 //CREDENZIALI WEB
-
 const char *www_username = "SOMMM";
 const char *www_password = "laPasswordQui";
 
@@ -105,6 +89,7 @@ String aula_id = "";
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
 
 HTTPClient http;
+AsyncWebServer server(1518); // settaggio server sulla porta 1518
 
 GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT> display(GxEPD2_750(15, 27, 26, 25));
 PageSystem page(display);
@@ -117,8 +102,8 @@ void setup()
   Serial.println();
   Serial.println("SOMMM STARTUP");
   delay(100);
-  page.initDisplay();
 
+  page.initDisplay();
   page.startup(version);
 
   // Monto il mio SPIFFS File System
@@ -132,11 +117,10 @@ void setup()
     Serial.println("File system montato");
   }
 
-  // Dichiaro che il file da aprire è il config.json
-
+  // Apro il file config.json in sola lettura
   File config_json_file = SPIFFS.open("/config.json", "r");
 
-  String file_config = config_json_file.readStringUntil('\n'); // questo è il nostro config.js salvato su stringa
+  String file_config = config_json_file.readStringUntil('\n'); // Leggo la prima riga del file
 
   // Creo buffer JSON per la lettura del file config.json
   DynamicJsonDocument jsonRead(1024);
@@ -169,17 +153,21 @@ void setup()
 
   // Solo se viene richiesto l'ip statico processo i dati
   JsonObject static_config = jsonRead["net_static"].as<JsonObject>();
-  if (!static_config.isNull()) {
+  if (!static_config.isNull())
+  {
     // Memorizzo le chiavi così la matrice sarà sempre nello stesso ordine
     const char *settingsKeys[] = {"net_ip", "net_sm", "net_dfgw", "net_dns"};
 
-    // Copio le impostazioni in una matrice contenente nell'ordine 
-    // indirizzo ip, subnet mask, default gateway e dns 
+    // Copio le impostazioni in una matrice contenente nell'ordine
+    // indirizzo ip, subnet mask, default gateway e dns
     uint8_t settings[4][4];
-    for(int row = 0; row<4; row++){
-      int column=0;
-      for(JsonVariant settingN: static_config[settingsKeys[row]].as<JsonArray>()){
-        if(column>=4) break;
+    for (int row = 0; row < 4; row++)
+    {
+      int column = 0;
+      for (JsonVariant settingN : static_config[settingsKeys[row]].as<JsonArray>())
+      {
+        if (column >= 4)
+          break;
         settings[row][column] = settingN.as<int>();
         column++;
       }
@@ -209,9 +197,8 @@ void setup()
 
   const unsigned long start_c = millis();
   unsigned long counter = 0;
-  const unsigned long soglia = 40000; // soglia di controllo per passare il AP (default 40s)
 
-  while (WiFi.status() != WL_CONNECTED && counter < soglia) // Wait for connection
+  while (WiFi.status() != WL_CONNECTED && counter < 40000) // Wait for connection
   {
     counter = millis() - start_c;
     Serial.println(counter);
@@ -327,18 +314,16 @@ void loop()
     
     if ((millis() - timeCounter) >= delay_time)
     {
-      // mando la richiesta
       Serial.println("--------------------");
-      tabella();
-      timeCounter = millis(); // azzerro il contatore
+      tabella();              // Aggiorno il display
+      timeCounter = millis(); // Azzerro il contatore
     }
   }
 }
 
 void tabella()
 {
-  // CREO LA RICHIESTA ALLE API
-
+  // Invio la richiesta alle API
   int httpCode = http.GET();
   String response = http.getString();
 
@@ -346,11 +331,6 @@ void tabella()
   Serial.println(response);
 
   http.end();
-
-  /**
-    !!!!PAURISSIMAAA!!!!!
-    Provo a gestire l'interpretazione del mio json
-  */
 
   if (httpCode < 0)
   {
@@ -362,6 +342,7 @@ void tabella()
 
   // TODO: Valutare e implementare, se possibile, un do-while sulla richiesta fino a quando httpCode > 0
 
+  // Provo a gestire l'interpretazione del mio json
   const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
   DynamicJsonDocument doc(bufferSize);
 
@@ -383,7 +364,8 @@ void tabella()
   giorno_settimana -= 1;
   int oraAttuale = doc["oraAttuale"]; // 3
 
-  if (doc["oggi"].size() == 0) {
+  if (doc["oggi"].size() == 0)
+  {
     page.not_school("Oggi non c'e` scuola, buon riposo ;P");
     return;
   }
@@ -404,32 +386,37 @@ void tabella()
   page.tabella(giorno_settimana, oraAttuale, stanza, giorno, today_matrix, settimana_matrix);
 }
 
-void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json) {
-  if (!SPIFFS.begin()) { // controllo di aver accesso al filesystem
+void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json)
+{
+  if (!SPIFFS.begin())
+  { // controllo di aver accesso al filesystem
     // Se viene visualizzato c'è un problema al filesystem
     richiesta->send(500, "text/plain", "Impossibile leggere la configurazione attualmente memorizzata"); // messaggio di callback per client web
 
     Serial.println("SPIFFS2 Mount failed");
     page.error("Errore caricamento File System");
     return;
-  } else Serial.println("SPIFFS2 Mount succesfull");
+  }
+  else
+    Serial.println("SPIFFS2 Mount succesfull");
 
   canRequest = false;
 
   if (!richiesta->authenticate(www_username, www_password))
     return richiesta->requestAuthentication();
 
-  if(json["net_pswd"]!="") {
+  if (json["net_pswd"] != "")
+  {
     // salvo la password su un file non accessibile dalla rete
     File pswdFile = SPIFFS.open("/passwd.txt", "w");
-    pswdFile.printf("%s\n",json["net_pswd"].as<char *>());
+    pswdFile.printf("%s\n", json["net_pswd"].as<char *>());
     pswdFile.close();
   }
-  json["net_pswd"]="x"; // la password non deve essere esposta all'esterno
+  json["net_pswd"] = "x"; // la password non deve essere esposta all'esterno
 
   File configFile = SPIFFS.open("/config.json", "w");
-  serializeJson(json, configFile);   // salvo la nuova configurazione
-  serializeJson(json, Serial); // stampo la nuova configurazione
+  serializeJson(json, configFile); // salvo la nuova configurazione
+  serializeJson(json, Serial);     // stampo la nuova configurazione
 
   configFile.close();
   SPIFFS.end();
