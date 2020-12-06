@@ -69,11 +69,14 @@
 #include "page/Page.hpp"
 #include <JsonMapper.hpp>
 
+#include <mbedtls/md.h>
+
 // FUNZIONI DEFINITE INIZIALMENTE PER POI ESSERE IMPLEMENTATE
 void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json);
 void setup_server();
-void tabella();                 // funzione per il disegno della tabella principale
-void log_error(String error_m); // funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
+void tabella();                                           // funzione per il disegno della tabella principale
+void log_error(String error_m);                           // funzione per il salvataggio di messaggi di log viisibile attraverso il webserver /error_log
+void computeSha256(const char *payload, char *shaResult); // funzione che calcola l'hash SHA256 di una stringa
 
 // DEFINIZIONE DELLE VARIABILI GLOBALI NECESSARIE AL SISTEMA
 const char *version = "v2.2.1.0 x32";
@@ -87,6 +90,8 @@ bool canRequest = false;
 String aula_id = "";
 
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
+
+char previousSha[32];
 
 HTTPClient http;
 AsyncWebServer server(1518); // settaggio server sulla porta 1518
@@ -342,6 +347,17 @@ void tabella()
 
   // TODO: Valutare e implementare, se possibile, un do-while sulla richiesta fino a quando httpCode > 0
 
+  char shaResult[32];
+  computeSha256(response.c_str(), shaResult); // Calcolo lo SHA256 della nuova risposta
+
+  // Se corrisponde a quello precedente, esco
+  if (!memcmp(previousSha, shaResult, 32))
+  {
+    Serial.println("Nessun cambiamento rispetto a prima");
+    return;
+  }
+  memcpy(previousSha, shaResult, 32); // Altrimenti salvo il nuovo valore
+
   // Provo a gestire l'interpretazione del mio json
   const size_t bufferSize = 7 * JSON_ARRAY_SIZE(10) + 10 * JSON_OBJECT_SIZE(5) + 2 * JSON_OBJECT_SIZE(6) + 1050;
   DynamicJsonDocument doc(bufferSize);
@@ -457,4 +473,19 @@ void setup_server()
   server.serveStatic("/error_log", SPIFFS, "/log.txt");
   server.serveStatic("/config", SPIFFS, "/config.json");
   server.begin(); // Faccio partire il server
+}
+
+void computeSha256(const char *payload, char *shaResult)
+{
+  mbedtls_md_context_t ctx;
+  mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
+
+  const size_t payloadLength = strlen(payload);
+
+  mbedtls_md_init(&ctx);
+  mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
+  mbedtls_md_starts(&ctx);
+  mbedtls_md_update(&ctx, (const unsigned char *)payload, payloadLength);
+  mbedtls_md_finish(&ctx, (unsigned char *)shaResult);
+  mbedtls_md_free(&ctx);
 }
