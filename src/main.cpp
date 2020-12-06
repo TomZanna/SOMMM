@@ -89,9 +89,11 @@ bool canRequest = false;
 
 String aula_id = "";
 
+#define SLEEP_SWITCH GPIO_NUM_33
+unsigned long timeCounter = 0;
 const unsigned long delay_time = 300000; // Intervallo di aggiornamento richiesta e display -> 5 minuti
 
-char previousSha[32];
+RTC_DATA_ATTR char previousSha[32];
 
 HTTPClient http;
 AsyncWebServer server(1518); // settaggio server sulla porta 1518
@@ -109,7 +111,10 @@ void setup()
   delay(100);
 
   page.initDisplay();
-  page.startup(version);
+  if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_UNDEFINED)
+    page.startup(version);
+
+  pinMode(SLEEP_SWITCH, INPUT_PULLDOWN);
 
   // Monto il mio SPIFFS File System
   if (!SPIFFS.begin())
@@ -232,56 +237,61 @@ void setup()
 
     http.begin(http_address); // configuro e avvio http sul'url precedentemente dichiarato
 
-    setup_server();
+    // Non configuro server/OTA se e' abilitato il deep sleep
+    if (!digitalRead(SLEEP_SWITCH))
+    {
+      setup_server();
 
-    // Port defaults to 3232
-    ArduinoOTA.setPort(1815);
+      // Port defaults to 3232
+      ArduinoOTA.setPort(1815);
 
-    // Hostname defaults to esp3232-[MAC]
-    // ArduinoOTA.setHostname("myesp32");
+      // Hostname defaults to esp3232-[MAC]
+      // ArduinoOTA.setHostname("myesp32");
 
-    // No authentication by default
-    ArduinoOTA.setPassword("laPasswordQui");
+      // No authentication by default
+      ArduinoOTA.setPassword("laPasswordQui");
 
-    // Password can be set with it's md5 value as well
-    // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
-    // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+      // Password can be set with it's md5 value as well
+      // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
+      // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
 
-    ArduinoOTA
-        .onStart([]() {
-          String type;
-          if (ArduinoOTA.getCommand() == U_FLASH)
-            type = "sketch";
-          else // U_SPIFFS
-            type = "filesystem";
+      ArduinoOTA
+          .onStart([]() {
+            String type;
+            if (ArduinoOTA.getCommand() == U_FLASH)
+              type = "sketch";
+            else // U_SPIFFS
+              type = "filesystem";
 
-          // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-          SPIFFS.end();
-          Serial.println("Start updating " + type);
-        })
-        .onEnd([]() {
-          Serial.println("\nEnd");
-        })
-        .onProgress([](unsigned int progress, unsigned int total) {
-          Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-        })
-        .onError([](ota_error_t error) {
-          Serial.printf("Error[%u]: ", error);
-          if (error == OTA_AUTH_ERROR)
-            Serial.println("Auth Failed");
-          else if (error == OTA_BEGIN_ERROR)
-            Serial.println("Begin Failed");
-          else if (error == OTA_CONNECT_ERROR)
-            Serial.println("Connect Failed");
-          else if (error == OTA_RECEIVE_ERROR)
-            Serial.println("Receive Failed");
-          else if (error == OTA_END_ERROR)
-            Serial.println("End Failed");
-        });
+            // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+            SPIFFS.end();
+            Serial.println("Start updating " + type);
+          })
+          .onEnd([]() {
+            Serial.println("\nEnd");
+          })
+          .onProgress([](unsigned int progress, unsigned int total) {
+            Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+          })
+          .onError([](ota_error_t error) {
+            Serial.printf("Error[%u]: ", error);
+            if (error == OTA_AUTH_ERROR)
+              Serial.println("Auth Failed");
+            else if (error == OTA_BEGIN_ERROR)
+              Serial.println("Begin Failed");
+            else if (error == OTA_CONNECT_ERROR)
+              Serial.println("Connect Failed");
+            else if (error == OTA_RECEIVE_ERROR)
+              Serial.println("Receive Failed");
+            else if (error == OTA_END_ERROR)
+              Serial.println("End Failed");
+          });
 
-    ArduinoOTA.begin();
+      ArduinoOTA.begin();
+    }
 
     tabella();
+    timeCounter = millis();
   }
   else
   {
@@ -308,15 +318,19 @@ void setup()
   config_json_file.close();
 }
 
-unsigned long timeCounter = millis();
-
 void loop()
 {
-
   if (canRequest)
   {
+    if (digitalRead(SLEEP_SWITCH))
+    {
+      esp_sleep_enable_ext0_wakeup(SLEEP_SWITCH, 0); // Abilito il risveglio tramite pin
+      Serial.println("Vado a dormire...");
+      ESP.deepSleep(delay_time * 1000); // Tempo in µs
+    }
+
     ArduinoOTA.handle();
-    
+
     if ((millis() - timeCounter) >= delay_time)
     {
       Serial.println("--------------------");
