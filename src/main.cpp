@@ -376,10 +376,10 @@ void tabella()
   }
 
   // Matrice di puntatori a stringhe con le info del giorno in corso
-  const char *today_matrix[10][5];
+  const char *today_matrix[10][5] = {""};
 
   // Matrice di puntatori a stringhe con le info della settima in corso
-  const char *settimana_matrix[6][6];
+  const char *settimana_matrix[6][6] = {""};
 
   json2array(doc, settimana_matrix, today_matrix);
 
@@ -423,6 +423,7 @@ void save_json(AsyncWebServerRequest *richiesta, JsonVariant &json)
 
   // messaggio di callback per client web
   richiesta->send(200, "text/plain", "Salvataggio effettuato correttamente. Riavvia SOMMM.");
+  delay(300);
   ESP.restart();
 }
 

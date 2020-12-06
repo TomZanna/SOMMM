@@ -230,7 +230,7 @@ void PageSystem::tabella(int giorno_settimana, int oraAttuale, const char *stanz
             display.setFont(&FreeSans9pt7b);
 
             display.setCursor(342, 90 + 54 * j);
-            display.println(j + 1);
+            display.println(j + offset + 1);
 
             if (j + 1 == oraAttuale)
                 display.fillRect(340, pos_y[j], 15, 5, GxEPD_BLACK); // Evidenzio l'ora attuale
